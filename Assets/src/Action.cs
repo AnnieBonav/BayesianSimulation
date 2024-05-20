@@ -11,7 +11,7 @@ public enum Need
     DetectiveNeed
 }
 
-public enum TOD
+public enum TOD_DESCRIBER
 {
     Morning,
     Afternoon,

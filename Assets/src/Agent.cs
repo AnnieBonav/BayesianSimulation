@@ -52,7 +52,7 @@ public class Agent : MonoBehaviour
         float detectivenessIncrease = Mathf.Round(1f / 6.2f * 10000f) / 10000f;
         float relaxationIncrease = Mathf.Round(1f / 4.8f * 10000f) / 10000f;
         
-        print("The increases: " + hungerIncrease + " " + tirednessIncrease + " " + bladderIncrease + " " + detectivenessIncrease + " " + relaxationIncrease);
+        // print("The increases: " + hungerIncrease + " " + tirednessIncrease + " " + bladderIncrease + " " + detectivenessIncrease + " " + relaxationIncrease);
         foreach(State state in states)
         {
             switch (state.Need)
