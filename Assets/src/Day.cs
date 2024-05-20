@@ -43,12 +43,16 @@ public class Day : MonoBehaviour
     [SerializeField] private TextMeshProUGUI digitalClockLabel;
     [SerializeField] private TextMeshProUGUI modTextLabel;
     
-    public void Start()
+    private void Awake() {
+        observers = new List<Agent>();
+    }
+
+    private void Start()
     {
-        simMinInSimDay = simHrInSimDay * simMinInSimHr;
-        rtSecInSimDay = rtMinInSimDay * 60; // The total seconds a day lasts is the amount of time the user wants the day to be in RT (in minutes) times how many seconds are in a minute (60)
-        simMODInSimMin = simMinInSimDay / 4; // The amount of minutes a moment of the day (MOD) lasts is the amount of minutes in a Sim Day divided by 4 (4 moments in a day)
-        rtSecInSimMin = (float)rtSecInSimDay / (float)simMinInSimDay; // LIKED
+        simMinInSimDay = simHrInSimDay * simMinInSimHr; // CHECKED
+        rtSecInSimDay = rtMinInSimDay * 60; // The total seconds a day lasts is the amount of time the user wants the day to be in RT (in minutes) times how many seconds are in a minute (60) // CHECKED
+        simMODInSimMin = simMinInSimDay / 4; // The amount of minutes a moment of the day (MOD) lasts is the amount of minutes in a Sim Day divided by 4 (4 moments in a day) // CHECKED
+        rtSecInSimMin = (float)rtSecInSimDay / simMinInSimDay; // CHECKED
         modTextLabel.text = modTag.ToString();
 
         print($"STARTED: {this}");
@@ -56,23 +60,18 @@ public class Day : MonoBehaviour
 
     private float GetHour()
     {
-        // not rtTotalTimeSec in [0]
-        // currentTODMin * hoursInDay / dayDurationSec
-        return  simCurrDayMin / 60 % simHrInSimDay; // LIKED
+        return  simCurrDayMin / 60 % simHrInSimDay; // CHECKED
     }
 
     // TODO: Could probably just be saved? Returns the minutes in the day
     private float GetAllMinutes()
     {
-        // currentTODMin * hoursInDay * minutesInHour / dayDurationSec
-        return simCurrDayMin * simHrInSimDay * simMinInSimDay / rtMinInSimDay;
-        // return (currentTODMin * hoursInDay * minutesInHour / dayDurationSec) % dayNumber;
+        return simCurrDayMin * simHrInSimDay * simMinInSimDay / rtMinInSimDay; // CHECKED
     }
 
     private float GetMinutes()
     {
-        // urrentTODMin * hoursInDay * minutesInHour / dayDurationSec) % minutesInHour
-        return simCurrDayMin % simMinInSimHr; // LIKED
+        return simCurrDayMin % simMinInSimHr; // CHECKED
     }
 
     private void CheckTimeOfDay()
@@ -125,9 +124,9 @@ public class Day : MonoBehaviour
         
         rtTotalTimeSec += Time.deltaTime;
 
-        simAllMin = Mathf.FloorToInt(rtTotalTimeSec / rtSecInSimMin); // LIKED
-        simCurrDayMin = simAllMin % simMinInSimDay; // LIKED
+        simAllMin = Mathf.FloorToInt(rtTotalTimeSec / rtSecInSimMin); // CHECKED
+        simCurrDayMin = simAllMin % simMinInSimDay; // CHECKED
 
-        digitalClockLabel.text = Mathf.FloorToInt(GetHour()).ToString("00") + ":" + Mathf.FloorToInt(GetMinutes()).ToString("00");
+        digitalClockLabel.text = Mathf.FloorToInt(GetHour()).ToString("00") + ":" + Mathf.FloorToInt(GetMinutes()).ToString("00"); // CHECKED
     }
 }

@@ -1139,7 +1139,7 @@ GameObject:
   - component: {fileID: 723626552}
   - component: {fileID: 723626551}
   m_Layer: 5
-  m_Name: TOD_DESCRIPTION
+  m_Name: MOD_Tag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2065,15 +2065,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88ef82d2bc2c348f8856c1f867f205c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeOfDay: 0
-  totalTime: 0
-  dayDurationMin: 2
-  timeOfDayText: {fileID: 309512025}
-  todDescriber: 0
-  timeOfDayDescriberText: {fileID: 723626551}
+  rtMinInSimDay: 1
+  modTag: 0
   agent: {fileID: 669082639}
-  dayPartDuration: 0
-  dayNumber: 0
+  digitalClockLabel: {fileID: 309512025}
+  modTextLabel: {fileID: 723626551}
 --- !u!4 &1734314897
 Transform:
   m_ObjectHideFlags: 0
