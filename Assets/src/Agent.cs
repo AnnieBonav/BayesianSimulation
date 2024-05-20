@@ -89,7 +89,10 @@ public class Agent : MonoBehaviour
 
         var infoJson = new Dictionary<string, object>
         {
-            {"current_time", day.TimeOfDay},
+            {"all_time_passed", day.SimAllMin},
+            {"day_number", day.SimDay},
+            {"current_day_time", day.SimCurrDayMin},
+            {"moment_of_day", day.ModTag.ToString()},
             {"entry_type", "time_increase"},
             {"delta_mins", minutes},
             {"character_name", name},

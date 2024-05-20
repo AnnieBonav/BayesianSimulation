@@ -11,7 +11,8 @@ public enum Need
     DetectiveNeed
 }
 
-public enum TOD_DESCRIBER
+// Moment of Day Tag
+public enum MOD_TAG
 {
     Morning,
     Afternoon,

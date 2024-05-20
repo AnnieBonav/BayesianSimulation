@@ -1,117 +1,120 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI;
 
 public class Day : MonoBehaviour
 {
+    [Header("Time of Day Settings (will alter the simulation Real Time)")]
+    [SerializeField, Tooltip("How many hours on the Simulation Day (Simulation Hours in Simulation Day)")] private const int simHrInSimDay = 24;
+
+    [SerializeField, Tooltip("How many minutes on the Simulation Hour (Simulation Minutes in Simulation Hour)")] private const int simMinInSimHr = 60;
+    [ReadOnly] private int simMinInSimDay = -1;
+
+    [SerializeField, Tooltip("How many minutes a Simulation Day should last in Real Time (Real Time Minutes in Simulation Day)")] private int rtMinInSimDay = 2;
     
-    [SerializeField]
-    private float timeOfDay = 0.0f;
-    public float TimeOfDay => timeOfDay;
+    [ReadOnly, Tooltip("Day Duration Real Time Sec, defined by the above (used for calculations)")] private int rtSecInSimDay = -1;
+    [ReadOnly, Tooltip("Min Duration Real Time Sec")] private float rtSecInSimMin = -1;
+    [ReadOnly, Tooltip("Represents how long a Moment Of Day in the Simulation (morning, evening...) lasts in Simulation minutes")] private int simMODInSimMin = -1;
 
-    [SerializeField]
-    private float totalTime = 0.0f;
-    public float TotalTime => totalTime;
+    [Header("Current Simulation Time info (Read Only)")]
+    [ReadOnly, Tooltip("All time passed in Simulation in RT seconds")] private float rtTotalTimeSec = 0.0f;
+    public float RTTotalTimeSec => rtTotalTimeSec;
+    [ReadOnly, Tooltip("All minutes in Simulation (all Days)")] private int simAllMin = 0;
+    // The last and current minutes (of the current hour) help with calculations (mainly calling the agents to update)
+    public int SimAllMin => simAllMin;
+    [ReadOnly, Tooltip("Current min in Simulation all Day Hours")] private int simCurrDayMin = 0;
+    public int SimCurrDayMin => simCurrDayMin;
+    // The last and current minutes (of the current hour) help with calculations (mainly calling the agents to update)
+    [ReadOnly, Tooltip("Last min in Simulation current Hour")] private int simLastMinCurrHr = 0;
+    [ReadOnly, Tooltip("Current min in Simulation current Hour")] private int simCurrMinCurrHr = 0;
 
-    [SerializeField]
-    private const int hoursInDay = 24;
+    [Header("Current Simulation Moment of Day Info")]
+    [ReadOnly] private int simDay = 1;
+    public int SimDay => simDay;
+    [SerializeField] private MOD_TAG modTag;
+    public MOD_TAG ModTag => modTag;
 
-    [SerializeField]
-    private const int minutesInHour = 60;
-
-    public int dayDurationMin = 2;
-    private float dayDurationSec;
-
-    [SerializeField]
-    private TextMeshProUGUI timeOfDayText;
-
-    [SerializeField]
-    private TOD_DESCRIBER todDescriber;
-    public TOD_DESCRIBER TimeOfDayDescriber => todDescriber;
-
-    [SerializeField]
-    private TextMeshProUGUI timeOfDayDescriberText;
-
-    // TODO: Cahnge to be an event that the agent subscribes to
-    [SerializeField]
-    private Agent agent;
-
+    [Header("Subscribed agents")]
+    // TODO: Change to be an event that the agent subscribes to
+    [SerializeField] private Agent agent;
     private List<Agent> observers;
 
-    private int lastMinute = 0;
-    private int currentMinute = 0;
-
-    [SerializeField]
-    private int dayPartDuration = 0;
-    [SerializeField]
-    private int dayNumber = 0;
-    public int DayNumber => dayNumber;
+    [Header("UI Elements")]
+    [SerializeField] private TextMeshProUGUI digitalClockLabel;
+    [SerializeField] private TextMeshProUGUI modTextLabel;
     
     public void Start()
     {
-        dayDurationSec = dayDurationMin * 60;
-        timeOfDayText.text = timeOfDay.ToString();
-        dayPartDuration = (int)(dayDurationSec / 4);
+        simMinInSimDay = simHrInSimDay * simMinInSimHr;
+        rtSecInSimDay = rtMinInSimDay * 60; // The total seconds a day lasts is the amount of time the user wants the day to be in RT (in minutes) times how many seconds are in a minute (60)
+        simMODInSimMin = simMinInSimDay / 4; // The amount of minutes a moment of the day (MOD) lasts is the amount of minutes in a Sim Day divided by 4 (4 moments in a day)
+        rtSecInSimMin = (float)rtSecInSimDay / (float)simMinInSimDay; // LIKED
+        modTextLabel.text = modTag.ToString();
+
+        print($"STARTED: {this}");
     }
 
     private float GetHour()
     {
-        return timeOfDay * hoursInDay / dayDurationSec;
+        // not rtTotalTimeSec in [0]
+        // currentTODMin * hoursInDay / dayDurationSec
+        return  simCurrDayMin / 60 % simHrInSimDay; // LIKED
     }
 
     // TODO: Could probably just be saved? Returns the minutes in the day
     private float GetAllMinutes()
     {
-        return timeOfDay * hoursInDay * minutesInHour / dayDurationSec;
-        // return (timeOfDay * hoursInDay * minutesInHour / dayDurationSec) % dayNumber;
+        // currentTODMin * hoursInDay * minutesInHour / dayDurationSec
+        return simCurrDayMin * simHrInSimDay * simMinInSimDay / rtMinInSimDay;
+        // return (currentTODMin * hoursInDay * minutesInHour / dayDurationSec) % dayNumber;
     }
 
     private float GetMinutes()
     {
-        return (timeOfDay * hoursInDay * minutesInHour / dayDurationSec) % minutesInHour;
+        // urrentTODMin * hoursInDay * minutesInHour / dayDurationSec) % minutesInHour
+        return simCurrDayMin % simMinInSimHr; // LIKED
     }
 
     private void CheckTimeOfDay()
     {
-        int allMInutes = Mathf.FloorToInt(GetAllMinutes());
-        print("All minutes: " + allMInutes + " Day part duration: " + dayPartDuration);
+        print("All Sim minutes: " + simAllMin + "All Sim minutes in Day" + simCurrDayMin + " Day Moment of Day duration in min: " + simMODInSimMin);
+
         // TODO: Change this to have timers, so that there is no need to check every frame
         // Could add a TOD class and whenever it is changed it will notify the agents
-        if (allMInutes >= 0 && allMInutes < dayPartDuration)
+        if (simCurrDayMin >= 0 && simCurrDayMin < simMODInSimMin)
         {
-            todDescriber = TOD_DESCRIBER.Morning;
-            timeOfDayDescriberText.text = "Morning";
+            modTag = MOD_TAG.Morning;
+            modTextLabel.text = "Morning";
         }
-        else if (allMInutes >= dayPartDuration && allMInutes < dayPartDuration * 2)
+        else if (simCurrDayMin >= simMODInSimMin && simCurrDayMin < simMODInSimMin * 2)
         {
-            todDescriber = TOD_DESCRIBER.Afternoon;
-            timeOfDayDescriberText.text = "Afternoon";
+            modTag = MOD_TAG.Afternoon;
+            modTextLabel.text = "Afternoon";
         }
-        else if (allMInutes >= dayPartDuration * 2 && allMInutes < dayPartDuration * 3)
+        else if (simCurrDayMin >= simMODInSimMin * 2 && simCurrDayMin < simMODInSimMin * 3)
         {
-            todDescriber = TOD_DESCRIBER.Evening;
-            timeOfDayDescriberText.text = "Evening";
+            modTag = MOD_TAG.Evening;
+            modTextLabel.text = "Evening";
         }
         else
         {
-            todDescriber = TOD_DESCRIBER.Night;
-            timeOfDayDescriberText.text = "Night";
+            modTag = MOD_TAG.Night;
+            modTextLabel.text = "Night";
         }
 
-        // TODO: fix day passing not working (stuck in morning of next day)
-        // if(allMInutes >= dayDurationMin)
-        // {
-        //     dayNumber++;
-        // }
+        // TODO: fix day passing, could be better
+        simDay = simAllMin / simMinInSimDay; // LIKED
     }
 
     private void PassTime()
     {
-        currentMinute = Mathf.FloorToInt(GetMinutes());
-        if(lastMinute < currentMinute){
-            lastMinute = currentMinute;
+        simCurrMinCurrHr = Mathf.FloorToInt(GetMinutes());
+        if(simLastMinCurrHr < simCurrMinCurrHr){
+            simLastMinCurrHr = simCurrMinCurrHr;
             agent.PassTime(1);
+        }
+        else if(simLastMinCurrHr == 59 && simCurrMinCurrHr == 0){
+            simLastMinCurrHr = 0;
         }
     }
 
@@ -120,29 +123,11 @@ public class Day : MonoBehaviour
         PassTime();
         CheckTimeOfDay();
         
-        totalTime += Time.deltaTime;
-        timeOfDay = totalTime % dayDurationSec;
-        timeOfDayText.text = Mathf.FloorToInt(GetHour()).ToString("00") + ":" + Mathf.FloorToInt(GetMinutes()).ToString("00");
-    }
+        rtTotalTimeSec += Time.deltaTime;
 
-    public void TickInMin(int minutes = 10, int times = 1)
-    {
-        for (int i = 0; i < times; i++)
-        {
-            foreach (var agent in observers)
-            {
-                agent.PassTime(minutes);
-            }
-            timeOfDay += minutes;
-        }
-    }
+        simAllMin = Mathf.FloorToInt(rtTotalTimeSec / rtSecInSimMin); // LIKED
+        simCurrDayMin = simAllMin % simMinInSimDay; // LIKED
 
-    public void FakePassTime(int minutes = 10, string activity = null, string action = null)
-    {
-        foreach (var agent in observers)
-        {
-            agent.PassTime(minutes, activity, action);
-        }
-        timeOfDay += minutes;
+        digitalClockLabel.text = Mathf.FloorToInt(GetHour()).ToString("00") + ":" + Mathf.FloorToInt(GetMinutes()).ToString("00");
     }
 }
