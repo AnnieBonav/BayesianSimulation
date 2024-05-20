@@ -110,7 +110,7 @@ public class Day : MonoBehaviour
         simCurrMinCurrHr = Mathf.FloorToInt(GetMinutes());
         if(simLastMinCurrHr < simCurrMinCurrHr){
             simLastMinCurrHr = simCurrMinCurrHr;
-            agent.PassTime(1);
+            agent.PassTime();
         }
         else if(simLastMinCurrHr == 59 && simCurrMinCurrHr == 0){
             simLastMinCurrHr = 0;

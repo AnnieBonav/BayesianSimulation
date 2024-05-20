@@ -5,54 +5,47 @@ using Random = UnityEngine.Random;
 
 public class Agent : MonoBehaviour
 {
-    [SerializeField]
-    private string name;
-    public string Name => name;
+    [SerializeField] private string agentName;
+    public string AgentName => agentName;
 
-    [SerializeField]
-    private Day day;
+    [SerializeField] private Day day;
 
-    [SerializeField]
-    private List<State> states;
+    [SerializeField] private List<State> states;
     public List<State> States => states;
 
     public List<Dictionary<string, object>> actionsHistory;
-    public bool fakeTime = true;
 
-    public void Start()
+    public void Awake()
     {
-         actionsHistory = new List<Dictionary<string, object>>();
+        actionsHistory = new List<Dictionary<string, object>>();
     }
 
     // Affected need should come from the action (multiple needs could be affected)
     public void PerformAction(Action action, Need affectedNeed)
     {
-        if (fakeTime)
-        {
-            // day.FakePassTime(action.timeInMin, "affectedNeed", action.name);
-        }
-        
         foreach(State state in states)
         {
             Debug.Log(state);
             if(state.Need == affectedNeed)
             {
-                state.Decrease(action.value);
+                state.Decrease(action.Value);
                 Debug.Log(action);
             }
         }
         
     }
 
-    public void PassTime(int minutes, string activity = null, string action = null)
+    public void PassTime(string activity = null, string action = null)
     {
-        float hungerIncrease = Mathf.Round(1f / 2.4f * 10000f) / 10000f;
-        float tirednessIncrease = Mathf.Round(1f / 9.6f * 10000f) / 10000f;
-        float bladderIncrease = Mathf.Round(1f / 1.8f * 10000f) / 10000f;
-        float detectivenessIncrease = Mathf.Round(1f / 6.2f * 10000f) / 10000f;
-        float relaxationIncrease = Mathf.Round(1f / 4.8f * 10000f) / 10000f;
+        // TODO: Make this come from the states that are oart of the agent
+        float hungerIncrease = 1f / 2.4f;
+        float tirednessIncrease = 1f / 9.6f;
+        float bladderIncrease = 1f / 1.8f;
+        float detectivenessIncrease = 1f / 6.2f;
+        float relaxationIncrease = 1f / 4.8f;
         
         // print("The increases: " + hungerIncrease + " " + tirednessIncrease + " " + bladderIncrease + " " + detectivenessIncrease + " " + relaxationIncrease);
+
         foreach(State state in states)
         {
             switch (state.Need)
@@ -78,14 +71,6 @@ public class Agent : MonoBehaviour
             }
             
         }
-        for (int i = 0; i < minutes; i++)
-        {
-            // states["hunger"].Increase(hungerIncrease);
-            // states["tiredness"].Increase(tirednessIncrease);
-            // states["bladder"].Increase(bladderIncrease);
-            // states["detectiveness"].Increase(detectivenessIncrease);
-            // states["relaxation"].Increase(relaxationIncrease);
-        }
 
         var infoJson = new Dictionary<string, object>
         {
@@ -94,7 +79,6 @@ public class Agent : MonoBehaviour
             {"current_day_time", day.SimCurrDayMin},
             {"moment_of_day", day.ModTag.ToString()},
             {"entry_type", "time_increase"},
-            {"delta_mins", minutes},
             {"character_name", name},
             {"hunger_increase", hungerIncrease},
             {"tiredness_increase", tirednessIncrease},

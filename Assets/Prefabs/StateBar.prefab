@@ -401,10 +401,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   need: 0
+  increaseByMinute: 1
   barImage: {fileID: 70334491927964957}
   stateName: {fileID: 8305479362278803945}
   debugValue: {fileID: 6272863668735490839}
-  currentValue: 0
 --- !u!114 &2645403512599886923
 MonoBehaviour:
   m_ObjectHideFlags: 0

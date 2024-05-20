@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum Need
@@ -20,17 +21,23 @@ public enum MOD_TAG
     Night
 }
 
-public class Action
+public class Action : MonoBehaviour
 {
-    public string name { get; private set; }
-    public int value { get; private set; }
-    public int timeInMin { get; private set; }
+    [SerializeField] private string actionName;
+    public string ActionName => actionName;
+    [SerializeField] private int value;
+    public int Value => value;
+    [SerializeField] private int timeInMin;
+    public int TimeInMin => timeInMin;
+    [SerializeField] private Material material;
 
-    public Action(string name, int value, int timeInMin)
+    public void Awake()
     {
-        this.name = name;
-        this.value = value;
-        this.timeInMin = timeInMin;
+        // Renderer renderer = this.GetComponent<Renderer>();
+        // if (renderer != null)
+        // {
+        //     renderer.material = material;
+        // }
     }
 
     public string GetJsonInfo()

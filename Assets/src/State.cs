@@ -5,27 +5,22 @@ using UnityEngine.UI;
 
 public class State : MonoBehaviour
 {
-    [SerializeField]
-    private Need need;
+    [SerializeField] private Need need;
     public Need Need => need;
 
-    [SerializeField]
-    private Image barImage;
-
-    [SerializeField]
-    private TextMeshProUGUI stateName;
-
-    [SerializeField]
-    private TextMeshProUGUI debugValue;
+    [SerializeField] private float increaseByMinute;
+    [SerializeField] private Image barImage;
+    [SerializeField] private TextMeshProUGUI stateName;
+    [SerializeField] private TextMeshProUGUI debugValue;
 
     private Func<float[]> probabilityFunction;
 
+    [Header("Debugging")]
     // TODO: Probably make these visible?
     private float minValue = 0;
     private float maxValue = 100;
 
-    [SerializeField]
-    private float currentValue;
+    [ReadOnly] private float currentValue;
     public float CurrentValue => currentValue;
 
     private float[] probabilityValues;
