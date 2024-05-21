@@ -14,6 +14,7 @@ public class Day : MonoBehaviour
     
     [ReadOnly, Tooltip("Day Duration Real Time Sec, defined by the above (used for calculations)")] private int rtSecInSimDay = -1;
     [ReadOnly, Tooltip("Min Duration Real Time Sec")] private float rtSecInSimMin = -1;
+    public float RTSecInSimMin => rtSecInSimMin;
     [ReadOnly, Tooltip("Represents how long a Moment Of Day in the Simulation (morning, evening...) lasts in Simulation minutes")] private int simMODInSimMin = -1;
 
     [Header("Current Simulation Time info (Read Only)")]

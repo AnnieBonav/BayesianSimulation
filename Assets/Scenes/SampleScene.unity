@@ -1022,7 +1022,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2682ab4e8d54c42cf978b09e1b4c7e6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agentName: 
+  agentName: Perry
   day: {fileID: 1734314896}
   states:
   - {fileID: 2091381225}
@@ -1030,6 +1030,7 @@ MonoBehaviour:
   - {fileID: 72373698}
   - {fileID: 928022237}
   - {fileID: 1568323458}
+  debugActivityButtons: {fileID: 1350107154}
 --- !u!136 &669082640
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2224,6 +2225,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1350107152}
   - component: {fileID: 1350107153}
+  - component: {fileID: 1350107154}
   m_Layer: 5
   m_Name: ActivityDebugBtns
   m_TagString: Untagged
@@ -2281,6 +2283,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1350107154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1350107151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94ccff83a67f246adaf1ed3381fbb7e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1362423101
 PrefabInstance:
   m_ObjectHideFlags: 0

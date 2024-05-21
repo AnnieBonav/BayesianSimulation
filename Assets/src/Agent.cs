@@ -13,13 +13,24 @@ public class Agent : MonoBehaviour
     [SerializeField] private List<State> states;
     public List<State> States => states;
 
+    [SerializeField] private ActivityButtons debugActivityButtons;
     public List<Dictionary<string, object>> actionsHistory;
-
+    
+    [ReadOnly] private bool doingActivity = false;
     public void Awake()
     {
         actionsHistory = new List<Dictionary<string, object>>();
     }
 
+    IEnumerator PerformActivity(int activityDuration)
+    {
+        doingActivity = true;
+        debugActivityButtons.SetButtonsInteractable(false);
+        float waitingTime = activityDuration * day.RTSecInSimMin;
+        yield return new WaitForSeconds(waitingTime);
+        doingActivity = false;
+        debugActivityButtons.SetButtonsInteractable(true);
+    }
     // Affected need should come from the action (multiple needs could be affected)
     public void PerformAction(Action action, Need affectedNeed)
     {
@@ -28,6 +39,7 @@ public class Agent : MonoBehaviour
             Debug.Log(state);
             if(state.Need == affectedNeed)
             {
+                StartCoroutine(PerformActivity(action.TimeInMin));
                 state.Decrease(action.Value);
                 Debug.Log(action);
             }
