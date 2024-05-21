@@ -11,6 +11,6 @@ public class ActivityDebugBtn : MonoBehaviour
     
     public void CallAgentActivity()
     {
-        agent.PerformAction(action, need);
+        agent.PerformAction(action);
     }
 }

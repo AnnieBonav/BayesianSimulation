@@ -1,8 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
+// FOR MORNING ANNIE:
+// The agent can choose what to do, but it is like it gets stuck in an activity and the values are not increasing? (Probably not increassing with passing time?) Could be that the agent is super quickly making the decision and then getting stuck in the activity?
+//Should start by checking the values of the states and the actions that are being performed. Could also tweak the actions so they take more time (also, probably the actions take too little based on how much they decrease the bad values?)
+// Also probably checking why they are getting stuck one one could be the way to go :)
 public class Agent : MonoBehaviour
 {
     [SerializeField] private string agentName;
@@ -15,11 +19,52 @@ public class Agent : MonoBehaviour
 
     [SerializeField] private ActivityButtons debugActivityButtons;
     public List<Dictionary<string, object>> actionsHistory;
+    [SerializeField] private List<Action> actions;
     
     [ReadOnly] private bool doingActivity = false;
     public void Awake()
     {
         actionsHistory = new List<Dictionary<string, object>>();
+    }
+
+    private void Start()
+    {
+        StartCoroutine(ActivityLoop());
+    }
+
+    private void OnDestroy()
+    {
+        StopCoroutine(ActivityLoop());
+    }
+
+    IEnumerator ActivityLoop()
+    {
+        while (true)
+        {
+            if (!doingActivity)
+            {
+                Need chosenActivity = ChosenActivity();
+                Action action = actions.Find(action => action.AffectedNeed == chosenActivity);
+                PerformAction(action);
+            }
+            yield return new WaitForSeconds(1);
+        }
+    }
+
+    // Multiple needs could be affected from Action...Probably change names of PerformAction and PerformActivity
+    public void PerformAction(Action action)
+    {
+        foreach(State state in states)
+        {
+            Debug.Log(state);
+            if(state.Need == action.AffectedNeed)
+            {
+                StartCoroutine(PerformActivity(action.TimeInMin));
+                state.Decrease(action.Value);
+                Debug.Log(action);
+            }
+        }
+        
     }
 
     IEnumerator PerformActivity(int activityDuration)
@@ -30,21 +75,6 @@ public class Agent : MonoBehaviour
         yield return new WaitForSeconds(waitingTime);
         doingActivity = false;
         debugActivityButtons.SetButtonsInteractable(true);
-    }
-    // Affected need should come from the action (multiple needs could be affected)
-    public void PerformAction(Action action, Need affectedNeed)
-    {
-        foreach(State state in states)
-        {
-            Debug.Log(state);
-            if(state.Need == affectedNeed)
-            {
-                StartCoroutine(PerformActivity(action.TimeInMin));
-                state.Decrease(action.Value);
-                Debug.Log(action);
-            }
-        }
-        
     }
 
     public void PassTime(string activity = null, string action = null)
@@ -109,7 +139,7 @@ public class Agent : MonoBehaviour
             infoJson["called_by_activity"] = activity;
             infoJson["specific_action"] = action;
         }
-
+        // TODO: Make difference between Action and Activity throughout code
         actionsHistory.Add(infoJson);
     }
 
@@ -121,36 +151,27 @@ public class Agent : MonoBehaviour
             Debug.Log("\n" + action);
         }
     }
-
     public override string ToString()
     {
         // string theString = $"{name} T{day.TimeOfDay} - Hunger: {states["hunger"].CurrentValue}, Tiredness: {states["tiredness"].CurrentValue}, Bladder: {states["bladder"].CurrentValue}, Detectiveness: {states["detectiveness"].CurrentValue}, Relaxation: {states["relaxation"].CurrentValue}";
         return "I am a fake string";
     }
 
-    public string ChooseRandomActivity()
-    {
-        // List<string> keys = new List<string>(states.Keys);
-        // chosenActivity = keys[Random.Range(0, keys.Count)]
-        return "I am a random chosen activity";
-    }
-
-    public Need ChooseActivity(bool verbose = false)
+    public Need ChosenActivity(bool verbose = false)
     {
         float highestProbability = 0;
-        string chosenActivity = null;
+        Need chosenActivity = Need.RelaxationNeed;
 
+        foreach (State state in states)
+        {
+            float probability = state.GetProbability(verbose);
+            if (probability > highestProbability)
+            {
+                highestProbability = probability;
+                chosenActivity = state.Need;
+            }
+        }
 
-        // foreach (var key in states.Keys)
-        // {
-        //     float probability = states[key].GetProbability(verbose);
-        //     if (probability > highestProbability)
-        //     {
-        //         highestProbability = probability;
-        //         chosenActivity = key;
-        //     }
-        // }
-        print("I WILL BE A FAKE NEED, CHECK AGENT CODE");
-        return states[0].Need;
+        return chosenActivity;
     }
 }

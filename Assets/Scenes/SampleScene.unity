@@ -724,6 +724,11 @@ PrefabInstance:
       propertyPath: material
       value: 
       objectReference: {fileID: 2100000, guid: 24d2f541402874ff8bb631a58a177011, type: 2}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: affectedNeed
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4819208975008380476, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -957,8 +962,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
+      propertyPath: a
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: c
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
       propertyPath: need
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: functionType
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8305479362278803945, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -1031,6 +1056,12 @@ MonoBehaviour:
   - {fileID: 928022237}
   - {fileID: 1568323458}
   debugActivityButtons: {fileID: 1350107154}
+  actions:
+  - {fileID: 738954688}
+  - {fileID: 700755457}
+  - {fileID: 1454853393}
+  - {fileID: 2032627050}
+  - {fileID: 872452117}
 --- !u!136 &669082640
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1263,6 +1294,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: StateBar_Sleeping
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: b
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -1968,6 +2009,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: StateBar_Bathroom
       objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: b
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 8305479362278803945, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_text
@@ -2568,6 +2619,11 @@ PrefabInstance:
       propertyPath: actionName
       value: hear_music
       objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: affectedNeed
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4819208975008380476, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -2680,6 +2736,11 @@ PrefabInstance:
         type: 3}
       propertyPath: actionName
       value: detect_lie
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: affectedNeed
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4819208975008380476, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
@@ -2913,8 +2974,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
+      propertyPath: a
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
       propertyPath: need
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: functionType
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8305479362278803945, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -3683,6 +3759,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
+      propertyPath: a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: b
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
       propertyPath: need
       value: 2
       objectReference: {fileID: 0}
@@ -3916,6 +4002,11 @@ PrefabInstance:
         type: 3}
       propertyPath: actionName
       value: eat_meal
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: affectedNeed
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4819208975008380476, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}

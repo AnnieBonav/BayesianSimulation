@@ -12,6 +12,14 @@ public enum Need
     DetectiveNeed
 }
 
+public enum FUNCTION_TYPE
+{
+    Exponential,
+    Logarithmic,
+    Square,
+    Linear
+}
+
 // Moment of Day Tag
 public enum MOD_TAG
 {
@@ -31,6 +39,8 @@ public class Action : MonoBehaviour
     public int TimeInMin => timeInMin;
     [SerializeField] private Material material;
 
+    [SerializeField] private Need affectedNeed;
+    public Need AffectedNeed => affectedNeed;
     public void Awake()
     {
         // Renderer renderer = this.GetComponent<Renderer>();
