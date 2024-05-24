@@ -157,8 +157,6 @@ public class Agent : MonoBehaviour
         return "I am a fake string";
     }
 
-
-
     public void ChooseActivity(bool verbose = false)
     {
         float highestLogSum = Mathf.NegativeInfinity;

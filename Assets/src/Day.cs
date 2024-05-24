@@ -120,14 +120,14 @@ public class Day : MonoBehaviour
 
     public void FixedUpdate()
     {
-        // PassTime();
-        // CheckTimeOfDay();
+        PassTime();
+        CheckTimeOfDay();
         
-        // rtTotalTimeSec += Time.deltaTime;
+        rtTotalTimeSec += Time.deltaTime;
 
-        // simAllMin = Mathf.FloorToInt(rtTotalTimeSec / rtSecInSimMin); // CHECKED
-        // simCurrDayMin = simAllMin % simMinInSimDay; // CHECKED
+        simAllMin = Mathf.FloorToInt(rtTotalTimeSec / rtSecInSimMin); // CHECKED
+        simCurrDayMin = simAllMin % simMinInSimDay; // CHECKED
 
-        // digitalClockLabel.text = Mathf.FloorToInt(GetHour()).ToString("00") + ":" + Mathf.FloorToInt(GetMinutes()).ToString("00"); // CHECKED
+        digitalClockLabel.text = Mathf.FloorToInt(GetHour()).ToString("00") + ":" + Mathf.FloorToInt(GetMinutes()).ToString("00"); // CHECKED
     }
 }
