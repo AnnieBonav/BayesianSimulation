@@ -13,8 +13,8 @@ public enum ACTIVITY_TYPE
 
 public class PlotValues
 {
-    public double[] xValues;
-    public double[] yValues;
+    public int[] xValues;
+    public float[] yValues;
 }
 
 // Basically the Activities are the different classses the classifier will choose from, they all have different gaussians on how the States affect them
@@ -45,7 +45,7 @@ public class Activity : MonoBehaviour
         {
             if (statesGaussiansValues.ContainsKey(state.StateType))
             {
-                double stateLog = Math.Log(statesGaussiansValues[state.StateType].yValues[(int)state.CurrentValue]);
+                float stateLog = statesGaussiansValues[state.StateType].yValues[(int)state.CurrentValue];
                 if (verbose)
                 {
                     Debug.Log($"Activity: {activityType}, State: {state.StateType}, Value: {state.CurrentValue}, Log: {stateLog}");
@@ -57,17 +57,18 @@ public class Activity : MonoBehaviour
         return (float)logsSum;
     }
 
-    private double gaussianFunction(float x, float mean, float standardDeviation)
+    private float gaussianFunction(float x, float mean, float standardDeviation)
     {
         double xResult = 1 / (standardDeviation * Math.Sqrt(2 * Math.PI)) * Math.Exp(-Math.Pow(x - mean, 2) / (2 * Math.Pow(standardDeviation, 2)));
-        return xResult;
+        float logxResult = (float)Math.Log(xResult);
+        return logxResult;
     }
 
     private PlotValues CacheGaussianValues(float mean, float standardDeviation)
     {
         // States min and max will always be 0 and 100 now
-        double[] xValues = new double[101];
-        double[] yValues = new double[101];
+        int[] xValues = new int[101];
+        float[] yValues = new float[101];
         for (int i = 0; i <= 100; i++)
         {
             xValues[i] = i;
