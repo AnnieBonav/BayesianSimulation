@@ -3,22 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public enum Need
-{
-    BladderLevel,
-    TirednessLevel,
-    HungerLevel,
-    RelaxationNeed,
-    DetectiveNeed
-}
 
-public enum FUNCTION_TYPE
-{
-    Exponential,
-    Logarithmic,
-    Square,
-    Linear
-}
 
 // Moment of Day Tag
 public enum MOD_TAG
@@ -39,8 +24,8 @@ public class Action : MonoBehaviour
     public int TimeInMin => timeInMin;
     [SerializeField] private Material material;
 
-    [SerializeField] private Need affectedNeed;
-    public Need AffectedNeed => affectedNeed;
+    [SerializeField] private State affectedState;
+    public State AffectedState => affectedState;
     public void Awake()
     {
         // Renderer renderer = this.GetComponent<Renderer>();

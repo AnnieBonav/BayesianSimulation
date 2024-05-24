@@ -802,7 +802,7 @@ PrefabInstance:
     - target: {fileID: 7245784408618691846, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: m_Name
-      value: DeepSleep
+      value: DeepSleep_Action
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -958,7 +958,7 @@ PrefabInstance:
     - target: {fileID: 6979679274591805433, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_Name
-      value: StateBar_Detectiveness
+      value: StateBar_CrimeRate
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -979,6 +979,16 @@ PrefabInstance:
         type: 3}
       propertyPath: need
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: maxValue
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: stateType
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -1293,7 +1303,7 @@ PrefabInstance:
     - target: {fileID: 6979679274591805433, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_Name
-      value: StateBar_Sleeping
+      value: StateBar_SleepNeed
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -1308,6 +1318,16 @@ PrefabInstance:
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: need
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: maxValue
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: stateType
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8305479362278803945, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
@@ -1548,7 +1568,7 @@ GameObject:
   - component: {fileID: 836485424}
   - component: {fileID: 836485425}
   m_Layer: 5
-  m_Name: Bars
+  m_Name: StateBars
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1566,11 +1586,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2091381224}
   - {fileID: 1269781372}
+  - {fileID: 1568323455}
+  - {fileID: 2091381224}
   - {fileID: 72373695}
   - {fileID: 928022234}
-  - {fileID: 1568323455}
   m_Father: {fileID: 1859829141}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1869,7 +1889,7 @@ PrefabInstance:
     - target: {fileID: 7245784408618691846, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: m_Name
-      value: Bathroom
+      value: GoBathroom_Action
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2007,22 +2027,12 @@ PrefabInstance:
     - target: {fileID: 6979679274591805433, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_Name
-      value: StateBar_Bathroom
+      value: StateBar_BathroomNeed
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
-      propertyPath: a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
-        type: 3}
-      propertyPath: b
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8305479362278803945, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
-        type: 3}
-      propertyPath: m_text
-      value: Bathroom
+      propertyPath: maxValue
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 8835176116283583615, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -2702,7 +2712,12 @@ PrefabInstance:
     - target: {fileID: 7245784408618691846, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: m_Name
-      value: Relax
+      value: Relax_Action
+      objectReference: {fileID: 0}
+    - target: {fileID: 7245784408618691846, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2820,7 +2835,12 @@ PrefabInstance:
     - target: {fileID: 7245784408618691846, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: m_Name
-      value: Detective
+      value: DetectLie_Action
+      objectReference: {fileID: 0}
+    - target: {fileID: 7245784408618691846, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2850,22 +2870,22 @@ PrefabInstance:
     - target: {fileID: 3430036479840985553, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3430036479840985553, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3430036479840985553, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: -50
       objectReference: {fileID: 0}
     - target: {fileID: 3430036479840985553, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -45
       objectReference: {fileID: 0}
     - target: {fileID: 4081429402961521912, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -2885,7 +2905,7 @@ PrefabInstance:
     - target: {fileID: 4081429402961521912, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4081429402961521912, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -2895,7 +2915,7 @@ PrefabInstance:
     - target: {fileID: 4081429402961521912, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4081429402961521912, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -2945,12 +2965,12 @@ PrefabInstance:
     - target: {fileID: 4081429402961521912, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 4081429402961521912, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -248.5
       objectReference: {fileID: 0}
     - target: {fileID: 4081429402961521912, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -2971,6 +2991,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: StateBar_Relaxation
+      objectReference: {fileID: 0}
+    - target: {fileID: 6979679274591805433, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -3000,22 +3025,22 @@ PrefabInstance:
     - target: {fileID: 8835176116283583615, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8835176116283583615, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8835176116283583615, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8835176116283583615, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -125
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3755,7 +3780,7 @@ PrefabInstance:
     - target: {fileID: 6979679274591805433, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: m_Name
-      value: StateBar_Hunger
+      value: StateBar_FoodNeed
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -3770,6 +3795,16 @@ PrefabInstance:
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: need
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: maxValue
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: stateType
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8305479362278803945, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
@@ -4081,7 +4116,7 @@ PrefabInstance:
     - target: {fileID: 7245784408618691846, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: m_Name
-      value: EatMeal
+      value: EatMeal_Action
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

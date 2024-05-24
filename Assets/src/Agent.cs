@@ -29,27 +29,27 @@ public class Agent : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(ActivityLoop());
+        // StartCoroutine(ActivityLoop());
     }
 
     private void OnDestroy()
     {
-        StopCoroutine(ActivityLoop());
+        // StopCoroutine(ActivityLoop());
     }
 
-    IEnumerator ActivityLoop()
-    {
-        while (true)
-        {
-            if (!doingActivity)
-            {
-                Need chosenActivity = ChosenActivity();
-                Action action = actions.Find(action => action.AffectedNeed == chosenActivity);
-                PerformAction(action);
-            }
-            yield return new WaitForSeconds(1);
-        }
-    }
+    // IEnumerator ActivityLoop()
+    // {
+    //     while (true)
+    //     {
+    //         if (!doingActivity)
+    //         {
+    //             State chosenActivity = ChosenActivity();
+    //             Action action = actions.Find(action => action.AffectedNeed == chosenActivity);
+    //             PerformAction(action);
+    //         }
+    //         yield return new WaitForSeconds(1);
+    //     }
+    // }
 
     // Multiple needs could be affected from Action...Probably change names of PerformAction and PerformActivity
     public void PerformAction(Action action)
@@ -57,7 +57,7 @@ public class Agent : MonoBehaviour
         foreach(State state in states)
         {
             Debug.Log(state);
-            if(state.Need == action.AffectedNeed)
+            if(state == action.AffectedState)
             {
                 StartCoroutine(PerformActivity(action.TimeInMin));
                 state.Decrease(action.Value);
@@ -90,21 +90,18 @@ public class Agent : MonoBehaviour
 
         foreach(State state in states)
         {
-            switch (state.Need)
+            switch (state.StateType)
             {
-                case Need.BladderLevel:
+                case STATE_TYPE.BathroomNeed:
                     state.Increase(bladderIncrease);
                     break;
-                case Need.TirednessLevel:
+                case STATE_TYPE.SleepNeed:
                     state.Increase(tirednessIncrease);
                     break;
-                case Need.HungerLevel:
+                case STATE_TYPE.FoodNeed:
                     state.Increase(hungerIncrease);
                     break;
-                case Need.RelaxationNeed:
-                    state.Increase(relaxationIncrease);
-                    break;
-                case Need.DetectiveNeed:
+                case STATE_TYPE.CrimeRate:
                     state.Increase(detectivenessIncrease);
                     break;
                 default:
@@ -157,21 +154,21 @@ public class Agent : MonoBehaviour
         return "I am a fake string";
     }
 
-    public Need ChosenActivity(bool verbose = false)
-    {
-        float highestProbability = 0;
-        Need chosenActivity = Need.RelaxationNeed;
+    // public Activity ChosenActivity(bool verbose = false)
+    // {
+    //     float highestProbability = 0;
+    //     Activity chosenActivity = STATE_TYPE.FoodNeed;
 
-        foreach (State state in states)
-        {
-            float probability = state.GetProbability(verbose);
-            if (probability > highestProbability)
-            {
-                highestProbability = probability;
-                chosenActivity = state.Need;
-            }
-        }
+    //     foreach (State state in states)
+    //     {
+    //         float probability = state.GetProbability(verbose);
+    //         if (probability > highestProbability)
+    //         {
+    //             highestProbability = probability;
+    //             chosenActivity = state.Need;
+    //         }
+    //     }
 
-        return chosenActivity;
-    }
+    //     return chosenActivity;
+    // }
 }
