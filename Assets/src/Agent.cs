@@ -16,6 +16,8 @@ public class Agent : MonoBehaviour
 
     [SerializeField] private List<State> states;
     public List<State> States => states;
+    [SerializeField] private List<Activity> activities;
+    public List<Activity> Activities => activities;
 
     [SerializeField] private ActivityButtons debugActivityButtons;
     public List<Dictionary<string, object>> actionsHistory;
@@ -30,6 +32,7 @@ public class Agent : MonoBehaviour
     private void Start()
     {
         // StartCoroutine(ActivityLoop());
+        ChooseActivity(true);
     }
 
     private void OnDestroy()
@@ -154,21 +157,26 @@ public class Agent : MonoBehaviour
         return "I am a fake string";
     }
 
-    // public Activity ChosenActivity(bool verbose = false)
-    // {
-    //     float highestProbability = 0;
-    //     Activity chosenActivity = STATE_TYPE.FoodNeed;
 
-    //     foreach (State state in states)
-    //     {
-    //         float probability = state.GetProbability(verbose);
-    //         if (probability > highestProbability)
-    //         {
-    //             highestProbability = probability;
-    //             chosenActivity = state.Need;
-    //         }
-    //     }
 
-    //     return chosenActivity;
-    // }
+    public void ChooseActivity(bool verbose = false)
+    {
+        float highestLogSum = Mathf.NegativeInfinity;
+        Activity chosenActivity = null;
+
+        foreach (Activity activity in activities)
+        {
+            float logSum = activity.GetLogsSum(states, verbose);
+            if (verbose)
+            {
+                Debug.Log($"Activity: {activity.ActivityType}, Log Sum: {logSum}");
+            }
+            if (logSum > highestLogSum)
+            {
+                highestLogSum = logSum;
+                chosenActivity = activity;
+            }
+        }
+        print("Chosen Activity: " + chosenActivity);
+    }
 }

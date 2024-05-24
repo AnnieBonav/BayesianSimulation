@@ -77,7 +77,7 @@ public class Day : MonoBehaviour
 
     private void CheckTimeOfDay()
     {
-        print("All Sim minutes: " + simAllMin + "All Sim minutes in Day" + simCurrDayMin + " Day Moment of Day duration in min: " + simMODInSimMin);
+        // print("All Sim minutes: " + simAllMin + "All Sim minutes in Day" + simCurrDayMin + " Day Moment of Day duration in min: " + simMODInSimMin);
 
         // TODO: Change this to have timers, so that there is no need to check every frame
         // Could add a TOD class and whenever it is changed it will notify the agents
@@ -120,14 +120,14 @@ public class Day : MonoBehaviour
 
     public void FixedUpdate()
     {
-        PassTime();
-        CheckTimeOfDay();
+        // PassTime();
+        // CheckTimeOfDay();
         
-        rtTotalTimeSec += Time.deltaTime;
+        // rtTotalTimeSec += Time.deltaTime;
 
-        simAllMin = Mathf.FloorToInt(rtTotalTimeSec / rtSecInSimMin); // CHECKED
-        simCurrDayMin = simAllMin % simMinInSimDay; // CHECKED
+        // simAllMin = Mathf.FloorToInt(rtTotalTimeSec / rtSecInSimMin); // CHECKED
+        // simCurrDayMin = simAllMin % simMinInSimDay; // CHECKED
 
-        digitalClockLabel.text = Mathf.FloorToInt(GetHour()).ToString("00") + ":" + Mathf.FloorToInt(GetMinutes()).ToString("00"); // CHECKED
+        // digitalClockLabel.text = Mathf.FloorToInt(GetHour()).ToString("00") + ":" + Mathf.FloorToInt(GetMinutes()).ToString("00"); // CHECKED
     }
 }

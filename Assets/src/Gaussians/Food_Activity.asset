@@ -23,5 +23,5 @@ MonoBehaviour:
     mean: 90
     standardDeviation: 15.811
   - state: 3
-    mean: 2
+    mean: 20
     standardDeviation: 25.495
