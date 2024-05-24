@@ -1,8 +1,6 @@
 using UnityEngine;
-using System;
 using TMPro;
 using UnityEngine.UI;
-using System.Collections.Generic;
 
 // STATE_TYPE is an enum that represents the different states that an agent can have, which are the values that it receives (both internally and externally) and that it can change through its Actions (or simply change over time)
 public enum STATE_TYPE
@@ -39,10 +37,6 @@ public class State : MonoBehaviour
     [SerializeField] private TextMeshProUGUI stateName;
     [SerializeField] private TextMeshProUGUI debugValue;
 
-    [Header("Gaussian Parameters")]
-    [SerializeField] private float mean;
-    [SerializeField] private float standardDeviation;
-
     // private Func<float, float> probabilityFunction;
     // [SerializeField] private float minLevel = 0;
     // [SerializeField] private float maxLevel = 100;
@@ -51,7 +45,6 @@ public class State : MonoBehaviour
     // // These represents the min and max in normalization
     // [SerializeField] private float minProbability = 0;
     // [SerializeField] private float maxProbability = 1;
-
 
     private void Awake()
     {
