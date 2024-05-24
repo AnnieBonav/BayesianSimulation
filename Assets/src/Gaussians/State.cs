@@ -49,7 +49,7 @@ public class State : MonoBehaviour
 
     private void Awake()
     {
-        stateName.text = stateType.ToString();
+        // stateName.text = stateType.ToString();
         // TODO: Could save this in object?
         // normalizationFunction = (currentValue, minProbability, maxProbability) => (currentValue - minProbability) * (maxLevel - minLevel) / (maxProbability - minProbability) + minLevel;
 
