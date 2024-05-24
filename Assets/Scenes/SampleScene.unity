@@ -811,8 +811,18 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 24d2f541402874ff8bb631a58a177011, type: 2}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
+      propertyPath: activityType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
       propertyPath: affectedNeed
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: affectedState
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4819208975008380476, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
@@ -1158,7 +1168,7 @@ PrefabInstance:
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: stateType
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -1514,7 +1524,7 @@ PrefabInstance:
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: stateType
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8305479362278803945, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -2068,6 +2078,11 @@ PrefabInstance:
       propertyPath: actionName
       value: go_bathroom
       objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: affectedState
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4819208975008380476, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -2285,6 +2300,16 @@ PrefabInstance:
         type: 3}
       propertyPath: maxValue
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: stateType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8305479362278803945, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
+        type: 3}
+      propertyPath: m_text
+      value: Bathroom
       objectReference: {fileID: 0}
     - target: {fileID: 8835176116283583615, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -2919,6 +2944,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
+      propertyPath: activityType
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
       propertyPath: affectedNeed
       value: 3
       objectReference: {fileID: 0}
@@ -3005,7 +3035,7 @@ PrefabInstance:
     - target: {fileID: 7245784408618691846, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3997,7 +4027,7 @@ PrefabInstance:
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: stateType
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8305479362278803945, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -4232,8 +4262,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
+      propertyPath: activityType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
       propertyPath: affectedNeed
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: affectedState
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4819208975008380476, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
@@ -4326,9 +4366,9 @@ SceneRoots:
   - {fileID: 1859829141}
   - {fileID: 1976707101}
   - {fileID: 669082643}
-  - {fileID: 9174926057328153245}
   - {fileID: 1035827581}
   - {fileID: 532464324}
+  - {fileID: 9174926057328153245}
   - {fileID: 1371222692}
   - {fileID: 1401625652}
   - {fileID: 912370179396346615}

@@ -5,6 +5,7 @@ using UnityEngine.UI;
 // STATE_TYPE is an enum that represents the different states that an agent can have, which are the values that it receives (both internally and externally) and that it can change through its Actions (or simply change over time)
 public enum STATE_TYPE
 {
+    None,
     BathroomNeed,
     SleepNeed,
     FoodNeed,
@@ -48,6 +49,7 @@ public class State : MonoBehaviour
 
     private void Awake()
     {
+        stateName.text = stateType.ToString();
         // TODO: Could save this in object?
         // normalizationFunction = (currentValue, minProbability, maxProbability) => (currentValue - minProbability) * (maxLevel - minLevel) / (maxProbability - minProbability) + minLevel;
 

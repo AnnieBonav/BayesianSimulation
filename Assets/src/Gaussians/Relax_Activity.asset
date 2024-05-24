@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: Relax_Activity
   m_EditorClassIdentifier: Assembly-CSharp::GaussianScriptableObject
   gaussians:
-  - state: 0
+  - state: 1
     mean: 30
     standardDeviation: 53.852
-  - state: 1
-    mean: 50
-    standardDeviation: 60
   - state: 2
     mean: 50
-    standardDeviation: 50
+    standardDeviation: 60
   - state: 3
+    mean: 50
+    standardDeviation: 50
+  - state: 4
     mean: 30
     standardDeviation: 58.31

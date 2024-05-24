@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -31,28 +32,28 @@ public class Agent : MonoBehaviour
 
     private void Start()
     {
-        // StartCoroutine(ActivityLoop());
-        ChooseActivity(true);
+        StartCoroutine(ActivityLoop());
+        // ChooseActivity(true);
     }
 
     private void OnDestroy()
     {
-        // StopCoroutine(ActivityLoop());
+        StopCoroutine(ActivityLoop());
     }
 
-    // IEnumerator ActivityLoop()
-    // {
-    //     while (true)
-    //     {
-    //         if (!doingActivity)
-    //         {
-    //             State chosenActivity = ChosenActivity();
-    //             Action action = actions.Find(action => action.AffectedNeed == chosenActivity);
-    //             PerformAction(action);
-    //         }
-    //         yield return new WaitForSeconds(1);
-    //     }
-    // }
+    IEnumerator ActivityLoop()
+    {
+        while (true)
+        {
+            if (!doingActivity)
+            {
+                Activity chosenActivity = ChooseActivity();
+                Action action = actions.Find(action => action.ActivityType == chosenActivity.ActivityType);
+                PerformAction(action);
+            }
+            yield return new WaitForSeconds(1);
+        }
+    }
 
     // Multiple needs could be affected from Action...Probably change names of PerformAction and PerformActivity
     public void PerformAction(Action action)
@@ -60,11 +61,15 @@ public class Agent : MonoBehaviour
         foreach(State state in states)
         {
             Debug.Log(state);
-            if(state == action.AffectedState)
+            if(state.StateType == action.AffectedState)
             {
                 StartCoroutine(PerformActivity(action.TimeInMin));
                 state.Decrease(action.Value);
                 Debug.Log(action);
+            }
+            else
+            {
+                Debug.Log("No state affected");
             }
         }
         
@@ -157,7 +162,7 @@ public class Agent : MonoBehaviour
         return "I am a fake string";
     }
 
-    public void ChooseActivity(bool verbose = false)
+    public Activity ChooseActivity(bool verbose = false)
     {
         float highestLogSum = Mathf.NegativeInfinity;
         Activity chosenActivity = null;
@@ -176,5 +181,6 @@ public class Agent : MonoBehaviour
             }
         }
         print("Chosen Activity: " + chosenActivity);
-    }
+        return chosenActivity;
+    } 
 }

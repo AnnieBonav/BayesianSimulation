@@ -24,8 +24,11 @@ public class Action : MonoBehaviour
     public int TimeInMin => timeInMin;
     [SerializeField] private Material material;
 
-    [SerializeField] private State affectedState;
-    public State AffectedState => affectedState;
+    [SerializeField] private ACTIVITY_TYPE activityType;
+    public ACTIVITY_TYPE ActivityType => activityType;
+
+    [SerializeField] private STATE_TYPE affectedState;
+    public STATE_TYPE AffectedState => affectedState;
     public void Awake()
     {
         // Renderer renderer = this.GetComponent<Renderer>();
