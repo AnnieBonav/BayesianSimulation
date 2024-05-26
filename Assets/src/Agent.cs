@@ -64,7 +64,6 @@ public class Agent : MonoBehaviour
         iTween.MoveTo(this.gameObject, iTween.Hash("position", placeholderPosition));
     }
 
-    private int iterator = 0;
     private void Start()
     {
         MoveTo();
@@ -84,9 +83,7 @@ public class Agent : MonoBehaviour
             {
                 Activity chosenActivity = ChooseActivity();
                 Action action = actions.Find(action => action.ActivityType == chosenActivity.ActivityType);
-                PerformAction(action, true);
-                print("DEBUG IN ACTIVITY LOOP" + "It: " + iterator + "  Will be action " + action);
-                iterator++;
+                PerformAction(action, false);
             }
             yield return new WaitForSeconds(1);
         }
@@ -96,34 +93,23 @@ public class Agent : MonoBehaviour
     public void PerformAction(Action action, bool verbose = false)
     {
         MoveTo(action.ActionTransform);
-        foreach(State state in states)
+        State stateToAffect = states.Find(state => state.StateType == action.AffectedState);
+        if(stateToAffect)
         {
-            if (verbose) Debug.Log(state);
-            if(state.StateType == action.AffectedState)
-            {
-                StartCoroutine(AffectState(action, verbose));
-                // state.Decrease(action.Value);
-                if (verbose) print("DEBUG IN PERFORM ACTION" + "It: " + iterator + "  Will be action " + action);
-            }
+            doingActivity = true;
+            StartCoroutine(AffectState(action, verbose));
+            stateToAffect.Decrease(action.Value);
+            doingActivity = false;
+            if (verbose) print("DEBUG IN PERFORM ACTION" + "  Will be action " + action);
         }
-        
     }
 
     IEnumerator AffectState(Action action, bool verbose = false)
     {
-        doingActivity = true;
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(false);
         float waitingTime = action.TimeInMin * day.RTSecInSimMin;
         yield return new WaitForSeconds(waitingTime);
-        foreach(State state in states)
-        {
-            if(state.StateType == action.AffectedState)
-            {
-                state.Decrease(action.Value);
-                if (verbose) print("DEBUG IN AFFECT STATE" + "It: " + iterator + "  Will be action " + action);
-            }
-        }
-        doingActivity = false;
+        
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(true);
     }
 
@@ -196,10 +182,11 @@ public class Agent : MonoBehaviour
             Debug.Log("\n" + action);
         }
     }
+
+    // TODO: Check if this is needed/better than the default one
     public override string ToString()
     {
-        // string theString = $"{name} T{day.TimeOfDay} - Hunger: {states["hunger"].CurrentValue}, Tiredness: {states["tiredness"].CurrentValue}, Bladder: {states["bladder"].CurrentValue}, Detectiveness: {states["detectiveness"].CurrentValue}, Relaxation: {states["relaxation"].CurrentValue}";
-        return "I am a fake string";
+        return JsonUtility.ToJson(this);
     }
 
     public Activity ChooseActivity(bool verbose = false)

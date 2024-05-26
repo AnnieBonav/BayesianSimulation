@@ -77,7 +77,7 @@ public class State : MonoBehaviour
         currentValue -= value;
         if (currentValue < minValue)
         {
-            currentValue = maxValue;
+            currentValue = minValue;
         }
 
         UpdateUI();

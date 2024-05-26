@@ -36,15 +36,8 @@ public class Action : MonoBehaviour
         // }
     }
 
-    public string GetJsonInfo()
-    {
-        // return JsonConvert.SerializeObject(this);
-        return "fake json string";
-    }
-
     public override string ToString()
     {
-        // return JsonConvert.SerializeObject(this);
-        return "fake json string";
+        return $"Action Name: {actionName}, Value: {value}, Time in Min: {timeInMin}, Activity Type: {activityType}, Affected State: {affectedState}";
     }
 }
