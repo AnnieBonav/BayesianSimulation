@@ -29,7 +29,8 @@ public class Activity : MonoBehaviour
 
     private Dictionary<STATE_TYPE, PlotValues> statesGaussiansValues;
 
-    private void Awake() {
+    private void Awake()
+    {
         // statesGaussiansValues will have n KeyValuePairs (equal to the amount of gaussians in the atatched stateGaussians scriptable object), where the key will be the state and the value will be an instance of PlotValues that holds the x (value from 0-100) and y (corresponding probability) values of the gaussian
         statesGaussiansValues = new Dictionary<STATE_TYPE, PlotValues>();
         foreach(GaussianInfo gaussianInfo in statesGaussians.gaussians)

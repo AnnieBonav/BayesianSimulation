@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 
 // FOR MORNING ANNIE:
 // The agent can choose what to do, but it is like it gets stuck in an activity and the values are not increasing? (Probably not increassing with passing time?) Could be that the agent is super quickly making the decision and then getting stuck in the activity?
@@ -14,6 +15,7 @@ public class Agent : MonoBehaviour
     public string AgentName => agentName;
 
     [SerializeField] private Transform agentTransform;
+    [SerializeField] private float yPos = 0.6f;
     [SerializeField] private Day day;
 
     [SerializeField] private List<State> states;
@@ -22,21 +24,27 @@ public class Agent : MonoBehaviour
     public List<Activity> Activities => activities;
 
     [SerializeField] private ActivityButtons debugActivityButtons;
+    [SerializeField] private bool hasDebugButtons = false;
     public List<Dictionary<string, object>> actionsHistory;
     [SerializeField] private List<Action> actions;
     private List<KeyValuePair<Action, Transform>> actionsTransforms;
     [ReadOnly] private bool doingActivity = false;
+    private Vector3 placeholderPosition;
     public void Awake()
     {
+        placeholderPosition = new Vector3(0, yPos, 0);
         actionsHistory = new List<Dictionary<string, object>>();
     }
 
-    private void MoveTo(Transform actionObjectToMoveTo = null){
+    private void MoveTo(Transform actionObjectToMoveTo = null)
+    {
         if(actionObjectToMoveTo == null){
             actionObjectToMoveTo = actions[0].gameObject.GetComponent<Transform>();
         }
-
-        iTween.MoveTo(this.gameObject, iTween.Hash("position", actionObjectToMoveTo.GetComponent<Transform>()));
+        placeholderPosition.x = actionObjectToMoveTo.position.x;
+        placeholderPosition.z = actionObjectToMoveTo.position.z;
+        
+        iTween.MoveTo(this.gameObject, iTween.Hash("position", placeholderPosition));
     }
 
     private void Start()
@@ -66,21 +74,17 @@ public class Agent : MonoBehaviour
     }
 
     // Multiple needs could be affected from Action...Probably change names of PerformAction and PerformActivity
-    public void PerformAction(Action action)
+    public void PerformAction(Action action, bool verbose = false)
     {
         MoveTo(action.ActionTransform);
         foreach(State state in states)
         {
-            Debug.Log(state);
+            if (verbose) Debug.Log(state);
             if(state.StateType == action.AffectedState)
             {
                 StartCoroutine(PerformActivity(action.TimeInMin));
                 state.Decrease(action.Value);
-                Debug.Log(action);
-            }
-            else
-            {
-                Debug.Log("No state affected");
+                if (verbose) Debug.Log(action);
             }
         }
         
@@ -89,11 +93,11 @@ public class Agent : MonoBehaviour
     IEnumerator PerformActivity(int activityDuration)
     {
         doingActivity = true;
-        debugActivityButtons.SetButtonsInteractable(false);
+        if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(false);
         float waitingTime = activityDuration * day.RTSecInSimMin;
         yield return new WaitForSeconds(waitingTime);
         doingActivity = false;
-        debugActivityButtons.SetButtonsInteractable(true);
+        if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(true);
     }
 
     public void PassTime(string activity = null, string action = null)
@@ -181,17 +185,14 @@ public class Agent : MonoBehaviour
         foreach (Activity activity in activities)
         {
             float logSum = activity.GetLogsSum(states, verbose);
-            if (verbose)
-            {
-                Debug.Log($"Activity: {activity.ActivityType}, Log Sum: {logSum}");
-            }
+            if (verbose) Debug.Log($"Activity: {activity.ActivityType}, Log Sum: {logSum}");
             if (logSum > highestLogSum)
             {
                 highestLogSum = logSum;
                 chosenActivity = activity;
             }
         }
-        print("Chosen Activity: " + chosenActivity);
+        if (verbose) print("Chosen Activity: " + chosenActivity);
         return chosenActivity;
     } 
 }

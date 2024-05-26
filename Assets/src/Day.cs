@@ -64,8 +64,6 @@ public class Day : MonoBehaviour
         
         modTextLabel.text = modTag.ToString();
         modPic.material.mainTexture = morningSprite.texture;
-
-        print($"STARTED: {this}");
     }
 
     private float GetHour()
