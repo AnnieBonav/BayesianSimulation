@@ -5,6 +5,7 @@ using System.Xml.XPath;
 
 public enum ACTIVITY_TYPE
 {
+    None,
     Bathroom,
     Sleep,
     Food,

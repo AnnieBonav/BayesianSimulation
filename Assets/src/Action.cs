@@ -13,6 +13,9 @@ public class Action : MonoBehaviour
 {
     [SerializeField] private string actionName;
     public string ActionName => actionName;
+    // TODO: Ask if it is better to get it on awake of have people drag it :) I prefer dragging
+    [SerializeField] private Transform actionTransform;
+    public Transform ActionTransform => actionTransform;
     [SerializeField] private int value;
     public int Value => value;
     [SerializeField] private int timeInMin;

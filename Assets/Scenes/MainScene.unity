@@ -189,7 +189,7 @@ PrefabInstance:
     - target: {fileID: 1779568594838207210, guid: 7932671be9ea74bb887860a1156a4a57,
         type: 3}
       propertyPath: activityType
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1779568594838207210, guid: 7932671be9ea74bb887860a1156a4a57,
         type: 3}
@@ -806,13 +806,23 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
+      propertyPath: value
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
       propertyPath: material
       value: 
       objectReference: {fileID: 2100000, guid: 24d2f541402874ff8bb631a58a177011, type: 2}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
+      propertyPath: timeInMin
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
       propertyPath: activityType
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
@@ -933,7 +943,7 @@ PrefabInstance:
     - target: {fileID: 1779568594838207210, guid: 7932671be9ea74bb887860a1156a4a57,
         type: 3}
       propertyPath: activityType
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1779568594838207210, guid: 7932671be9ea74bb887860a1156a4a57,
         type: 3}
@@ -1271,6 +1281,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agentName: Perry
+  agentTransform: {fileID: 0}
   day: {fileID: 1734314896}
   states:
   - {fileID: 1269781375}
@@ -1748,7 +1759,7 @@ PrefabInstance:
     - target: {fileID: 1779568594838207210, guid: 7932671be9ea74bb887860a1156a4a57,
         type: 3}
       propertyPath: activityType
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1779568594838207210, guid: 7932671be9ea74bb887860a1156a4a57,
         type: 3}
@@ -2131,6 +2142,11 @@ PrefabInstance:
         type: 3}
       propertyPath: actionName
       value: go_bathroom
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: activityType
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
@@ -3121,7 +3137,7 @@ PrefabInstance:
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: activityType
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
@@ -4035,6 +4051,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1779568594838207210, guid: 7932671be9ea74bb887860a1156a4a57,
         type: 3}
+      propertyPath: activityType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1779568594838207210, guid: 7932671be9ea74bb887860a1156a4a57,
+        type: 3}
       propertyPath: stateGaussians
       value: 
       objectReference: {fileID: 11400000, guid: f10047a2b8bd64b8cb5d5d1a7f8bf3f1,
@@ -4518,7 +4539,7 @@ PrefabInstance:
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: activityType
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}

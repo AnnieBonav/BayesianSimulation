@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2371351799049164221}
   - component: {fileID: 7316936174969155134}
   m_Layer: 0
-  m_Name: Activity
+  m_Name: Action
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -97,10 +97,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0aaae6ba529d24876b4c244ea58b8eb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionName: deep_sleep
-  value: 90
-  timeInMin: 60
-  material: {fileID: 2100000, guid: f2cf4e58096f44eaf9f92c67a8ce29c3, type: 2}
+  actionName: mock_action
+  actionTransform: {fileID: 4819208975008380476}
+  value: 1
+  timeInMin: 1
+  material: {fileID: 2100000, guid: d1a1857a3d81e46f18b1cf04798b44e1, type: 2}
+  activityType: 0
+  affectedState: 0
 --- !u!65 &7316936174969155134
 BoxCollider:
   m_ObjectHideFlags: 0

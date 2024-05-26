@@ -13,6 +13,7 @@ public class Agent : MonoBehaviour
     [SerializeField] private string agentName;
     public string AgentName => agentName;
 
+    [SerializeField] private Transform agentTransform;
     [SerializeField] private Day day;
 
     [SerializeField] private List<State> states;
@@ -23,15 +24,24 @@ public class Agent : MonoBehaviour
     [SerializeField] private ActivityButtons debugActivityButtons;
     public List<Dictionary<string, object>> actionsHistory;
     [SerializeField] private List<Action> actions;
-    
+    private List<KeyValuePair<Action, Transform>> actionsTransforms;
     [ReadOnly] private bool doingActivity = false;
     public void Awake()
     {
         actionsHistory = new List<Dictionary<string, object>>();
     }
 
+    private void MoveTo(Transform actionObjectToMoveTo = null){
+        if(actionObjectToMoveTo == null){
+            actionObjectToMoveTo = actions[0].gameObject.GetComponent<Transform>();
+        }
+
+        iTween.MoveTo(this.gameObject, iTween.Hash("position", actionObjectToMoveTo.GetComponent<Transform>()));
+    }
+
     private void Start()
     {
+        MoveTo();
         StartCoroutine(ActivityLoop());
         // ChooseActivity(true);
     }
@@ -58,6 +68,7 @@ public class Agent : MonoBehaviour
     // Multiple needs could be affected from Action...Probably change names of PerformAction and PerformActivity
     public void PerformAction(Action action)
     {
+        MoveTo(action.ActionTransform);
         foreach(State state in states)
         {
             Debug.Log(state);
