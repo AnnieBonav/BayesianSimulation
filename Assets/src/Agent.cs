@@ -13,7 +13,8 @@ public class Agent : MonoBehaviour
 {
     [SerializeField] private string agentName;
     public string AgentName => agentName;
-
+    [SerializeField] private Transform enemyTransform;
+    [SerializeField] private GameCamera cam;
     [SerializeField] private Transform agentTransform;
     [SerializeField] private float yPos = 0.6f;
     [SerializeField] private Day day;
@@ -30,10 +31,26 @@ public class Agent : MonoBehaviour
     private List<KeyValuePair<Action, Transform>> actionsTransforms;
     [ReadOnly] private bool doingActivity = false;
     private Vector3 placeholderPosition;
+    private float maxDistanceFromEnemy;
+    private float currentDistanceFromEnemy;
+    private float crimeRatePlaceholder;
     public void Awake()
     {
         placeholderPosition = new Vector3(0, yPos, 0);
         actionsHistory = new List<Dictionary<string, object>>();
+        maxDistanceFromEnemy = cam.MaxDistance;
+    }
+
+    private float DistanceFromEnemy()
+    {
+        return Vector3.Distance(agentTransform.position, enemyTransform.position);
+    }
+
+    // TODO: Change the states to be a dictionary
+
+    private float NormalizeValue(float value, float minValue, float maxValue)
+    {
+        return (value - minValue) / (maxValue - minValue);
     }
 
     private void MoveTo(Transform actionObjectToMoveTo = null)
@@ -47,11 +64,11 @@ public class Agent : MonoBehaviour
         iTween.MoveTo(this.gameObject, iTween.Hash("position", placeholderPosition));
     }
 
+    private int iterator = 0;
     private void Start()
     {
         MoveTo();
         StartCoroutine(ActivityLoop());
-        // ChooseActivity(true);
     }
 
     private void OnDestroy()
@@ -67,7 +84,9 @@ public class Agent : MonoBehaviour
             {
                 Activity chosenActivity = ChooseActivity();
                 Action action = actions.Find(action => action.ActivityType == chosenActivity.ActivityType);
-                PerformAction(action);
+                PerformAction(action, true);
+                print("DEBUG IN ACTIVITY LOOP" + "It: " + iterator + "  Will be action " + action);
+                iterator++;
             }
             yield return new WaitForSeconds(1);
         }
@@ -82,50 +101,56 @@ public class Agent : MonoBehaviour
             if (verbose) Debug.Log(state);
             if(state.StateType == action.AffectedState)
             {
-                StartCoroutine(PerformActivity(action.TimeInMin));
-                state.Decrease(action.Value);
-                if (verbose) Debug.Log(action);
+                StartCoroutine(AffectState(action, verbose));
+                // state.Decrease(action.Value);
+                if (verbose) print("DEBUG IN PERFORM ACTION" + "It: " + iterator + "  Will be action " + action);
             }
         }
         
     }
 
-    IEnumerator PerformActivity(int activityDuration)
+    IEnumerator AffectState(Action action, bool verbose = false)
     {
         doingActivity = true;
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(false);
-        float waitingTime = activityDuration * day.RTSecInSimMin;
+        float waitingTime = action.TimeInMin * day.RTSecInSimMin;
         yield return new WaitForSeconds(waitingTime);
+        foreach(State state in states)
+        {
+            if(state.StateType == action.AffectedState)
+            {
+                state.Decrease(action.Value);
+                if (verbose) print("DEBUG IN AFFECT STATE" + "It: " + iterator + "  Will be action " + action);
+            }
+        }
         doingActivity = false;
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(true);
     }
 
     public void PassTime(string activity = null, string action = null)
     {
-        // TODO: Make this come from the states that are oart of the agent
-        float hungerIncrease = 1f / 2.4f;
-        float tirednessIncrease = 1f / 9.6f;
-        float bladderIncrease = 1f / 1.8f;
-        float detectivenessIncrease = 1f / 6.2f;
-        float relaxationIncrease = 1f / 4.8f;
+        // TODO: Make this come from the states that are part of the agent
+        float bathroomNeedDelta = 1f / 3f;
+        float sleepNeedDelta = 1f / 9.6f;
+        float foodNeedDelta = 1f / 2.4f;
         
-        // print("The increases: " + hungerIncrease + " " + tirednessIncrease + " " + bladderIncrease + " " + detectivenessIncrease + " " + relaxationIncrease);
-
         foreach(State state in states)
         {
             switch (state.StateType)
             {
                 case STATE_TYPE.BathroomNeed:
-                    state.Increase(bladderIncrease);
+                    state.Increase(bathroomNeedDelta);
                     break;
                 case STATE_TYPE.SleepNeed:
-                    state.Increase(tirednessIncrease);
+                    state.Increase(sleepNeedDelta);
                     break;
                 case STATE_TYPE.FoodNeed:
-                    state.Increase(hungerIncrease);
+                    state.Increase(foodNeedDelta);
                     break;
                 case STATE_TYPE.CrimeRate:
-                    state.Increase(detectivenessIncrease);
+                    currentDistanceFromEnemy = DistanceFromEnemy();
+                    crimeRatePlaceholder = Mathf.Pow(1 -NormalizeValue(currentDistanceFromEnemy, 0, maxDistanceFromEnemy), 2) * 100;
+                    state.UpdateValue(crimeRatePlaceholder);
                     break;
                 default:
                     print("OOps! That does not exist!");
@@ -142,11 +167,11 @@ public class Agent : MonoBehaviour
             {"moment_of_day", day.ModTag.ToString()},
             {"entry_type", "time_increase"},
             {"character_name", name},
-            {"hunger_increase", hungerIncrease},
-            {"tiredness_increase", tirednessIncrease},
-            {"bladder_increase", bladderIncrease},
-            {"detectiveness_increase", detectivenessIncrease},
-            {"relaxation_increase", relaxationIncrease},
+            {"hunger_increase", foodNeedDelta},
+            {"tiredness_increase", sleepNeedDelta},
+            {"bladder_increase", bathroomNeedDelta},
+            // {"detectiveness_increase", detectivenessIncrease},
+            // {"relaxation_increase", relaxationDelta},
             // {"modified_hunger_value", states["hunger"].CurrentValue},
             // {"modified_tiredness_value", states["tiredness"].CurrentValue},
             // {"modified_bladder_value", states["bladder"].CurrentValue},
