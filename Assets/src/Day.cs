@@ -43,6 +43,13 @@ public class Day : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] private TextMeshProUGUI digitalClockLabel;
     [SerializeField] private TextMeshProUGUI modTextLabel;
+
+    [Header("Pics for MOD")]
+    [SerializeField] private MeshRenderer modPic;
+    [SerializeField] private Sprite morningSprite;
+    [SerializeField] private Sprite afternoonSprite;
+    [SerializeField] private Sprite eveningSprite;
+    [SerializeField] private Sprite nightSprite;
     
     private void Awake() {
         observers = new List<Agent>();
@@ -54,7 +61,9 @@ public class Day : MonoBehaviour
         rtSecInSimDay = rtMinInSimDay * 60; // The total seconds a day lasts is the amount of time the user wants the day to be in RT (in minutes) times how many seconds are in a minute (60) // CHECKED
         simMODInSimMin = simMinInSimDay / 4; // The amount of minutes a moment of the day (MOD) lasts is the amount of minutes in a Sim Day divided by 4 (4 moments in a day) // CHECKED
         rtSecInSimMin = (float)rtSecInSimDay / simMinInSimDay; // CHECKED
+        
         modTextLabel.text = modTag.ToString();
+        modPic.material.mainTexture = morningSprite.texture;
 
         print($"STARTED: {this}");
     }
@@ -85,21 +94,25 @@ public class Day : MonoBehaviour
         {
             modTag = MOD_TAG.Morning;
             modTextLabel.text = "Morning";
+            modPic.material.mainTexture = morningSprite.texture;
         }
         else if (simCurrDayMin >= simMODInSimMin && simCurrDayMin < simMODInSimMin * 2)
         {
             modTag = MOD_TAG.Afternoon;
             modTextLabel.text = "Afternoon";
+            modPic.material.mainTexture = afternoonSprite.texture;
         }
         else if (simCurrDayMin >= simMODInSimMin * 2 && simCurrDayMin < simMODInSimMin * 3)
         {
             modTag = MOD_TAG.Evening;
             modTextLabel.text = "Evening";
+            modPic.material.mainTexture = eveningSprite.texture;
         }
         else
         {
             modTag = MOD_TAG.Night;
             modTextLabel.text = "Night";
+            modPic.material.mainTexture = nightSprite.texture;
         }
 
         // TODO: fix day passing, could be better
