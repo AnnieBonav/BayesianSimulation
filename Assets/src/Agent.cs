@@ -21,6 +21,7 @@ public class Agent : MonoBehaviour
 
     [SerializeField] private List<State> states;
     public List<State> States => states;
+    private Dictionary<STATE_TYPE, State> statesDict;
     [SerializeField] private List<Activity> activities;
     public List<Activity> Activities => activities;
 
@@ -39,6 +40,16 @@ public class Agent : MonoBehaviour
         placeholderPosition = new Vector3(0, yPos, 0);
         actionsHistory = new List<Dictionary<string, object>>();
         maxDistanceFromEnemy = cam.MaxDistance;
+        statesDict = new Dictionary<STATE_TYPE, State>();
+        CacheStates();
+    }
+
+    private void CacheStates()
+    {
+        foreach (State state in states)
+        {
+            statesDict.Add(state.StateType, state);
+        }
     }
 
     private float DistanceFromEnemy()
@@ -82,7 +93,7 @@ public class Agent : MonoBehaviour
             if (!doingActivity)
             {
                 Activity chosenActivity = ChooseActivity();
-                Action action = actions.Find(action => action.ActivityType == chosenActivity.ActivityType);
+                Action action = actions.Find(action => action.ActionInfo.ActivityType == chosenActivity.ActivityType);
                 PerformAction(action, false);
             }
             yield return new WaitForSeconds(1);
@@ -93,21 +104,38 @@ public class Agent : MonoBehaviour
     public void PerformAction(Action action, bool verbose = false)
     {
         MoveTo(action.ActionTransform);
-        State stateToAffect = states.Find(state => state.StateType == action.AffectedState);
-        if(stateToAffect)
+        List<State> affectedStates = AffectedStatesByAction(action);
+        doingActivity = true;
+
+        // I start it only one time because the time does not pass for each affected state
+        StartCoroutine(AffectState(action, verbose));
+
+        foreach (State state in affectedStates)
         {
-            doingActivity = true;
-            StartCoroutine(AffectState(action, verbose));
-            stateToAffect.Decrease(action.Value);
-            doingActivity = false;
+            // Will affect the state (that I know corresponds to the action AND exists on the Agent as a state that affects) by the value of the action (by finding it in the dictionary, the affecting float is the value)
+            state.Affect(action.AffectedStates[state.StateType]);
             if (verbose) print("DEBUG IN PERFORM ACTION" + "  Will be action " + action);
         }
+        doingActivity = false;
+    }
+
+    private List<State> AffectedStatesByAction(Action action)
+    {
+        List<State> affectedStates = new List<State>();
+        foreach (STATE_TYPE stateType in action.AffectedStates.Keys)
+        {
+            if (statesDict.ContainsKey(stateType))
+            {
+                affectedStates.Add(statesDict[stateType]);
+            }
+        }
+        return affectedStates;
     }
 
     IEnumerator AffectState(Action action, bool verbose = false)
     {
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(false);
-        float waitingTime = action.TimeInMin * day.RTSecInSimMin;
+        float waitingTime = action.ActionInfo.TimeInMin * day.RTSecInSimMin;
         yield return new WaitForSeconds(waitingTime);
         
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(true);

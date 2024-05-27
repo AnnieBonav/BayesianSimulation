@@ -97,13 +97,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0aaae6ba529d24876b4c244ea58b8eb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionName: mock_action
+  actionInfo: {fileID: 0}
   actionTransform: {fileID: 4819208975008380476}
-  value: 1
-  timeInMin: 1
-  material: {fileID: 2100000, guid: d1a1857a3d81e46f18b1cf04798b44e1, type: 2}
-  activityType: 0
-  affectedState: 0
+  actionMeshRenderer: {fileID: 5585415722491519963}
 --- !u!65 &7316936174969155134
 BoxCollider:
   m_ObjectHideFlags: 0

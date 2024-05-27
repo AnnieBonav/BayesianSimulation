@@ -59,6 +59,8 @@ public class State : MonoBehaviour
         }
         UpdateUI();
     }
+
+    // TODO: Could reduce Increase and Decrease to Only Affect
     public void Increase(float value)
     {
         print("State Type Name" + stateType + " Min Value" + minValue + " Max Value" + maxValue  + " Current Value: " + currentValue + " Value to add: " + value + " Remaining Value: " + (currentValue + value));
@@ -80,6 +82,20 @@ public class State : MonoBehaviour
             currentValue = minValue;
         }
 
+        UpdateUI();
+    }
+
+    public void Affect(float value)
+    {
+        currentValue += value;
+        if (currentValue > maxValue)
+        {
+            currentValue = maxValue;
+        }
+        else if (currentValue < minValue)
+        {
+            currentValue = minValue;
+        }
         UpdateUI();
     }
 

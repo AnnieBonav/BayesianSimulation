@@ -14,8 +14,16 @@ public enum ACTIVITY_TYPE
 
 public class PlotValues
 {
-    public int[] xValues;
-    public float[] yValues;
+    public PlotValues(int[] xValues, float[] yValues)
+    {
+        this.xValues = xValues;
+        this.yValues = yValues;
+    }
+
+    private int[] xValues;
+    public int[] XValues => xValues;
+    private float[] yValues;
+    public float[] YValues => yValues;
 }
 
 // Basically the Activities are the different classses the classifier will choose from, they all have different gaussians on how the States affect them
@@ -35,19 +43,19 @@ public class Activity : MonoBehaviour
         statesGaussiansValues = new Dictionary<STATE_TYPE, PlotValues>();
         foreach(GaussianInfo gaussianInfo in statesGaussians.gaussians)
         {
-            PlotValues plotValues = CacheGaussianValues(gaussianInfo.mean, gaussianInfo.standardDeviation);
-            statesGaussiansValues.Add(gaussianInfo.state, plotValues);
+            PlotValues plotValues = CacheGaussianValues(gaussianInfo.mean, gaussianInfo.standardDeviation, gaussianInfo.minValue, gaussianInfo.maxValue);
+            statesGaussiansValues.Add(gaussianInfo.stateType, plotValues);
         }
     }
 
     public float GetLogsSum(List<State> states, bool verbose = false)
     {
-        double logsSum = 0;
+        float logsSum = 0;
         foreach(State state in states)
         {
             if (statesGaussiansValues.ContainsKey(state.StateType))
             {
-                float stateLog = statesGaussiansValues[state.StateType].yValues[(int)state.CurrentValue];
+                float stateLog = statesGaussiansValues[state.StateType].YValues[(int)state.CurrentValue];
                 if (verbose)
                 {
                     Debug.Log($"Activity: {activityType}, State: {state.StateType}, Value: {state.CurrentValue}, Log: {stateLog}");
@@ -56,27 +64,26 @@ public class Activity : MonoBehaviour
             }
         }
     
-        return (float)logsSum;
+        return logsSum;
     }
 
-    private float gaussianFunction(float x, float mean, float standardDeviation)
+    private float GaussianFunction(float x, float mean, float standardDeviation)
     {
         double xResult = 1 / (standardDeviation * Math.Sqrt(2 * Math.PI)) * Math.Exp(-Math.Pow(x - mean, 2) / (2 * Math.Pow(standardDeviation, 2)));
         float logxResult = (float)Math.Log(xResult);
         return logxResult;
     }
 
-    private PlotValues CacheGaussianValues(float mean, float standardDeviation)
+    private PlotValues CacheGaussianValues(float mean, float standardDeviation, int minValue, int maxValue)
     {
-        // States min and max will always be 0 and 100 now
-        int[] xValues = new int[101];
-        float[] yValues = new float[101];
-        for (int i = 0; i <= 100; i++)
+        int[] xValues = new int[maxValue + 1];
+        float[] yValues = new float[maxValue + 1];
+        for (int i = minValue; i <= maxValue; i++)
         {
             xValues[i] = i;
-            yValues[i] = gaussianFunction(i, mean, standardDeviation);
+            yValues[i] = GaussianFunction(i, mean, standardDeviation);
         }
 
-        return new PlotValues { xValues = xValues, yValues = yValues };
+        return new PlotValues(xValues, yValues);
     }
 }

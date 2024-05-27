@@ -13,15 +13,23 @@ MonoBehaviour:
   m_Name: Sleep_Activity
   m_EditorClassIdentifier: Assembly-CSharp::GaussianScriptableObject
   gaussians:
-  - state: 1
+  - stateType: 1
     mean: 15
     standardDeviation: 15
-  - state: 2
+    minValue: 0
+    maxValue: 100
+  - stateType: 2
     mean: 90
     standardDeviation: 10
-  - state: 3
+    minValue: 0
+    maxValue: 100
+  - stateType: 3
     mean: 25
     standardDeviation: 17.678
-  - state: 4
+    minValue: 0
+    maxValue: 100
+  - stateType: 4
     mean: 25
     standardDeviation: 25
+    minValue: 0
+    maxValue: 100

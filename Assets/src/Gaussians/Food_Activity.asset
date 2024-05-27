@@ -13,15 +13,23 @@ MonoBehaviour:
   m_Name: Food_Activity
   m_EditorClassIdentifier: Assembly-CSharp::GaussianScriptableObject
   gaussians:
-  - state: 1
+  - stateType: 1
     mean: 50
     standardDeviation: 30
-  - state: 2
+    minValue: 0
+    maxValue: 100
+  - stateType: 2
     mean: 45
     standardDeviation: 55.902
-  - state: 3
+    minValue: 0
+    maxValue: 100
+  - stateType: 3
     mean: 90
     standardDeviation: 15.811
-  - state: 4
+    minValue: 0
+    maxValue: 100
+  - stateType: 4
     mean: 20
     standardDeviation: 25.495
+    minValue: 0
+    maxValue: 100

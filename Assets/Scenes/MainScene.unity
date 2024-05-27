@@ -837,6 +837,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
+      propertyPath: actionInfo
+      value: 
+      objectReference: {fileID: 11400000, guid: 7feed51843db247e2afb6dfe7f405284,
+        type: 2}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
       propertyPath: activityType
       value: 2
       objectReference: {fileID: 0}
@@ -2160,6 +2166,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
+      propertyPath: actionInfo
+      value: 
+      objectReference: {fileID: 11400000, guid: 1dd38cc15b953487cab6263252c97134,
+        type: 2}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
       propertyPath: actionName
       value: go_bathroom
       objectReference: {fileID: 0}
@@ -3152,6 +3164,12 @@ PrefabInstance:
       propertyPath: timeInMin
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: actionInfo
+      value: 
+      objectReference: {fileID: 11400000, guid: 107bfbb6a1ace40958018348db25750c,
+        type: 2}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: actionName
@@ -4554,6 +4572,12 @@ PrefabInstance:
       propertyPath: timeInMin
       value: 30
       objectReference: {fileID: 0}
+    - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
+        type: 3}
+      propertyPath: actionInfo
+      value: 
+      objectReference: {fileID: 11400000, guid: f19606a7c21ed46fba3c33dc7c66da0d,
+        type: 2}
     - target: {fileID: 2371351799049164221, guid: 084696520b79f4ec2a48ee16c64fd379,
         type: 3}
       propertyPath: actionName
