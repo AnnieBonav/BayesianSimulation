@@ -13,6 +13,7 @@ public class Agent : MonoBehaviour
     public string AgentName => agentName;
     [SerializeField] private bool isTraining;
     public bool IsTraining => isTraining;
+    [SerializeField] private bool saveTrainingData;
     [SerializeField] private Transform enemyTransform;
     [SerializeField] private GameCamera cam;
     [SerializeField] private Transform agentTransform;
@@ -98,7 +99,18 @@ public class Agent : MonoBehaviour
         }
     }
 
-    
+    // TODO: Save scriptable object in the future, rn will be a JSON that works because gets serialized from the trainingDataScriptableObject so the list is respected, can just open it later
+    private void SaveTrainingData(TrainingDataWrapper trainingDataWrapper)
+    {
+        string trainingDataJSON = JsonUtility.ToJson(trainingDataWrapper);
+        print("Final Training Data JSON" + trainingDataJSON);
+
+        int fileCount = Directory.GetFiles("Assets/src/Data/TrainingData").Length;
+        string filePath = $"Assets/src/Data/TrainingData/TrainedData{fileCount}.json";
+
+        File.WriteAllText(filePath, trainingDataJSON);
+    }
+
     private void OnDestroy()
     {
         if(!isTraining)
@@ -108,17 +120,14 @@ public class Agent : MonoBehaviour
         else
         {
             StopCoroutine(TrainingLoop());
-            TrainingDataScriptableObject trainingDataScriptableObject = ScriptableObject.CreateInstance<TrainingDataScriptableObject>();
-            trainingDataScriptableObject.TrainingData = trainedData;
-
-            string json = JsonUtility.ToJson(trainingDataScriptableObject);
-            print("Final JSON" + json);
-
-            int fileCount = Directory.GetFiles("/Users/annie/dev/BayesianSimulation/Assets/src/TrainingData").Length;
-            string filePath = $"/Users/annie/dev/BayesianSimulation/Assets/src/TrainingData/TrainedData{fileCount + 1}.json";
-
-            File.WriteAllText(filePath, json);
-            // File.WriteAllText("/Users/annie/dev/BayesianSimulation/Assets/src/trainedData.json", json);
+            if(saveTrainingData)
+            {
+                TrainingDataWrapper trainingDataWrapper = new TrainingDataWrapper(trainedData);
+                SaveTrainingData(trainingDataWrapper);
+            }else
+            {
+                print("Training Data not saved");
+            }
         }
     }
 
@@ -153,10 +162,10 @@ public class Agent : MonoBehaviour
                 // Choose activity based on basic heuristics
                 trainingData.ChosenActivity = ChooseActivitySimpleHeuristics(trainingData); // Initially use basic logic to choose activity
 
-                print(trainingData.ToJson());
+                // print(trainingData.ToJson());
                 trainedData.Add(trainingData); // Record the chosen activity
             }
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.01f);
         }
     }
 

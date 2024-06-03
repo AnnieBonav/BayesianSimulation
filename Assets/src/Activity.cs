@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using Unity.VisualScripting;
 
 public enum ACTIVITY_TYPE
 {
@@ -10,88 +9,6 @@ public enum ACTIVITY_TYPE
     Sleep,
     Food,
     Relax,
-}
-
-[CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/TrainingDataScriptableObject", order = 3)]
-public class TrainingDataScriptableObject : ScriptableObject
-{
-    public List<TrainingData> TrainingData;
-}
-
-// Will be the saved data that the classifier will use to train the model
-[Serializable]
-public class TrainingData{
-    public float BathroomNeed;
-    public float SleepNeed;
-    public float FoodNeed;
-    public float CrimeRate;
-    public ACTIVITY_TYPE ChosenActivity;
-    public TrainingData()
-    {
-        BathroomNeed = GenerateRandomData();
-        SleepNeed = GenerateRandomData();
-        FoodNeed = GenerateRandomData();
-        CrimeRate = GenerateRandomData();
-        ChosenActivity = ACTIVITY_TYPE.None;
-    }
-
-    // TODO: Would need to get min val and max val per each state
-    private int GenerateRandomData()
-    {
-        return UnityEngine.Random.Range(0, 100);
-    }
-
-    public void ChangeValue(STATE_TYPE stateType, float value)
-    {
-        switch (stateType)
-        {
-            case STATE_TYPE.BathroomNeed:
-                BathroomNeed = value;
-                break;
-            case STATE_TYPE.SleepNeed:
-                SleepNeed = value;
-                break;
-            case STATE_TYPE.FoodNeed:
-                FoodNeed = value;
-                break;
-            case STATE_TYPE.CrimeRate:
-                CrimeRate = value;
-                break;
-            default:
-                break;
-        }
-    }
-
-    public string ToJson()
-    {
-        return JsonUtility.ToJson(this);
-    }
-}
-
-public class PlotValues
-{
-    public PlotValues(int[] xValues, float[] yValues, float mean, float standardDeviation, int minValue = 0, int maxValue = 100)
-    {
-        this.xValues = xValues;
-        this.yValues = yValues;
-        this.mean = mean;
-        this.standardDeviation = standardDeviation;
-        this.minValue = minValue;
-        this.maxValue = maxValue;
-    }
-
-    private int[] xValues;
-    public int[] XValues => xValues;
-    private float[] yValues;
-    public float[] YValues => yValues;
-    private float mean;
-    public float Mean => mean;
-    private float standardDeviation;
-    public float StandardDeviation => standardDeviation;
-    private int minValue;
-    public int MinValue => minValue;
-    private int maxValue;
-    public int MaxValue => maxValue;
 }
 
 // Basically the Activities are the different classses the classifier will choose from, they all have different gaussians on how the States affect them
