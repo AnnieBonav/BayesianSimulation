@@ -138,8 +138,8 @@ public class Agent : MonoBehaviour
             if (!doingActivity)
             {
                 // Will choose the activity based on the Naive Bayes, NOT CLEAN
-                Activity chosenActivity = ChooseActivityWithDataTrainer();
-                // Activity chosenActivity = ChooseActivity();
+                // Activity chosenActivity = ChooseActivityWithDataTrainer();
+                Activity chosenActivity = ChooseActivity();
 
                 Action action = ChooseRandomActionFromActivity(chosenActivity);
                 PerformAction(action, false);
