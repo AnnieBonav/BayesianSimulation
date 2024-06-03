@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Xml.XPath;
+using Unity.VisualScripting;
 
 public enum ACTIVITY_TYPE
 {
@@ -12,18 +12,71 @@ public enum ACTIVITY_TYPE
     Relax,
 }
 
+[Serializable]
+public class TrainingData{
+    public float BathroomNeed;
+    public float SleepNeed;
+    public float FoodNeed;
+    public float CrimeRate;
+    public TrainingData(float BathroomNeed, float SleepNeed, float FoodNeed, float CrimeRate)
+    {
+        this.BathroomNeed = BathroomNeed;
+        this.SleepNeed = SleepNeed;
+        this.FoodNeed = FoodNeed;
+        this.CrimeRate = CrimeRate;
+    }
+
+    public void ChangeValue(STATE_TYPE stateType, float value)
+    {
+        switch (stateType)
+        {
+            case STATE_TYPE.BathroomNeed:
+                BathroomNeed = value;
+                break;
+            case STATE_TYPE.SleepNeed:
+                SleepNeed = value;
+                break;
+            case STATE_TYPE.FoodNeed:
+                FoodNeed = value;
+                break;
+            case STATE_TYPE.CrimeRate:
+                CrimeRate = value;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public string ToJson()
+    {
+        return JsonUtility.ToJson(this);
+    }
+}
+
 public class PlotValues
 {
-    public PlotValues(int[] xValues, float[] yValues)
+    public PlotValues(int[] xValues, float[] yValues, float mean, float standardDeviation, int minValue = 0, int maxValue = 100)
     {
         this.xValues = xValues;
         this.yValues = yValues;
+        this.mean = mean;
+        this.standardDeviation = standardDeviation;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
     }
 
     private int[] xValues;
     public int[] XValues => xValues;
     private float[] yValues;
     public float[] YValues => yValues;
+    private float mean;
+    public float Mean => mean;
+    private float standardDeviation;
+    public float StandardDeviation => standardDeviation;
+    private int minValue;
+    public int MinValue => minValue;
+    private int maxValue;
+    public int MaxValue => maxValue;
 }
 
 // Basically the Activities are the different classses the classifier will choose from, they all have different gaussians on how the States affect them
@@ -67,6 +120,42 @@ public class Activity : MonoBehaviour
         return logsSum;
     }
 
+    private float GenerateGaussianInRange(float mean, float stdDev, float lowerBound, float upperBound)
+    {
+        float value;
+        do
+        {
+            value = GenerateGaussianValue(mean, stdDev);
+        } while (value < lowerBound || value > upperBound);
+
+        return Mathf.Round(value);
+    }
+    private float GenerateGaussianValue(float mean, float standardDeviation)
+    {
+        float u1 = UnityEngine.Random.value;
+        float u2 = UnityEngine.Random.value;
+        float z0 = Mathf.Sqrt(-2 * Mathf.Log(u1)) * Mathf.Cos(2 * Mathf.PI * u2);
+        return mean + standardDeviation * z0;
+    }
+    public TrainingData GetTrainingData(List<State> states)
+    {
+        TrainingData trainingData = new TrainingData(0, 0, 0, 0);
+        foreach(STATE_TYPE stateType in statesGaussiansValues.Keys)
+        {
+            float randomValue = GenerateGaussianInRange(statesGaussiansValues[stateType].Mean, statesGaussiansValues[stateType].StandardDeviation, statesGaussiansValues[stateType].MinValue, statesGaussiansValues[stateType].MaxValue);
+            trainingData.ChangeValue(stateType, randomValue);
+
+            // if(statesGaussiansValues.ContainsKey(stateType))
+            // {
+            //     PlotValues plotValues = statesGaussiansValues[stateType];
+            //     float value = GenerateNormalDistributedValue(plotValues.XValues[50], 1);
+            //     Debug.Log($"Activity: {activityType}, State: {stateType}, Value: {value}");
+            // }
+
+        }
+        return trainingData;
+    }
+
     private float GaussianFunction(float x, float mean, float standardDeviation)
     {
         double xResult = 1 / (standardDeviation * Math.Sqrt(2 * Math.PI)) * Math.Exp(-Math.Pow(x - mean, 2) / (2 * Math.Pow(standardDeviation, 2)));
@@ -84,6 +173,6 @@ public class Activity : MonoBehaviour
             yValues[i] = GaussianFunction(i, mean, standardDeviation);
         }
 
-        return new PlotValues(xValues, yValues);
+        return new PlotValues(xValues, yValues, mean, standardDeviation, minValue, maxValue);
     }
 }

@@ -1,9 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.AI;
 
 // FOR MORNING ANNIE:
 // The agent can choose what to do, but it is like it gets stuck in an activity and the values are not increasing? (Probably not increassing with passing time?) Could be that the agent is super quickly making the decision and then getting stuck in the activity?
@@ -13,6 +10,8 @@ public class Agent : MonoBehaviour
 {
     [SerializeField] private string agentName;
     public string AgentName => agentName;
+    [SerializeField] private bool isTraining;
+    public bool IsTraining => isTraining;
     [SerializeField] private Transform enemyTransform;
     [SerializeField] private GameCamera cam;
     [SerializeField] private Transform agentTransform;
@@ -24,23 +23,25 @@ public class Agent : MonoBehaviour
     private Dictionary<STATE_TYPE, State> statesDict;
     [SerializeField] private List<Activity> activities;
     public List<Activity> Activities => activities;
+    [SerializeField, Tooltip("Will be the one used to test the naive agent, might not be the initial definition of the Activity")] private Activity naiveActivity;
 
     [SerializeField] private ActivityButtons debugActivityButtons;
     [SerializeField] private bool hasDebugButtons = false;
     public List<Dictionary<string, object>> actionsHistory;
     [SerializeField] private List<Action> actions;
-    private List<KeyValuePair<Action, Transform>> actionsTransforms;
     [ReadOnly] private bool doingActivity = false;
     private Vector3 placeholderPosition;
     private float maxDistanceFromEnemy;
     private float currentDistanceFromEnemy;
     private float crimeRatePlaceholder;
+    private List<TrainingData> trainedData;
     public void Awake()
     {
         placeholderPosition = new Vector3(0, yPos, 0);
         actionsHistory = new List<Dictionary<string, object>>();
         maxDistanceFromEnemy = cam.MaxDistance;
         statesDict = new Dictionary<STATE_TYPE, State>();
+        trainedData = new List<TrainingData>();
         CacheStates();
     }
 
@@ -64,11 +65,8 @@ public class Agent : MonoBehaviour
         return (value - minValue) / (maxValue - minValue);
     }
 
-    private void MoveTo(Transform actionObjectToMoveTo = null)
+    private void MoveTo(Transform actionObjectToMoveTo)
     {
-        if(actionObjectToMoveTo == null){
-            actionObjectToMoveTo = actions[0].gameObject.GetComponent<Transform>();
-        }
         placeholderPosition.x = actionObjectToMoveTo.position.x;
         placeholderPosition.z = actionObjectToMoveTo.position.z;
         
@@ -77,13 +75,30 @@ public class Agent : MonoBehaviour
 
     private void Start()
     {
-        MoveTo();
-        StartCoroutine(ActivityLoop());
+        if(!isTraining)
+        {
+            StartCoroutine(ActivityLoop());
+        }
+        else
+        {
+            StartCoroutine(TrainingLoop());
+        }
     }
 
+    
     private void OnDestroy()
     {
-        StopCoroutine(ActivityLoop());
+        if(!isTraining)
+        {
+            StopCoroutine(ActivityLoop());
+        }
+        else
+        {
+            StopCoroutine(TrainingLoop());
+            string json = JsonUtility.ToJson(trainedData);
+            print("Final JSON" + json);
+            // File.WriteAllText("/Users/annie/dev/BayesianSimulation/Assets/src/trainedData.json", json);
+        }
     }
 
     IEnumerator ActivityLoop()
@@ -98,6 +113,33 @@ public class Agent : MonoBehaviour
             }
             yield return new WaitForSeconds(1);
         }
+    }
+
+    
+
+    IEnumerator TrainingLoop()
+    {
+        print("Training Loop");
+        while (true)
+        {
+            if (!doingActivity)
+            {
+                // Activity chosenActivicty = ChooseRandomActivity(); // DO NOT KNOW WHY DID THIS
+                // If I want to count the time of the day in the bayesian inference, I would need to pass the current time of the day to the ChooseRandomActivity
+
+                // states are the states that affect this agent, these should be the ones taken into consideration when getting the values from the Activity
+                TrainingData stateValues = naiveActivity.GetTrainingData(states);
+                print(stateValues.ToJson());
+                trainedData.Add(stateValues);
+            }
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
+
+    private Activity ChooseRandomActivity()
+    {
+        Activity chosenRandomActivity = null;
+        return chosenRandomActivity;
     }
 
     // Multiple needs could be affected from Action...Probably change names of PerformAction and PerformActivity

@@ -61,9 +61,9 @@ public class State : MonoBehaviour
     }
 
     // TODO: Could reduce Increase and Decrease to Only Affect
-    public void Increase(float value)
+    public void Increase(float value, bool verbose = false)
     {
-        print("State Type Name" + stateType + " Min Value" + minValue + " Max Value" + maxValue  + " Current Value: " + currentValue + " Value to add: " + value + " Remaining Value: " + (currentValue + value));
+        if (verbose) print("State Type Name" + stateType + " Min Value" + minValue + " Max Value" + maxValue  + " Current Value: " + currentValue + " Value to add: " + value + " Remaining Value: " + (currentValue + value));
 
         currentValue += value;
         if (currentValue > maxValue)
