@@ -19,6 +19,7 @@ public class Activity : MonoBehaviour
 
     [SerializeField] private GaussianScriptableObject statesGaussians;
     [SerializeField] private List<Action> possibleActions;
+    public List<Action> PossibleActions => possibleActions;
 
     private Dictionary<STATE_TYPE, PlotValues> statesGaussiansValues;
 

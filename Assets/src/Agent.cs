@@ -31,7 +31,6 @@ public class Agent : MonoBehaviour
     [SerializeField] private ActivityButtons debugActivityButtons;
     [SerializeField] private bool hasDebugButtons = false;
     public List<Dictionary<string, object>> actionsHistory;
-    [SerializeField] private List<Action> actions;
     [ReadOnly] private bool doingActivity = false;
     private Vector3 placeholderPosition;
     private float maxDistanceFromEnemy;
@@ -141,11 +140,18 @@ public class Agent : MonoBehaviour
                 // Will choose the activity based on the Naive Bayes, NOT CLEAN
                 Activity chosenActivity = ChooseActivityWithDataTrainer();
                 // Activity chosenActivity = ChooseActivity();
-                Action action = actions.Find(action => action.ActionInfo.ActivityType == chosenActivity.ActivityType);
+
+                Action action = ChooseRandomActionFromActivity(chosenActivity);
                 PerformAction(action, false);
             }
             yield return new WaitForSeconds(1);
         }
+    }
+
+    private Action ChooseRandomActionFromActivity(Activity activity)
+    {
+        int randomIndex = Random.Range(0, activity.PossibleActions.Count);
+        return activity.PossibleActions[randomIndex];
     }
 
     
