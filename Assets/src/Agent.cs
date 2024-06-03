@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 // FOR MORNING ANNIE:
@@ -35,18 +36,30 @@ public class Agent : MonoBehaviour
     private float currentDistanceFromEnemy;
     private float crimeRatePlaceholder;
     private List<TrainingData> trainedData;
+    private List<ACTIVITY_TYPE> activityTypes;
     public void Awake()
     {
+        maxDistanceFromEnemy = cam.MaxDistance;
         placeholderPosition = new Vector3(0, yPos, 0);
         actionsHistory = new List<Dictionary<string, object>>();
-        maxDistanceFromEnemy = cam.MaxDistance;
-        statesDict = new Dictionary<STATE_TYPE, State>();
         trainedData = new List<TrainingData>();
         CacheStates();
+        CacheActivities();
+    }
+
+    // Gets the ACTIVITY_TYPEs from all the activities that were dragged into the agent, so it is easier to go through them when doing the Naive Bayes
+    private void CacheActivities()
+    {
+        activityTypes = new List<ACTIVITY_TYPE>();
+        foreach (Activity activity in activities)
+        {
+            activityTypes.Add(activity.ActivityType);
+        }
     }
 
     private void CacheStates()
     {
+        statesDict = new Dictionary<STATE_TYPE, State>();
         foreach (State state in states)
         {
             statesDict.Add(state.StateType, state);
@@ -95,8 +108,16 @@ public class Agent : MonoBehaviour
         else
         {
             StopCoroutine(TrainingLoop());
-            string json = JsonUtility.ToJson(trainedData);
+            TrainingDataScriptableObject trainingDataScriptableObject = ScriptableObject.CreateInstance<TrainingDataScriptableObject>();
+            trainingDataScriptableObject.TrainingData = trainedData;
+
+            string json = JsonUtility.ToJson(trainingDataScriptableObject);
             print("Final JSON" + json);
+
+            int fileCount = Directory.GetFiles("/Users/annie/dev/BayesianSimulation/Assets/src/TrainingData").Length;
+            string filePath = $"/Users/annie/dev/BayesianSimulation/Assets/src/TrainingData/TrainedData{fileCount + 1}.json";
+
+            File.WriteAllText(filePath, json);
             // File.WriteAllText("/Users/annie/dev/BayesianSimulation/Assets/src/trainedData.json", json);
         }
     }
@@ -116,6 +137,7 @@ public class Agent : MonoBehaviour
     }
 
     
+    private 
 
     IEnumerator TrainingLoop()
     {
@@ -124,22 +146,116 @@ public class Agent : MonoBehaviour
         {
             if (!doingActivity)
             {
-                // Activity chosenActivicty = ChooseRandomActivity(); // DO NOT KNOW WHY DID THIS
-                // If I want to count the time of the day in the bayesian inference, I would need to pass the current time of the day to the ChooseRandomActivity
+                // TODO: Change trainingData to stateValues (once cretaing it per state is programmed)
+                // Generate random state values between 0 and 100
+                TrainingData trainingData = new TrainingData();
 
-                // states are the states that affect this agent, these should be the ones taken into consideration when getting the values from the Activity
-                TrainingData stateValues = naiveActivity.GetTrainingData(states);
-                print(stateValues.ToJson());
-                trainedData.Add(stateValues);
+                // Choose activity based on basic heuristics
+                trainingData.ChosenActivity = ChooseActivitySimpleHeuristics(trainingData); // Initially use basic logic to choose activity
+
+                print(trainingData.ToJson());
+                trainedData.Add(trainingData); // Record the chosen activity
             }
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.1f);
         }
     }
 
-    private Activity ChooseRandomActivity()
+    // ACTIVITY_TYPE ChooseActivity(TrainingData currentStateValues)
+    // {
+    //     return InferActivity(currentStateValues);
+    // }
+
+    // ACTIVITY_TYPE InferActivity(TrainingData currentStateValues)
+    // {
+    //     Dictionary<string, float> posteriorProbabilities = new Dictionary<string, float>();
+
+    //     foreach(ACTIVITY_TYPE activity in activityTypes)
+    //     {
+    //         // TODO: Change this from currentStateValues.BathroomNeed and such to iterate through all the states and get the values, so it is not hardcoded
+    //         float prior = GetPrior(activity); // Retrieve stored prior
+    //         float bathroomLikelihood = GaussianProbability(currentStateValues.BathroomNeed, GetMean(activity, "BathroomNeed"), GetVariance(activity, "BathroomNeed"));
+    //         float sleepLikelihood = GaussianProbability(currentStateValues.SleepNeed, GetMean(activity, "SleepNeed"), GetVariance(activity, "SleepNeed"));
+    //         float foodLikelihood = GaussianProbability(currentStateValues.FoodNeed, GetMean(activity, "FoodNeed"), GetVariance(activity, "FoodNeed"));
+    //         float crimeLikelihood = GaussianProbability(currentStateValues.CrimeRate, GetMean(activity, "CrimeRate"), GetVariance(activity, "CrimeRate"));
+
+    //         float posterior = prior * bathroomLikelihood * sleepLikelihood * foodLikelihood * crimeLikelihood;
+    //         posteriorProbabilities[activity] = posterior;
+    //     }
+
+    //     return posteriorProbabilities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+    // }
+
+    // void CalculatePriorsAndLikelihoods(List<TrainingData> trainingData)
+    // {
+    //     Dictionary<ACTIVITY_TYPE, int> activityCounts = new Dictionary<ACTIVITY_TYPE, int>();
+    //     Dictionary<ACTIVITY_TYPE, List<float>> bathroomNeeds = new Dictionary<ACTIVITY_TYPE, List<float>>();
+    //     Dictionary<ACTIVITY_TYPE, List<float>> sleepNeeds = new Dictionary<ACTIVITY_TYPE, List<float>>();
+    //     Dictionary<ACTIVITY_TYPE, List<float>> foodNeeds = new Dictionary<ACTIVITY_TYPE, List<float>>();
+    //     Dictionary<ACTIVITY_TYPE, List<float>> crimeRates = new Dictionary<ACTIVITY_TYPE, List<float>>();
+
+    //     // Initialize dictionaries
+    //     foreach (ACTIVITY_TYPE activity in Enum.GetValues(typeof(ACTIVITY_TYPE)))
+    //     {
+    //         activityCounts[activity] = 0;
+    //         bathroomNeeds[activity] = new List<float>();
+    //         sleepNeeds[activity] = new List<float>();
+    //         foodNeeds[activity] = new List<float>();
+    //         crimeRates[activity] = new List<float>();
+    //     }
+
+    //     // Count occurrences and collect state values
+    //     foreach (var data in trainingData)
+    //     {
+    //         activityCounts[data.ChosenActivity]++;
+    //         bathroomNeeds[data.ChosenActivity].Add(data.BathroomNeed);
+    //         sleepNeeds[data.ChosenActivity].Add(data.SleepNeed);
+    //         foodNeeds[data.ChosenActivity].Add(data.FoodNeed);
+    //         crimeRates[data.ChosenActivity].Add(data.CrimeRate);
+    //     }
+
+    //     int totalData = trainingData.Count;
+
+    //     // Calculate priors and likelihoods (mean and variance)
+    //     foreach (ACTIVITY_TYPE activity in Enum.GetValues(typeof(ACTIVITY_TYPE)))
+    //     {
+    //         float prior = (float)activityCounts[activity] / totalData;
+
+    //         float bathroomMean = bathroomNeeds[activity].Average();
+    //         float bathroomVariance = Variance(bathroomNeeds[activity], bathroomMean);
+
+    //         float sleepMean = sleepNeeds[activity].Average();
+    //         float sleepVariance = Variance(sleepNeeds[activity], sleepMean);
+
+    //         float foodMean = foodNeeds[activity].Average();
+    //         float foodVariance = Variance(foodNeeds[activity], foodMean);
+
+    //         float crimeMean = crimeRates[activity].Average();
+    //         float crimeVariance = Variance(crimeRates[activity], crimeMean);
+
+    //         // Store priors and likelihoods in your model (omitted for brevity)
+    //     }
+    // }
+
+    // float Variance(List<float> values, float mean)
+    // {
+    //     return values.Select(v => (v - mean) * (v - mean)).Sum() / values.Count;
+    // }
+
+
+    float GaussianProbability(float x, float mean, float variance)
     {
-        Activity chosenRandomActivity = null;
-        return chosenRandomActivity;
+        return (1 / Mathf.Sqrt(2 * Mathf.PI * variance)) * Mathf.Exp(-((x - mean) * (x - mean)) / (2 * variance));
+    }
+
+
+    private ACTIVITY_TYPE ChooseActivitySimpleHeuristics(TrainingData trainingValues)
+    {
+        // Initial logic for choosing activity, this will be updated later with Naive Bayes inference. Will start with basic "importance" (bathroom > sleep > food > relax)
+        // TODO: Will be changed for integers?
+        if (trainingValues.BathroomNeed > 70f) return ACTIVITY_TYPE.Bathroom;
+        if (trainingValues.SleepNeed > 80f) return ACTIVITY_TYPE.Sleep;
+        if (trainingValues.FoodNeed > 50f) return ACTIVITY_TYPE.Food;
+        return ACTIVITY_TYPE.Relax;
     }
 
     // Multiple needs could be affected from Action...Probably change names of PerformAction and PerformActivity

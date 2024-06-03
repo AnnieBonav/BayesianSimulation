@@ -12,18 +12,33 @@ public enum ACTIVITY_TYPE
     Relax,
 }
 
+[CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/TrainingDataScriptableObject", order = 3)]
+public class TrainingDataScriptableObject : ScriptableObject
+{
+    public List<TrainingData> TrainingData;
+}
+
+// Will be the saved data that the classifier will use to train the model
 [Serializable]
 public class TrainingData{
     public float BathroomNeed;
     public float SleepNeed;
     public float FoodNeed;
     public float CrimeRate;
-    public TrainingData(float BathroomNeed, float SleepNeed, float FoodNeed, float CrimeRate)
+    public ACTIVITY_TYPE ChosenActivity;
+    public TrainingData()
     {
-        this.BathroomNeed = BathroomNeed;
-        this.SleepNeed = SleepNeed;
-        this.FoodNeed = FoodNeed;
-        this.CrimeRate = CrimeRate;
+        BathroomNeed = GenerateRandomData();
+        SleepNeed = GenerateRandomData();
+        FoodNeed = GenerateRandomData();
+        CrimeRate = GenerateRandomData();
+        ChosenActivity = ACTIVITY_TYPE.None;
+    }
+
+    // TODO: Would need to get min val and max val per each state
+    private int GenerateRandomData()
+    {
+        return UnityEngine.Random.Range(0, 100);
     }
 
     public void ChangeValue(STATE_TYPE stateType, float value)
@@ -137,24 +152,26 @@ public class Activity : MonoBehaviour
         float z0 = Mathf.Sqrt(-2 * Mathf.Log(u1)) * Mathf.Cos(2 * Mathf.PI * u2);
         return mean + standardDeviation * z0;
     }
-    public TrainingData GetTrainingData(List<State> states)
-    {
-        TrainingData trainingData = new TrainingData(0, 0, 0, 0);
-        foreach(STATE_TYPE stateType in statesGaussiansValues.Keys)
-        {
-            float randomValue = GenerateGaussianInRange(statesGaussiansValues[stateType].Mean, statesGaussiansValues[stateType].StandardDeviation, statesGaussiansValues[stateType].MinValue, statesGaussiansValues[stateType].MaxValue);
-            trainingData.ChangeValue(stateType, randomValue);
 
-            // if(statesGaussiansValues.ContainsKey(stateType))
-            // {
-            //     PlotValues plotValues = statesGaussiansValues[stateType];
-            //     float value = GenerateNormalDistributedValue(plotValues.XValues[50], 1);
-            //     Debug.Log($"Activity: {activityType}, State: {stateType}, Value: {value}");
-            // }
+    // TODO: Change, will not go according to new implementation (but could be used as reference for the new one)
+    // public TrainingData GetTrainingData(List<State> states)
+    // {
+    //     TrainingData trainingData = new TrainingData(0, 0, 0, 0);
+    //     foreach(STATE_TYPE stateType in statesGaussiansValues.Keys)
+    //     {
+    //         float randomValue = GenerateGaussianInRange(statesGaussiansValues[stateType].Mean, statesGaussiansValues[stateType].StandardDeviation, statesGaussiansValues[stateType].MinValue, statesGaussiansValues[stateType].MaxValue);
+    //         trainingData.ChangeValue(stateType, randomValue);
 
-        }
-        return trainingData;
-    }
+    //         // if(statesGaussiansValues.ContainsKey(stateType))
+    //         // {
+    //         //     PlotValues plotValues = statesGaussiansValues[stateType];
+    //         //     float value = GenerateNormalDistributedValue(plotValues.XValues[50], 1);
+    //         //     Debug.Log($"Activity: {activityType}, State: {stateType}, Value: {value}");
+    //         // }
+
+    //     }
+    //     return trainingData;
+    // }
 
     private float GaussianFunction(float x, float mean, float standardDeviation)
     {
