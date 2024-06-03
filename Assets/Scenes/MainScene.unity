@@ -1303,7 +1303,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agentName: Perry
-  isTraining: 1
+  isTraining: 0
+  dataTrainer: {fileID: 2092072147}
   saveTrainingData: 0
   enemyTransform: {fileID: 1103141437}
   cam: {fileID: 330585548}

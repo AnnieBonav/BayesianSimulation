@@ -13,6 +13,7 @@ public class Agent : MonoBehaviour
     public string AgentName => agentName;
     [SerializeField] private bool isTraining;
     public bool IsTraining => isTraining;
+    [SerializeField] private DataTrainer dataTrainer;
     [SerializeField] private bool saveTrainingData;
     [SerializeField] private Transform enemyTransform;
     [SerializeField] private GameCamera cam;
@@ -137,7 +138,9 @@ public class Agent : MonoBehaviour
         {
             if (!doingActivity)
             {
-                Activity chosenActivity = ChooseActivity();
+                // Will choose the activity based on the Naive Bayes, NOT CLEAN
+                Activity chosenActivity = ChooseActivityWithDataTrainer();
+                // Activity chosenActivity = ChooseActivity();
                 Action action = actions.Find(action => action.ActionInfo.ActivityType == chosenActivity.ActivityType);
                 PerformAction(action, false);
             }
@@ -146,7 +149,19 @@ public class Agent : MonoBehaviour
     }
 
     
-    private 
+    private Activity ChooseActivityWithDataTrainer()
+    {
+        TrainingData currentData = new TrainingData();
+        currentData.BathroomNeed = statesDict[STATE_TYPE.BathroomNeed].CurrentValue;
+        currentData.SleepNeed = statesDict[STATE_TYPE.SleepNeed].CurrentValue;
+        currentData.FoodNeed = statesDict[STATE_TYPE.FoodNeed].CurrentValue;
+        currentData.CrimeRate = statesDict[STATE_TYPE.CrimeRate].CurrentValue;
+
+        ACTIVITY_TYPE chosenActivityType = dataTrainer.ChooseActivity(currentData);
+        Activity chosenActivity = activities.Find(activity => activity.ActivityType == chosenActivityType);
+
+        return chosenActivity;
+    }
 
     IEnumerator TrainingLoop()
     {
@@ -168,87 +183,6 @@ public class Agent : MonoBehaviour
             yield return new WaitForSeconds(0.01f);
         }
     }
-
-    // ACTIVITY_TYPE ChooseActivity(TrainingData currentStateValues)
-    // {
-    //     return InferActivity(currentStateValues);
-    // }
-
-    // ACTIVITY_TYPE InferActivity(TrainingData currentStateValues)
-    // {
-    //     Dictionary<string, float> posteriorProbabilities = new Dictionary<string, float>();
-
-    //     foreach(ACTIVITY_TYPE activity in activityTypes)
-    //     {
-    //         // TODO: Change this from currentStateValues.BathroomNeed and such to iterate through all the states and get the values, so it is not hardcoded
-    //         float prior = GetPrior(activity); // Retrieve stored prior
-    //         float bathroomLikelihood = GaussianProbability(currentStateValues.BathroomNeed, GetMean(activity, "BathroomNeed"), GetVariance(activity, "BathroomNeed"));
-    //         float sleepLikelihood = GaussianProbability(currentStateValues.SleepNeed, GetMean(activity, "SleepNeed"), GetVariance(activity, "SleepNeed"));
-    //         float foodLikelihood = GaussianProbability(currentStateValues.FoodNeed, GetMean(activity, "FoodNeed"), GetVariance(activity, "FoodNeed"));
-    //         float crimeLikelihood = GaussianProbability(currentStateValues.CrimeRate, GetMean(activity, "CrimeRate"), GetVariance(activity, "CrimeRate"));
-
-    //         float posterior = prior * bathroomLikelihood * sleepLikelihood * foodLikelihood * crimeLikelihood;
-    //         posteriorProbabilities[activity] = posterior;
-    //     }
-
-    //     return posteriorProbabilities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
-    // }
-
-    // void CalculatePriorsAndLikelihoods(List<TrainingData> trainingData)
-    // {
-    //     Dictionary<ACTIVITY_TYPE, int> activityCounts = new Dictionary<ACTIVITY_TYPE, int>();
-    //     Dictionary<ACTIVITY_TYPE, List<float>> bathroomNeeds = new Dictionary<ACTIVITY_TYPE, List<float>>();
-    //     Dictionary<ACTIVITY_TYPE, List<float>> sleepNeeds = new Dictionary<ACTIVITY_TYPE, List<float>>();
-    //     Dictionary<ACTIVITY_TYPE, List<float>> foodNeeds = new Dictionary<ACTIVITY_TYPE, List<float>>();
-    //     Dictionary<ACTIVITY_TYPE, List<float>> crimeRates = new Dictionary<ACTIVITY_TYPE, List<float>>();
-
-    //     // Initialize dictionaries
-    //     foreach (ACTIVITY_TYPE activity in Enum.GetValues(typeof(ACTIVITY_TYPE)))
-    //     {
-    //         activityCounts[activity] = 0;
-    //         bathroomNeeds[activity] = new List<float>();
-    //         sleepNeeds[activity] = new List<float>();
-    //         foodNeeds[activity] = new List<float>();
-    //         crimeRates[activity] = new List<float>();
-    //     }
-
-    //     // Count occurrences and collect state values
-    //     foreach (var data in trainingData)
-    //     {
-    //         activityCounts[data.ChosenActivity]++;
-    //         bathroomNeeds[data.ChosenActivity].Add(data.BathroomNeed);
-    //         sleepNeeds[data.ChosenActivity].Add(data.SleepNeed);
-    //         foodNeeds[data.ChosenActivity].Add(data.FoodNeed);
-    //         crimeRates[data.ChosenActivity].Add(data.CrimeRate);
-    //     }
-
-    //     int totalData = trainingData.Count;
-
-    //     // Calculate priors and likelihoods (mean and variance)
-    //     foreach (ACTIVITY_TYPE activity in Enum.GetValues(typeof(ACTIVITY_TYPE)))
-    //     {
-    //         float prior = (float)activityCounts[activity] / totalData;
-
-    //         float bathroomMean = bathroomNeeds[activity].Average();
-    //         float bathroomVariance = Variance(bathroomNeeds[activity], bathroomMean);
-
-    //         float sleepMean = sleepNeeds[activity].Average();
-    //         float sleepVariance = Variance(sleepNeeds[activity], sleepMean);
-
-    //         float foodMean = foodNeeds[activity].Average();
-    //         float foodVariance = Variance(foodNeeds[activity], foodMean);
-
-    //         float crimeMean = crimeRates[activity].Average();
-    //         float crimeVariance = Variance(crimeRates[activity], crimeMean);
-
-    //         // Store priors and likelihoods in your model (omitted for brevity)
-    //     }
-    // }
-
-    // float Variance(List<float> values, float mean)
-    // {
-    //     return values.Select(v => (v - mean) * (v - mean)).Sum() / values.Count;
-    // }
 
 
     float GaussianProbability(float x, float mean, float variance)
