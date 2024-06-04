@@ -2,6 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+// Moment of Day Tag
+public enum MOD_TAG
+{
+    Morning,
+    Afternoon,
+    Evening,
+    Night
+}
+
 public class Day : MonoBehaviour
 {
     [Header("Time of Day Settings (will alter the simulation Real Time)")]

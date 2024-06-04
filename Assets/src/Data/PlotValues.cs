@@ -1,3 +1,5 @@
+
+// Way of encapsulating the saved values of the gaussians probabilities (or any other probabilities) so they do not need to be calculated every time
 public class PlotValues
 {
     public PlotValues(int[] xValues, float[] yValues, float mean, float standardDeviation, float variance, int minValue = 0, int maxValue = 100)

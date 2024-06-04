@@ -1,11 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
+
+public enum RUN_TYPE
+{
+    Training,
+    Inference
+}
 
 // Could be both a data trainer AND getting the inferences, but might be duplicating the getting the data code, will need to check. BUT NO because getting the data depends on which way of getting the data we want. Will implement both for now.
 public abstract class InferenceEngine : MonoBehaviour
 {
+    [SerializeField] protected RUN_TYPE runType;
+    [SerializeField] protected bool saveTrainingData;
     [SerializeField] protected string trainingDataFileNumber;
     [SerializeField] protected bool verbose = false;
     // Based on the agents, its states will be used to create the training data
@@ -22,7 +31,10 @@ public abstract class InferenceEngine : MonoBehaviour
     // private Dictionary<ACTIVITY_TYPE, List<float>> crimeRates;
     // private Dictionary<ACTIVITY_TYPE, List<float>> foodNeeds;
     protected int totalData = -1;
+
+    // Will need to change naming because one will be the stored training adat (trainingData) and the other the actively got trainedData (will be gotten from the agent for now)
     protected List<TrainingData> trainingData;
+    // private List<TrainingData> trainedData;
 
     protected void Awake() {
         statesOfAgent = new Dictionary<STATE_TYPE, Dictionary<ACTIVITY_TYPE, List<float>>>();
@@ -32,16 +44,67 @@ public abstract class InferenceEngine : MonoBehaviour
         InitializeEngine();
     }
 
+    private void OnDisable() {
+        SaveTrainingData();
+    }
+
+    protected void SaveTrainingData()
+    {
+        if(saveTrainingData)
+        {
+            TrainingDataWrapper trainingDataWrapper = new TrainingDataWrapper(agent.PerformedActivitiesData);
+            SaveTrainingData(trainingDataWrapper);
+        }else
+        {
+            print("Training Data not saved");
+        }
+    }
+
+    // TODO: Change save data to the engine? Engine should hear what the agent is doing and based on that save the data
+    // TODO: Save scriptable object in the future, rn will be a JSON that works because gets serialized from the trainingDataScriptableObject so the list is respected, can just open it later
+    private void SaveTrainingData(TrainingDataWrapper trainingDataWrapper)
+    {
+        string trainingDataJSON = JsonUtility.ToJson(trainingDataWrapper);
+        print("Final Training Data JSON" + trainingDataJSON);
+
+        int fileCount = Directory.GetFiles("Assets/src/Data/TrainingData").Length;
+        string filePath = $"Assets/src/Data/TrainingData/TrainedData{fileCount}.json";
+
+        File.WriteAllText(filePath, trainingDataJSON);
+    }
+
     protected void Start()
     {
         // Do in Start and not awake cause Agent needs to be initialized first. Could probably use some better architecture
-        foreach (STATE_TYPE state in agent.StatesDict.Keys)
+        if (runType == RUN_TYPE.Training)
+        {
+            RunTraining();
+        }
+        else
+        {
+            RunInference();
+        }
+    }
+
+    protected void RunTraining()
+    {
+        print("Called training in Inference Engine");
+        agent.StartTraining();
+    }
+
+    protected void RunInference()
+    {
+        print("Called inference in Inference Engine");
+
+        foreach (STATE_TYPE state in agent.States)
         {
             statesOfAgent[state] = new Dictionary<ACTIVITY_TYPE, List<float>>();
         }
         CacheTrainingData();
         CalculatePriors();
         CalculateLikelihoods();
+
+        agent.StartInfering();
     }
 
     // Reads the data from a presaved JSON file

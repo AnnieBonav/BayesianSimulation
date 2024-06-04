@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,4 +11,15 @@ public class ActionScriptableObject : ScriptableObject
     public int TimeInMin;
     public List<AffectedState> AffectedStates;
     public Sprite Sprite;
+}
+
+[Serializable]
+public class AffectedState
+{
+    public STATE_TYPE StateType;
+    public float Value;
+    public override string ToString()
+    {
+        return $"State Type: {StateType}, Value: {Value}";
+    }
 }

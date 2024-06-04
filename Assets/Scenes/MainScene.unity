@@ -843,7 +843,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &452427323
 Transform:
   m_ObjectHideFlags: 0
@@ -871,6 +871,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3ea6aac4c2d84d518442ad95a163eb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  runType: 0
+  saveTrainingData: 0
   trainingDataFileNumber: 2
   verbose: 1
   agent: {fileID: 669082639}
@@ -1014,7 +1016,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &543908812
 Transform:
   m_ObjectHideFlags: 0
@@ -1042,6 +1044,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3ea6aac4c2d84d518442ad95a163eb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  runType: 0
+  saveTrainingData: 0
   trainingDataFileNumber: 2
   verbose: 1
   agent: {fileID: 669082639}
@@ -1457,12 +1461,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agentName: Perry
-  isTraining: 0
   inferenceEngine: {fileID: 2092072149}
-  saveTrainingData: 0
   enemyTransform: {fileID: 1103141437}
   cam: {fileID: 330585548}
-  agentTransform: {fileID: 669082643}
   yPos: 0.6
   day: {fileID: 1734314896}
   states:
@@ -1475,7 +1476,6 @@ MonoBehaviour:
   - {fileID: 1199420921}
   - {fileID: 1376732198}
   - {fileID: 640971070}
-  naiveActivity: {fileID: 0}
   debugActivityButtons: {fileID: 1350107154}
   hasDebugButtons: 0
 --- !u!136 &669082640
@@ -2888,7 +2888,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1147434027
 Transform:
   m_ObjectHideFlags: 0
@@ -2916,6 +2916,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3ea6aac4c2d84d518442ad95a163eb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  runType: 0
+  saveTrainingData: 0
   trainingDataFileNumber: 2
   verbose: 1
   agent: {fileID: 669082639}
@@ -4631,6 +4633,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3ea6aac4c2d84d518442ad95a163eb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  runType: 1
+  saveTrainingData: 0
   trainingDataFileNumber: 2
   verbose: 1
   agent: {fileID: 669082639}

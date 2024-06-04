@@ -11,25 +11,27 @@ public class Agent : MonoBehaviour
 {
     [SerializeField] private string agentName;
     public string AgentName => agentName;
-    [SerializeField] private bool isTraining;
-    public bool IsTraining => isTraining;
+
     // [SerializeField] private DataTrainer dataTrainer;
     [SerializeField] private InferenceEngine inferenceEngine;
-    [SerializeField] private bool saveTrainingData;
     [SerializeField] private Transform enemyTransform;
     [SerializeField] private GameCamera cam;
-    [SerializeField] private Transform agentTransform;
+    private Transform agentTransform;
     [SerializeField] private float yPos = 0.6f;
     [SerializeField] private Day day;
 
     // TODO: Cleanup these states state StateKeys...Can be simpler and less variables
+    // Cannot acces the states that belong to the Agent, only the Types (same with the activities, only the types are accessible, not the instances)
     [SerializeField] private List<State> states;
-    public List<State> States => states;
+    private List<STATE_TYPE> statesType;
+    public List<STATE_TYPE> States => statesType;
+    // Dictionaries are used for quick lookup
     private Dictionary<STATE_TYPE, State> statesDict;
-    public Dictionary<STATE_TYPE, State> StatesDict => statesDict;
+
     [SerializeField] private List<Activity> activities;
-    public List<Activity> Activities => activities;
-    [SerializeField, Tooltip("Will be the one used to test the naive agent, might not be the initial definition of the Activity")] private Activity naiveActivity;
+    private List<ACTIVITY_TYPE> activitiesType;
+    public List<ACTIVITY_TYPE> Activities => activitiesType;
+    private Dictionary<ACTIVITY_TYPE, Activity> activitiesDict;
 
     [SerializeField] private ActivityButtons debugActivityButtons;
     [SerializeField] private bool hasDebugButtons = false;
@@ -39,34 +41,44 @@ public class Agent : MonoBehaviour
     private float maxDistanceFromEnemy;
     private float currentDistanceFromEnemy;
     private float crimeRatePlaceholder;
-    private List<TrainingData> trainedData;
-    private List<ACTIVITY_TYPE> activityTypes;
+
+    private List<TrainingData> performedActivitiesData;
+    public List<TrainingData> PerformedActivitiesData => performedActivitiesData;
+
+    private bool isTraining = false;
     public void Awake()
     {
+        agentTransform = this.transform;
         maxDistanceFromEnemy = cam.MaxDistance;
         placeholderPosition = new Vector3(0, yPos, 0);
         actionsHistory = new List<Dictionary<string, object>>();
-        trainedData = new List<TrainingData>();
+        performedActivitiesData = new List<TrainingData>();
         CacheStates();
         CacheActivities();
+    }
+
+    private void CacheStates()
+    {
+        statesType = new List<STATE_TYPE>();
+        statesDict = new Dictionary<STATE_TYPE, State>();
+
+        foreach (State state in states)
+        {
+            statesType.Add(state.StateType);
+            statesDict.Add(state.StateType, state);
+        }
     }
 
     // Gets the ACTIVITY_TYPEs from all the activities that were dragged into the agent, so it is easier to go through them when doing the Naive Bayes
     private void CacheActivities()
     {
-        activityTypes = new List<ACTIVITY_TYPE>();
+        activitiesType = new List<ACTIVITY_TYPE>();
+        activitiesDict = new Dictionary<ACTIVITY_TYPE, Activity>();
+
         foreach (Activity activity in activities)
         {
-            activityTypes.Add(activity.ActivityType);
-        }
-    }
-
-    private void CacheStates()
-    {
-        statesDict = new Dictionary<STATE_TYPE, State>();
-        foreach (State state in states)
-        {
-            statesDict.Add(state.StateType, state);
+            activitiesType.Add(activity.ActivityType);
+            activitiesDict.Add(activity.ActivityType, activity);
         }
     }
 
@@ -74,8 +86,6 @@ public class Agent : MonoBehaviour
     {
         return Vector3.Distance(agentTransform.position, enemyTransform.position);
     }
-
-    // TODO: Change the states to be a dictionary
 
     private float NormalizeValue(float value, float minValue, float maxValue)
     {
@@ -90,47 +100,26 @@ public class Agent : MonoBehaviour
         iTween.MoveTo(this.gameObject, iTween.Hash("position", placeholderPosition));
     }
 
-    private void Start()
+    public void StartTraining()
     {
-        if(!isTraining)
-        {
-            StartCoroutine(ActivityLoop());
-        }
-        else
-        {
-            StartCoroutine(TrainingLoop());
-        }
+        isTraining = true;
+        StartCoroutine(TrainingLoop());
     }
 
-    // TODO: Save scriptable object in the future, rn will be a JSON that works because gets serialized from the trainingDataScriptableObject so the list is respected, can just open it later
-    private void SaveTrainingData(TrainingDataWrapper trainingDataWrapper)
+    // Should probably chnage the names because there will be one inference engine that actually does active inference, so it will be traing and infering and naming can be confusing
+    public void StartInfering()
     {
-        string trainingDataJSON = JsonUtility.ToJson(trainingDataWrapper);
-        print("Final Training Data JSON" + trainingDataJSON);
-
-        int fileCount = Directory.GetFiles("Assets/src/Data/TrainingData").Length;
-        string filePath = $"Assets/src/Data/TrainingData/TrainedData{fileCount}.json";
-
-        File.WriteAllText(filePath, trainingDataJSON);
+        StartCoroutine(ActivityLoop());
     }
 
-    private void OnDestroy()
-    {
-        if(!isTraining)
-        {
-            StopCoroutine(ActivityLoop());
-        }
-        else
+    // TODO: make this disabling better, should probably not need to run if is training? Or maybe yes but maybe there is more than one option of running?
+    private void OnDisable() {
+        if(isTraining)
         {
             StopCoroutine(TrainingLoop());
-            if(saveTrainingData)
-            {
-                TrainingDataWrapper trainingDataWrapper = new TrainingDataWrapper(trainedData);
-                SaveTrainingData(trainingDataWrapper);
-            }else
-            {
-                print("Training Data not saved");
-            }
+        }
+        else{
+            StopCoroutine(ActivityLoop());
         }
     }
 
@@ -174,7 +163,6 @@ public class Agent : MonoBehaviour
 
     IEnumerator TrainingLoop()
     {
-        print("Training Loop");
         while (true)
         {
             if (!doingActivity)
@@ -187,7 +175,7 @@ public class Agent : MonoBehaviour
                 trainingData.ChosenActivity = ChooseActivitySimpleHeuristics(trainingData); // Initially use basic logic to choose activity
 
                 // print(trainingData.ToJson());
-                trainedData.Add(trainingData); // Record the chosen activity
+                performedActivitiesData.Add(trainingData); // Record the chosen activity
             }
             yield return new WaitForSeconds(0.01f);
         }

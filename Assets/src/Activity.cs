@@ -11,20 +11,24 @@ public enum ACTIVITY_TYPE
     Relax,
 }
 
-// Basically the Activities are the different classses the classifier will choose from, they all have different gaussians on how the States affect them
+// Activities are the different classes the classifier will choose from
 public class Activity : MonoBehaviour
 {
     [SerializeField] private ACTIVITY_TYPE activityType;
     public ACTIVITY_TYPE ActivityType => activityType;
-
-    [SerializeField] private GaussianScriptableObject statesGaussians;
     [SerializeField] private List<Action> possibleActions;
     public List<Action> PossibleActions => possibleActions;
 
+    // TODO: Check note bacause of change of Inference Engine.
+    // An activity will not necessarily have a Gaussian Scriptable (morelike use it) given the implementation of the Inference Engine. Will need to review.
+    [SerializeField] private GaussianScriptableObject statesGaussians;
+
+    // Better to have as a dictionary than a list because of the O(1) access time
     private Dictionary<STATE_TYPE, PlotValues> statesGaussiansValues;
 
     private void Awake()
     {
+        // TODO: Check note bacause of change of Inference Engine.
         // statesGaussiansValues will have n KeyValuePairs (equal to the amount of gaussians in the atatched stateGaussians scriptable object), where the key will be the state and the value will be an instance of PlotValues that holds the x (value from 0-100) and y (corresponding probability) values of the gaussian
         statesGaussiansValues = new Dictionary<STATE_TYPE, PlotValues>();
         foreach(GaussianInfo gaussianInfo in statesGaussians.gaussians)
@@ -63,6 +67,7 @@ public class Activity : MonoBehaviour
 
         return Mathf.Round(value);
     }
+    
     private float GenerateGaussianValue(float mean, float standardDeviation)
     {
         float u1 = UnityEngine.Random.value;
