@@ -36,6 +36,23 @@ public class TrainingData{
         return UnityEngine.Random.Range(0, 100);
     }
 
+    public float GetStateValue(STATE_TYPE stateType)
+    {
+        switch (stateType)
+        {
+            case STATE_TYPE.BathroomNeed:
+                return BathroomNeed;
+            case STATE_TYPE.SleepNeed:
+                return SleepNeed;
+            case STATE_TYPE.FoodNeed:
+                return FoodNeed;
+            case STATE_TYPE.CrimeRate:
+                return CrimeRate;
+            default:
+                return 0;
+        }
+    }
+
     public void ChangeValue(STATE_TYPE stateType, float value)
     {
         switch (stateType)

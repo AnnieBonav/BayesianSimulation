@@ -13,7 +13,8 @@ public class Agent : MonoBehaviour
     public string AgentName => agentName;
     [SerializeField] private bool isTraining;
     public bool IsTraining => isTraining;
-    [SerializeField] private DataTrainer dataTrainer;
+    // [SerializeField] private DataTrainer dataTrainer;
+    [SerializeField] private InferenceEngine inferenceEngine;
     [SerializeField] private bool saveTrainingData;
     [SerializeField] private Transform enemyTransform;
     [SerializeField] private GameCamera cam;
@@ -21,9 +22,11 @@ public class Agent : MonoBehaviour
     [SerializeField] private float yPos = 0.6f;
     [SerializeField] private Day day;
 
+    // TODO: Cleanup these states state StateKeys...Can be simpler and less variables
     [SerializeField] private List<State> states;
     public List<State> States => states;
     private Dictionary<STATE_TYPE, State> statesDict;
+    public Dictionary<STATE_TYPE, State> StatesDict => statesDict;
     [SerializeField] private List<Activity> activities;
     public List<Activity> Activities => activities;
     [SerializeField, Tooltip("Will be the one used to test the naive agent, might not be the initial definition of the Activity")] private Activity naiveActivity;
@@ -163,7 +166,7 @@ public class Agent : MonoBehaviour
         currentData.FoodNeed = statesDict[STATE_TYPE.FoodNeed].CurrentValue;
         currentData.CrimeRate = statesDict[STATE_TYPE.CrimeRate].CurrentValue;
 
-        ACTIVITY_TYPE chosenActivityType = dataTrainer.ChooseActivity(currentData);
+        ACTIVITY_TYPE chosenActivityType = inferenceEngine.ChooseActivity(currentData);
         Activity chosenActivity = activities.Find(activity => activity.ActivityType == chosenActivityType);
 
         return chosenActivity;
