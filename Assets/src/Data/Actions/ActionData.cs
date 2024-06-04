@@ -22,12 +22,4 @@ public class AffectedState
     }
 }
 
-[CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/ActionScriptableObject", order = 2)]
-public class ActionScriptableObject : ScriptableObject
-{
-    public string ActionName;
-    public ACTIVITY_TYPE ActivityType;
-    public int TimeInMin;
-    public List<AffectedState> AffectedStates;
-    public Sprite Sprite;
-}
+

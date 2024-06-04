@@ -1,11 +1,12 @@
 public class PlotValues
 {
-    public PlotValues(int[] xValues, float[] yValues, float mean, float standardDeviation, int minValue = 0, int maxValue = 100)
+    public PlotValues(int[] xValues, float[] yValues, float mean, float standardDeviation, float variance, int minValue = 0, int maxValue = 100)
     {
         this.xValues = xValues;
         this.yValues = yValues;
         this.mean = mean;
         this.standardDeviation = standardDeviation;
+        this.variance = variance;
         this.minValue = minValue;
         this.maxValue = maxValue;
     }
@@ -18,6 +19,8 @@ public class PlotValues
     public float Mean => mean;
     private float standardDeviation;
     public float StandardDeviation => standardDeviation;
+    private float variance;
+    public float Variance => variance;
     private int minValue;
     public int MinValue => minValue;
     private int maxValue;
