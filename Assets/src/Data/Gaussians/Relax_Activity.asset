@@ -13,23 +13,23 @@ MonoBehaviour:
   m_Name: Relax_Activity
   m_EditorClassIdentifier: Assembly-CSharp::GaussianScriptableObject
   gaussians:
-  - stateType: 1
-    mean: 30
-    standardDeviation: 53.852
-    minValue: 0
-    maxValue: 100
-  - stateType: 2
-    mean: 50
-    standardDeviation: 60
-    minValue: 0
-    maxValue: 100
-  - stateType: 3
-    mean: 50
-    standardDeviation: 50
-    minValue: 0
-    maxValue: 100
-  - stateType: 4
-    mean: 30
-    standardDeviation: 58.31
-    minValue: 0
-    maxValue: 100
+  - StateType: 1
+    Mean: 30
+    StandardDeviation: 53.852
+    MinValue: 0
+    MaxValue: 100
+  - StateType: 2
+    Mean: 50
+    StandardDeviation: 60
+    MinValue: 0
+    MaxValue: 100
+  - StateType: 3
+    Mean: 50
+    StandardDeviation: 50
+    MinValue: 0
+    MaxValue: 100
+  - StateType: 4
+    Mean: 30
+    StandardDeviation: 58.31
+    MinValue: 0
+    MaxValue: 100

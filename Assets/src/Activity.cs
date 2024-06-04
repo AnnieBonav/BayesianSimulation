@@ -29,8 +29,8 @@ public class Activity : MonoBehaviour
         statesGaussiansValues = new Dictionary<STATE_TYPE, PlotValues>();
         foreach(GaussianInfo gaussianInfo in statesGaussians.gaussians)
         {
-            PlotValues plotValues = CacheGaussianValues(gaussianInfo.mean, gaussianInfo.standardDeviation, gaussianInfo.minValue, gaussianInfo.maxValue);
-            statesGaussiansValues.Add(gaussianInfo.stateType, plotValues);
+            PlotValues plotValues = CacheGaussianValues(gaussianInfo.Mean, gaussianInfo.StandardDeviation, gaussianInfo.MinValue, gaussianInfo.MaxValue);
+            statesGaussiansValues.Add(gaussianInfo.StateType, plotValues);
         }
     }
 

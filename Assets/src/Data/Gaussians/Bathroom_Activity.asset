@@ -13,23 +13,23 @@ MonoBehaviour:
   m_Name: Bathroom_Activity
   m_EditorClassIdentifier: Assembly-CSharp::GaussianScriptableObject
   gaussians:
-  - stateType: 1
-    mean: 90
-    standardDeviation: 20
-    minValue: 0
-    maxValue: 100
-  - stateType: 2
-    mean: 30
-    standardDeviation: 47.434
-    minValue: 0
-    maxValue: 100
-  - stateType: 3
-    mean: 25
-    standardDeviation: 25
-    minValue: 0
-    maxValue: 100
-  - stateType: 4
-    mean: 50
-    standardDeviation: 60
-    minValue: 0
-    maxValue: 100
+  - StateType: 1
+    Mean: 90
+    StandardDeviation: 20
+    MinValue: 0
+    MaxValue: 100
+  - StateType: 2
+    Mean: 30
+    StandardDeviation: 47.3
+    MinValue: 0
+    MaxValue: 100
+  - StateType: 3
+    Mean: 25
+    StandardDeviation: 25
+    MinValue: 0
+    MaxValue: 100
+  - StateType: 4
+    Mean: 50
+    StandardDeviation: 60
+    MinValue: 0
+    MaxValue: 100
