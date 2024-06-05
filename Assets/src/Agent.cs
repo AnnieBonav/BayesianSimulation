@@ -38,9 +38,9 @@ public class Agent : MonoBehaviour
 
     private List<InferenceData> performedActivitiesData;
     public List<InferenceData> PerformedActivitiesData => performedActivitiesData;
-
     private bool isTraining = false;
-    public void Awake()
+
+    private void Awake()
     {
         agentTransform = this.transform;
         maxDistanceFromEnemy = cam.MaxDistance;
@@ -48,9 +48,14 @@ public class Agent : MonoBehaviour
         actionsHistory = new List<Dictionary<string, object>>();
         performedActivitiesData = new List<InferenceData>();
         inferenceEngine = inferenceEngineChooser.GetSelectedEngine();
-        
+
         CacheStates();
         CacheActivities();
+    }
+
+    private void Start()
+    {
+        inferenceEngine.InitializeEngine();
     }
 
     private void CacheStates()
@@ -141,7 +146,6 @@ public class Agent : MonoBehaviour
         int randomIndex = Random.Range(0, activity.PossibleActions.Count);
         return activity.PossibleActions[randomIndex];
     }
-
     
     private Activity ChooseActivityWithDataTrainer()
     {

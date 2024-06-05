@@ -1051,6 +1051,7 @@ Transform:
   - {fileID: 1049884338}
   - {fileID: 279958172}
   - {fileID: 2092072148}
+  - {fileID: 1176855043}
   - {fileID: 1562161792}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1066,10 +1067,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a662e579282a6476aacbaef7a96f8663, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ChosenInferenceEngineType: 3
+  ChosenInferenceEngineType: 4
   PredefinedGaussiansIE: {fileID: 1049884337}
   RandomActivityIE: {fileID: 279958171}
   BasicHeuristicsIE: {fileID: 2092072149}
+  CombinedActivityIE: {fileID: 1176855042}
   ActiveInferenceEngine: {fileID: 1562161791}
 --- !u!1001 &591064752
 PrefabInstance:
@@ -2890,6 +2892,56 @@ MonoBehaviour:
   enemy: {fileID: 669082639}
   move: 1
   cam: {fileID: 330585548}
+--- !u!1 &1176855041
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1176855043}
+  - component: {fileID: 1176855042}
+  m_Layer: 0
+  m_Name: StandardInference_CombinedActivity
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1176855042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1176855041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fde33c7c21857456b9700285975d12be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  runType: 1
+  saveTrainingData: 0
+  trainingDataFileNumber: 0
+  verbose: 1
+  agent: {fileID: 669082639}
+  explorationRate: 0.2
+--- !u!4 &1176855043
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1176855041}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 588071165}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1196248152
 GameObject:
   m_ObjectHideFlags: 0

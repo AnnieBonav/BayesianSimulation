@@ -8,8 +8,9 @@ using UnityEngine;
 
 public enum RUN_TYPE
 {
-    Training,
-    Inference
+    TRAINING,
+    INFERENCE,
+    ACTIVE_INFERENCE
 }
 
 public enum INFERENCE_ENGINE_TYPE
@@ -18,6 +19,7 @@ public enum INFERENCE_ENGINE_TYPE
     PREDEFINED_GAUSSIANS,
     RANDOM_ACTIVITY,
     BASIC_HEURISTICS_ACTIVITY,
+    COMBINED_ACTIVITY,
     ACTIVE_INFERENCE
 }
 
@@ -57,6 +59,8 @@ public abstract class InferenceEngine : MonoBehaviour
     {
         int fileCount = Directory.GetFiles("Assets/src/Data/TrainingData", "*.asset").Length;
         string fileName;
+
+        // TODO: Make this better by each implementation saving that information, these switches are not good
         switch(inferenceEngineType)
         {
             case INFERENCE_ENGINE_TYPE.PREDEFINED_GAUSSIANS:
@@ -69,6 +73,10 @@ public abstract class InferenceEngine : MonoBehaviour
 
             case INFERENCE_ENGINE_TYPE.BASIC_HEURISTICS_ACTIVITY:
                 fileName = $"BasicHeuristicsActivity{fileCount}";
+                break;
+
+            case INFERENCE_ENGINE_TYPE.COMBINED_ACTIVITY:
+                fileName = $"CombinedActivity{fileCount}";
                 break;
 
             case INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE:
@@ -97,6 +105,10 @@ public abstract class InferenceEngine : MonoBehaviour
 
             case INFERENCE_ENGINE_TYPE.BASIC_HEURISTICS_ACTIVITY:
                 fileName = $"BasicHeuristicsActivity{trainingDataFileNumber}";
+                break;
+
+            case INFERENCE_ENGINE_TYPE.COMBINED_ACTIVITY:
+                fileName = $"CombinedActivity{trainingDataFileNumber}";
                 break;
 
             case INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE:
@@ -143,16 +155,27 @@ public abstract class InferenceEngine : MonoBehaviour
 
         // Do in Start and not awake cause Agent needs to be initialized first. Could probably use some better architecture
         switch(runType){
-            case RUN_TYPE.Training:
+            case RUN_TYPE.TRAINING:
                 RunTraining();
                 break;
-            case RUN_TYPE.Inference:
+            case RUN_TYPE.INFERENCE:
                 RunInference();
                 break;
+
+            case RUN_TYPE.ACTIVE_INFERENCE:
+                RunActiveInference();
+                break;
+
             default:
                 Debug.LogError("Run type not found");
                 break;
         }
+    }
+
+    protected void RunActiveInference()
+    {
+        print("Called active inference in Inference Engine");
+        // agent.StartActiveInfering();
     }
 
     protected void RunTraining()
@@ -283,7 +306,7 @@ public abstract class InferenceEngine : MonoBehaviour
     {
         StartEngine();
     }
-    
+
     public abstract ACTIVITY_TYPE InferActivity(InferenceData currentStateValues);
     public abstract ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues);
     protected INFERENCE_ENGINE_TYPE inferenceEngineType;
