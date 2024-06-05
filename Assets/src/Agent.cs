@@ -9,7 +9,8 @@ public class Agent : MonoBehaviour
     public string AgentName => agentName;
 
     // [SerializeField] private DataTrainer dataTrainer;
-    [SerializeField] private InferenceEngine inferenceEngine;
+    [SerializeField] private InferenceEngineChooser inferenceEngineChooser;
+    private InferenceEngine inferenceEngine;
     [SerializeField] private Transform enemyTransform;
     [SerializeField] private GameCamera cam;
     private Transform agentTransform;
@@ -46,6 +47,8 @@ public class Agent : MonoBehaviour
         agentPosition = new Vector3(0, yPos, 0);
         actionsHistory = new List<Dictionary<string, object>>();
         performedActivitiesData = new List<InferenceData>();
+        inferenceEngine = inferenceEngineChooser.GetSelectedEngine();
+        
         CacheStates();
         CacheActivities();
     }

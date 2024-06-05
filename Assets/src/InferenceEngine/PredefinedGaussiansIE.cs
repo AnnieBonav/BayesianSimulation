@@ -1,16 +1,14 @@
-using UnityEngine;
-
-public class PredefinedGaussiansIE : MonoBehaviour
+public class PredefinedGaussiansIE : StandardInference
 {
-    // Start is called before the first frame update
-    void Start()
+    public override void InitializeEngine()
     {
-        
+        inferenceEngineType = INFERENCE_ENGINE_TYPE.PREDEFINED_GAUSSIANS;
+        base.InitializeEngine();
     }
 
-    // Update is called once per frame
-    void Update()
+    public override ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues)
     {
-        
+        // TODO: Actually implement getting it from gaussians lol
+        return ACTIVITY_TYPE.None;
     }
 }

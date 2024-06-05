@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Unity.Serialization.Json;
 using UnityEngine;
 
@@ -9,6 +10,15 @@ public enum RUN_TYPE
 {
     Training,
     Inference
+}
+
+public enum INFERENCE_ENGINE_TYPE
+{
+    NONE,
+    PREDEFINED_GAUSSIANS,
+    RANDOM_ACTIVITY,
+    BASIC_HEURISTICS_ACTIVITY,
+    ACTIVE_INFERENCE
 }
 
 // Inference Engine both handles the training (based on which Engine it is), and then the inference (based on that training.) It calls the functions on the Agent and (...)
@@ -28,18 +38,77 @@ public abstract class InferenceEngine : MonoBehaviour
 
     protected int totalData = -1;
     protected List<InferenceData> trainingData;
+    protected List<ACTIVITY_TYPE> activityTypes;
 
     protected void Awake() {
         activityCounts = new Dictionary<ACTIVITY_TYPE, int>();
         performedActivitiesData = new Dictionary<ACTIVITY_TYPE, PerformedActivityData>();
         agentsPerformedActivities = new Dictionary<STATE_TYPE, Dictionary<ACTIVITY_TYPE, List<float>>>();
         trainingData = new List<InferenceData>();
-        InitializeEngine();
+        activityTypes = new List<ACTIVITY_TYPE>();
     }
 
     private void OnDisable()
     {
         SaveTrainingData();
+    }
+
+    private string NewTrainingDataFileName()
+    {
+        int fileCount = Directory.GetFiles("Assets/src/Data/TrainingData", "*.asset").Length;
+        string fileName;
+        switch(inferenceEngineType)
+        {
+            case INFERENCE_ENGINE_TYPE.PREDEFINED_GAUSSIANS:
+                fileName = $"PredefinedGaussians{fileCount}";
+                break;
+
+            case INFERENCE_ENGINE_TYPE.RANDOM_ACTIVITY:
+                fileName = $"RandomActivity{fileCount}";
+                break;
+
+            case INFERENCE_ENGINE_TYPE.BASIC_HEURISTICS_ACTIVITY:
+                fileName = $"BasicHeuristicsActivity{fileCount}";
+                break;
+
+            case INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE:
+                fileName = $"ActiveInference{fileCount}";
+                break;
+
+            default: // Stupid that it makes me add default (unasigeable variable fileName) cause I am adding all the cases, but it is what it is
+                fileName = $"TrainingData{fileCount}";
+                break;
+        }
+        return fileName;
+    }
+
+    private string ExistingTrainingDataFileName()
+    {
+        string fileName;
+        switch(inferenceEngineType)
+        {
+            case INFERENCE_ENGINE_TYPE.PREDEFINED_GAUSSIANS:
+                fileName = $"PredefinedGaussians{trainingDataFileNumber}";
+                break;
+
+            case INFERENCE_ENGINE_TYPE.RANDOM_ACTIVITY:
+                fileName = $"RandomActivity{trainingDataFileNumber}";
+                break;
+
+            case INFERENCE_ENGINE_TYPE.BASIC_HEURISTICS_ACTIVITY:
+                fileName = $"BasicHeuristicsActivity{trainingDataFileNumber}";
+                break;
+
+            case INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE:
+                fileName = $"ActiveInference{trainingDataFileNumber}";
+                break;
+
+            default:
+                fileName = $"TrainingData{trainingDataFileNumber}";
+                break;
+        }
+
+        return fileName;
     }
 
     protected void SaveTrainingData()
@@ -61,22 +130,28 @@ public abstract class InferenceEngine : MonoBehaviour
         string trainingDataJSON = JsonSerialization.ToJson(trainingDataWrapper);
         print("Final Training Data JSON" + trainingDataJSON);
 
-        int fileCount = Directory.GetFiles("Assets/src/Data/TrainingData").Length;
-        string filePath = $"Assets/src/Data/TrainingData/TrainedData{fileCount}.json";
+        string fileName = NewTrainingDataFileName();
+        string filePath = $"Assets/src/Data/TrainingData/{fileName}.json";
 
         File.WriteAllText(filePath, trainingDataJSON);
     }
 
-    protected void Start()
+    protected void StartEngine()
     {
+        // Caches the activities from the agent
+        activityTypes = agent.Activities;
+
         // Do in Start and not awake cause Agent needs to be initialized first. Could probably use some better architecture
-        if (runType == RUN_TYPE.Training)
-        {
-            RunTraining();
-        }
-        else
-        {
-            RunInference();
+        switch(runType){
+            case RUN_TYPE.Training:
+                RunTraining();
+                break;
+            case RUN_TYPE.Inference:
+                RunInference();
+                break;
+            default:
+                Debug.LogError("Run type not found");
+                break;
         }
     }
 
@@ -105,8 +180,10 @@ public abstract class InferenceEngine : MonoBehaviour
     // Reads the data from a presaved JSON file
     protected void CacheTrainingData()
     {
-        string jsonPath = $"Assets/src/Data/TrainingData/TrainedData{trainingDataFileNumber}.json";
-        string jsonText = File.ReadAllText(jsonPath);
+        string fileName = ExistingTrainingDataFileName();
+        string filePath = $"Assets/src/Data/TrainingData/{fileName}.json";
+
+        string jsonText = File.ReadAllText(filePath);
         print("JsonText: " + jsonText);
 
         TrainingDataWrapper trainingDataObject = JsonSerialization.FromJson<TrainingDataWrapper>(jsonText.ToString());
@@ -131,15 +208,11 @@ public abstract class InferenceEngine : MonoBehaviour
         foreach (ACTIVITY_TYPE activity in Enum.GetValues(typeof(ACTIVITY_TYPE)))
         {
             activityCounts[activity] = 0;
-            // Per every state, it will create a list of every actovivity that was tested and the values that were gotten (from that state and activity)
+            // Per every state, it will create a list of every activivity that was tested and the values that were gotten (from that state and activity)
             foreach (STATE_TYPE state in agentsPerformedActivities.Keys)
             {
                 agentsPerformedActivities[state][activity] = new List<float>();
             }
-            // bathroomNeeds[activity] = new List<float>();
-            // sleepNeeds[activity] = new List<float>();
-            // foodNeeds[activity] = new List<float>();
-            // crimeRates[activity] = new List<float>();
         }
 
         // Count occurrences the ocurrances of each actovoty (in activityCounts) and store the values of the states in the corresponding lists (in bathroomNeeds, sleepNeeds, foodNeeds, crimeRates
@@ -150,10 +223,6 @@ public abstract class InferenceEngine : MonoBehaviour
             {
                 agentsPerformedActivities[state][data.ChosenActivity].Add(data.GetStateValue(state));
             }
-            // bathroomNeeds[data.ChosenActivity].Add(data.BathroomNeed);
-            // sleepNeeds[data.ChosenActivity].Add(data.SleepNeed);
-            // foodNeeds[data.ChosenActivity].Add(data.FoodNeed);
-            // crimeRates[data.ChosenActivity].Add(data.CrimeRate);
         }
 
         totalData = trainingData.Count;
@@ -210,7 +279,11 @@ public abstract class InferenceEngine : MonoBehaviour
         return (1 / Mathf.Sqrt(2 * Mathf.PI * variance)) * Mathf.Exp(-((x - mean) * (x - mean)) / (2 * variance));
     }
     
-    public abstract void InitializeEngine();
+    public virtual void InitializeEngine()
+    {
+        StartEngine();
+    }
+    
     public abstract ACTIVITY_TYPE InferActivity(InferenceData currentStateValues);
     public abstract ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues);
     protected INFERENCE_ENGINE_TYPE inferenceEngineType;

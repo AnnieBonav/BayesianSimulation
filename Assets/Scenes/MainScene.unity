@@ -284,6 +284,55 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 294243339}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &279958170
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 279958172}
+  - component: {fileID: 279958171}
+  m_Layer: 0
+  m_Name: StandardInference_RandomActivity
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &279958171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279958170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd9b380ce37cc4822a833d8f73be85d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  runType: 1
+  saveTrainingData: 0
+  trainingDataFileNumber: 0
+  verbose: 1
+  agent: {fileID: 669082639}
+--- !u!4 &279958172
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279958170}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 588071165}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &294243339
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -978,8 +1027,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 588071165}
+  - component: {fileID: 588071166}
   m_Layer: 0
-  m_Name: InferenceEngines
+  m_Name: InferenceEnginesChooser
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -998,9 +1048,29 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1049884338}
+  - {fileID: 279958172}
   - {fileID: 2092072148}
+  - {fileID: 1562161792}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &588071166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 588071164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a662e579282a6476aacbaef7a96f8663, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ChosenInferenceEngineType: 3
+  PredefinedGaussiansIE: {fileID: 1049884337}
+  RandomActivityIE: {fileID: 279958171}
+  BasicHeuristicsIE: {fileID: 2092072149}
+  ActiveInferenceEngine: {fileID: 1562161791}
 --- !u!1001 &591064752
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1360,7 +1430,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agentName: Perry
-  inferenceEngine: {fileID: 2092072149}
+  inferenceEngineChooser: {fileID: 588071166}
   enemyTransform: {fileID: 1103141437}
   cam: {fileID: 330585548}
   yPos: 0.6
@@ -2455,6 +2525,55 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 084696520b79f4ec2a48ee16c64fd379, type: 3}
+--- !u!1 &1049884336
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1049884338}
+  - component: {fileID: 1049884337}
+  m_Layer: 0
+  m_Name: StandardInference_PredefinedGaussians
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1049884337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1049884336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45ea29372dee64b398b81e733e6f4913, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  runType: 0
+  saveTrainingData: 0
+  trainingDataFileNumber: 
+  verbose: 0
+  agent: {fileID: 669082639}
+--- !u!4 &1049884338
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1049884336}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 588071165}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1101208259
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3804,6 +3923,55 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 532464324}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1562161790
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1562161792}
+  - component: {fileID: 1562161791}
+  m_Layer: 0
+  m_Name: ActiveInference
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1562161791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1562161790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27322f7c8a1114ced9d7a1c041fbe8a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  runType: 0
+  saveTrainingData: 0
+  trainingDataFileNumber: 
+  verbose: 0
+  agent: {fileID: 669082639}
+--- !u!4 &1562161792
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1562161790}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 588071165}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &1568323455 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4081429402961521912, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
@@ -4480,13 +4648,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2092072146}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3ea6aac4c2d84d518442ad95a163eb2, type: 3}
+  m_Script: {fileID: 11500000, guid: f217365a333f14f50a359be632f51b58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   runType: 1
   saveTrainingData: 0
-  trainingDataFileNumber: 4
-  verbose: 0
+  trainingDataFileNumber: 0
+  verbose: 1
   agent: {fileID: 669082639}
 --- !u!1001 &912370179396346615
 PrefabInstance:

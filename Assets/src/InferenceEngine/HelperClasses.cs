@@ -1,12 +1,5 @@
 using System.Collections.Generic;
 
-public enum INFERENCE_ENGINE_TYPE
-{
-    PREDEFINED_GAUSSIANS,
-    RANDOM_ACTIVITY,
-    BASIC_HEURISTICS_ACTIVITY
-}
-
 // A single PerformedActovity has different gaussians of the states it is affected by, and also stores the prior and the Actovity that was performed
 public class PerformedActivityData
 {

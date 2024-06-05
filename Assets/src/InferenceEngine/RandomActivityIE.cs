@@ -1,16 +1,15 @@
 using UnityEngine;
 
-public class RandomActivityIE : MonoBehaviour
+public class RandomActivityIE : StandardInference
 {
-    // Start is called before the first frame update
-    void Start()
+    public override void InitializeEngine()
     {
-        
+        inferenceEngineType = INFERENCE_ENGINE_TYPE.RANDOM_ACTIVITY;
+        base.InitializeEngine();
     }
 
-    // Update is called once per frame
-    void Update()
+    public override ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues)
     {
-        
+        return (ACTIVITY_TYPE)Random.Range(1, activityTypes.Count+1);
     }
 }
