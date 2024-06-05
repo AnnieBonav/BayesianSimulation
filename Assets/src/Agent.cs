@@ -195,8 +195,6 @@ public class Agent : MonoBehaviour
         doingActivity = false;
     }
 
-    
-
     IEnumerator AffectState(Action action, bool verbose = false)
     {
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(false);
@@ -214,36 +212,16 @@ public class Agent : MonoBehaviour
         iTween.MoveTo(this.gameObject, iTween.Hash("position", agentPosition));
     }
 
-    public void PassTime(string activity = null, string action = null)
+    public void PassTime()
     {
-        // TODO: Make this come from the states that are part of the agent
-        float bathroomNeedDelta = 1f / 3f;
-        float sleepNeedDelta = 1f / 9.6f;
-        float foodNeedDelta = 1f / 2.4f;
-        
         foreach(State state in states)
         {
-            switch (state.StateType)
-            {
-                case STATE_TYPE.BathroomNeed:
-                    state.Increase(bathroomNeedDelta);
-                    break;
-                case STATE_TYPE.SleepNeed:
-                    state.Increase(sleepNeedDelta);
-                    break;
-                case STATE_TYPE.FoodNeed:
-                    state.Increase(foodNeedDelta);
-                    break;
-                case STATE_TYPE.CrimeRate:
-                    float currentDistanceFromEnemy = DistanceFromEnemy();
-                    float crimeRate = Mathf.Pow(1 -NormalizeValue(currentDistanceFromEnemy, 0, maxDistanceFromEnemy), 2) * 100;
-                    state.UpdateValue(crimeRate);
-                    break;
-                default:
-                    print("OOps! That does not exist!");
-                    break;
+            state.AffectByRate();
+            if(state.StateType == STATE_TYPE.CrimeRate){
+                float currentDistanceFromEnemy = DistanceFromEnemy();
+                float crimeRate = Mathf.Pow(1 -NormalizeValue(currentDistanceFromEnemy, 0, maxDistanceFromEnemy), 2) * 100;
+                state.UpdateValue(crimeRate);
             }
-            
         }
     }
 

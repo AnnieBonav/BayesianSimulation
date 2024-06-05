@@ -1,7 +1,6 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using Unity.VisualScripting;
 
 // STATE_TYPE is an enum that represents the different states that an agent can have, which are the values that it receives (both internally and externally) and that it can change through its Actions (or simply change over time)
 public enum STATE_TYPE
@@ -28,6 +27,8 @@ public class State : MonoBehaviour
     [ReadOnly] private float currentValue;
     public float CurrentValue => currentValue;
     [Header("Values Parameters")]
+    [SerializeField] private float affectRate = 0.1f;
+    public float IncreaseRate => affectRate;
     [SerializeField] private float minValue = 0;
     public float MinValue => minValue;
 
@@ -43,7 +44,6 @@ public class State : MonoBehaviour
     {
         barImage.fillAmount = currentValue/100;
         debugValue.text = currentValue.ToString();
-        // Debug.Log($"{stateType}: {currentValue}");
     }
 
     public void UpdateValue(float value)
@@ -60,31 +60,6 @@ public class State : MonoBehaviour
         UpdateUI();
     }
 
-    // TODO: Could reduce Increase and Decrease to Only Affect
-    public void Increase(float value, bool verbose = false)
-    {
-        if (verbose) print("State Type Name" + stateType + " Min Value" + minValue + " Max Value" + maxValue  + " Current Value: " + currentValue + " Value to add: " + value + " Remaining Value: " + (currentValue + value));
-
-        currentValue += value;
-        if (currentValue > maxValue)
-        {
-            currentValue = maxValue;
-        }
-
-        UpdateUI();
-    }
-
-    public void Decrease(float value)
-    {
-        currentValue -= value;
-        if (currentValue < minValue)
-        {
-            currentValue = minValue;
-        }
-
-        UpdateUI();
-    }
-
     public void Affect(float value)
     {
         currentValue += value;
@@ -93,6 +68,19 @@ public class State : MonoBehaviour
             currentValue = maxValue;
         }
         else if (currentValue < minValue)
+        {
+            currentValue = minValue;
+        }
+        UpdateUI();
+    }
+
+    public void AffectByRate()
+    {
+        currentValue += 1 / affectRate;
+        if (currentValue > maxValue)
+        {
+            currentValue = maxValue;
+        }else if (currentValue < minValue)
         {
             currentValue = minValue;
         }
