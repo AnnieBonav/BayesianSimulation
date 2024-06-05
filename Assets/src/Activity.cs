@@ -1,15 +1,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Runtime.Serialization;
 
 public enum ACTIVITY_TYPE
 {
+    [EnumMember(Value = "None")]
     None,
+    [EnumMember(Value = "Bathroom")]
     Bathroom,
+    [EnumMember(Value = "Sleep")]
     Sleep,
+    [EnumMember(Value = "Food")]
     Food,
+    [EnumMember(Value = "Relax")]
     Relax,
 }
+
+// public class ActivityTypeConverter : JsonConverter<ACTIVITY_TYPE>
+// {
+//     public override ACTIVITY_TYPE Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+//     {
+//         var enumString = reader.GetString();
+//         return Enum.TryParse<ACTIVITY_TYPE>(enumString, true, out var result) ? result : ACTIVITY_TYPE.None;
+//     }
+
+//     public override void Write(Utf8JsonWriter writer, ACTIVITY_TYPE value, JsonSerializerOptions options)
+//     {
+//         writer.WriteStringValue(Enum.GetName(typeof(ACTIVITY_TYPE), value));
+//     }
+// }
 
 // Activities are the different classes the classifier will choose from
 public class Activity : MonoBehaviour

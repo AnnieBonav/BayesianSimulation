@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
+using Unity.Serialization.Json;
 using UnityEngine;
 
 // FOR MORNING ANNIE:
@@ -42,8 +42,8 @@ public class Agent : MonoBehaviour
     private float currentDistanceFromEnemy;
     private float crimeRatePlaceholder;
 
-    private List<TrainingData> performedActivitiesData;
-    public List<TrainingData> PerformedActivitiesData => performedActivitiesData;
+    private List<InferenceData> performedActivitiesData;
+    public List<InferenceData> PerformedActivitiesData => performedActivitiesData;
 
     private bool isTraining = false;
     public void Awake()
@@ -52,7 +52,7 @@ public class Agent : MonoBehaviour
         maxDistanceFromEnemy = cam.MaxDistance;
         placeholderPosition = new Vector3(0, yPos, 0);
         actionsHistory = new List<Dictionary<string, object>>();
-        performedActivitiesData = new List<TrainingData>();
+        performedActivitiesData = new List<InferenceData>();
         CacheStates();
         CacheActivities();
     }
@@ -100,10 +100,10 @@ public class Agent : MonoBehaviour
         iTween.MoveTo(this.gameObject, iTween.Hash("position", placeholderPosition));
     }
 
-    public void StartTraining()
+    public void StartTraining(bool verbose = false)
     {
         isTraining = true;
-        StartCoroutine(TrainingLoop());
+        StartCoroutine(TrainingLoop(verbose));
     }
 
     // Should probably chnage the names because there will be one inference engine that actually does active inference, so it will be traing and infering and naming can be confusing
@@ -149,11 +149,8 @@ public class Agent : MonoBehaviour
     
     private Activity ChooseActivityWithDataTrainer()
     {
-        TrainingData currentData = new TrainingData();
-        currentData.BathroomNeed = statesDict[STATE_TYPE.BathroomNeed].CurrentValue;
-        currentData.SleepNeed = statesDict[STATE_TYPE.SleepNeed].CurrentValue;
-        currentData.FoodNeed = statesDict[STATE_TYPE.FoodNeed].CurrentValue;
-        currentData.CrimeRate = statesDict[STATE_TYPE.CrimeRate].CurrentValue;
+        InferenceData currentData = new InferenceData();
+        currentData.InitializeInferenceData(states);
 
         ACTIVITY_TYPE chosenActivityType = inferenceEngine.ChooseActivity(currentData);
         Activity chosenActivity = activities.Find(activity => activity.ActivityType == chosenActivityType);
@@ -161,7 +158,7 @@ public class Agent : MonoBehaviour
         return chosenActivity;
     }
 
-    IEnumerator TrainingLoop()
+    IEnumerator TrainingLoop(bool verbose = false)
     {
         while (true)
         {
@@ -169,13 +166,15 @@ public class Agent : MonoBehaviour
             {
                 // TODO: Change trainingData to stateValues (once cretaing it per state is programmed)
                 // Generate random state values between 0 and 100
-                TrainingData trainingData = new TrainingData();
+                InferenceData randomTrainingData = new InferenceData();
+                randomTrainingData.InitializeRandomInferenceData(statesType);
 
                 // Choose activity based on basic heuristics
-                trainingData.ChosenActivity = ChooseActivitySimpleHeuristics(trainingData); // Initially use basic logic to choose activity
+                randomTrainingData.ChosenActivity = ChooseActivitySimpleHeuristics(randomTrainingData); // Initially use basic logic to choose activity
 
-                // print(trainingData.ToJson());
-                performedActivitiesData.Add(trainingData); // Record the chosen activity
+                if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
+
+                performedActivitiesData.Add(randomTrainingData); // Record the chosen activity
             }
             yield return new WaitForSeconds(0.01f);
         }
@@ -188,13 +187,14 @@ public class Agent : MonoBehaviour
     }
 
 
-    private ACTIVITY_TYPE ChooseActivitySimpleHeuristics(TrainingData trainingValues)
+    private ACTIVITY_TYPE ChooseActivitySimpleHeuristics(InferenceData trainingValues)
     {
         // Initial logic for choosing activity, this will be updated later with Naive Bayes inference. Will start with basic "importance" (bathroom > sleep > food > relax)
         // TODO: Will be changed for integers?
-        if (trainingValues.BathroomNeed > 70f) return ACTIVITY_TYPE.Bathroom;
-        if (trainingValues.SleepNeed > 80f) return ACTIVITY_TYPE.Sleep;
-        if (trainingValues.FoodNeed > 50f) return ACTIVITY_TYPE.Food;
+        // TODO: Need to change this to be dynamic, do not know how at the moment :)
+        if (trainingValues.GetStateValue(STATE_TYPE.BathroomNeed) > 70f) return ACTIVITY_TYPE.Bathroom;
+        if (trainingValues.GetStateValue(STATE_TYPE.SleepNeed) > 80f) return ACTIVITY_TYPE.Sleep;
+        if (trainingValues.GetStateValue(STATE_TYPE.FoodNeed) > 50f) return ACTIVITY_TYPE.Food;
         return ACTIVITY_TYPE.Relax;
     }
 
@@ -309,12 +309,6 @@ public class Agent : MonoBehaviour
         }
     }
 
-    // TODO: Check if this is needed/better than the default one
-    public override string ToString()
-    {
-        return JsonUtility.ToJson(this);
-    }
-
     public Activity ChooseActivity(bool verbose = false)
     {
         float highestLogSum = Mathf.NegativeInfinity;
@@ -330,7 +324,7 @@ public class Agent : MonoBehaviour
                 chosenActivity = activity;
             }
         }
-        if (verbose) print("Chosen Activity: " + chosenActivity);
+        if (verbose) print("Chosen Activity: " + JsonSerialization.ToJson(chosenActivity));
         return chosenActivity;
     } 
 }

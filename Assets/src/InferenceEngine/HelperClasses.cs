@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 public enum INFERENCE_ENGINE_TYPE
 {
     PREDEFINED_GAUSSIANS,
@@ -5,37 +7,24 @@ public enum INFERENCE_ENGINE_TYPE
     BASIC_HEURISTICS_ACTIVITY
 }
 
-// TODO: Would need to create a gaussianScriptableObject or something like that for the activities to store this mean, variance and prior, but for now will make simple data type
-public class ActivityOneStateData
-{
-    public float Mean;
-    public float Variance;
-    public STATE_TYPE StateType;
-
-    public ActivityOneStateData(float mean, float variance, STATE_TYPE stateType)
-    {
-        Mean = mean;
-        Variance = variance;
-        StateType = stateType;
-    }
-}
-
-public class ActivityData
+// A single PerformedActovity has different gaussians of the states it is affected by, and also stores the prior and the Actovity that was performed
+public class PerformedActivityData
 {
     public float Prior;
-    public ActivityOneStateData BathroomNeedData;
-    public ActivityOneStateData SleepNeedData;
-    public ActivityOneStateData FoodNeedData;
-    public ActivityOneStateData CrimeRateData;
+    private Dictionary<STATE_TYPE, GaussianInfo> statesData;
+    public Dictionary<STATE_TYPE, GaussianInfo> StatesData => statesData;
     public ACTIVITY_TYPE ActivityType;
 
-    public ActivityData(float prior, ActivityOneStateData bathroomNeedData, ActivityOneStateData sleepNeedData, ActivityOneStateData foodNeedData, ActivityOneStateData crimeRateData, ACTIVITY_TYPE activityType)
+    public PerformedActivityData(float prior, List<GaussianInfo> gaussiansInfo, ACTIVITY_TYPE activityType)
     {
+        statesData = new Dictionary<STATE_TYPE, GaussianInfo>();
+        
         Prior = prior;
-        BathroomNeedData = bathroomNeedData;
-        SleepNeedData = sleepNeedData;
-        FoodNeedData = foodNeedData;
-        CrimeRateData = crimeRateData;
+        foreach(GaussianInfo gaussianInfo in gaussiansInfo)
+        {
+            statesData.Add(gaussianInfo.StateType, gaussianInfo);
+        }
+
         ActivityType = activityType;
     }
 }

@@ -9,7 +9,7 @@ public class DataTrainer : MonoBehaviour
 {
     
     // TODO: Change to READ only
-    [SerializeField] private Dictionary<ACTIVITY_TYPE, ActivityData> activitiesData;
+    // [SerializeField] private Dictionary<ACTIVITY_TYPE, ActivityData> activitiesData;
     private List<ACTIVITY_TYPE> activityTypes = new List<ACTIVITY_TYPE> { ACTIVITY_TYPE.Bathroom, ACTIVITY_TYPE.Sleep, ACTIVITY_TYPE.Food, ACTIVITY_TYPE.Relax };
 
     private void Awake() {

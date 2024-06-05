@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Unity.Serialization.Json;
 using UnityEngine;
 
 public enum RUN_TYPE
@@ -21,8 +22,9 @@ public abstract class InferenceEngine : MonoBehaviour
     [SerializeField] protected Agent agent;
     // CONSIDER: Need to use the TYPE for checking so the actual states and activities...do not go outside of the Agent
     protected Dictionary<ACTIVITY_TYPE, int> activityCounts;
-    protected Dictionary<ACTIVITY_TYPE, ActivityData> activitiesData;
-    protected Dictionary<STATE_TYPE, Dictionary<ACTIVITY_TYPE, List<float>> > statesOfAgent;
+
+    protected Dictionary<ACTIVITY_TYPE, PerformedActivityData> performedActivitiesData; // Used in run inference
+    protected Dictionary<STATE_TYPE, Dictionary<ACTIVITY_TYPE, List<float>> > agentsPerformedActivities; // Also used in run inference. Per state that affects the Agent, the different actiivities that were tested are saved with a list of the values 
 
     // To remove all of these, will have a dictionary of dictionaries of the data that get dinamically generated based on which needa affect the agent. The dictionary is a dictionary of states, and a keyvalue pair of the activity type and the list of values.
     // private Dictionary<ACTIVITY_TYPE, int> activityCounts;
@@ -33,14 +35,14 @@ public abstract class InferenceEngine : MonoBehaviour
     protected int totalData = -1;
 
     // Will need to change naming because one will be the stored training adat (trainingData) and the other the actively got trainedData (will be gotten from the agent for now)
-    protected List<TrainingData> trainingData;
-    // private List<TrainingData> trainedData;
+    protected List<InferenceData> trainingData;
+    // private List<InferenceData> trainedData;
 
     protected void Awake() {
-        statesOfAgent = new Dictionary<STATE_TYPE, Dictionary<ACTIVITY_TYPE, List<float>>>();
         activityCounts = new Dictionary<ACTIVITY_TYPE, int>();
-        activitiesData = new Dictionary<ACTIVITY_TYPE, ActivityData>();
-        trainingData = new List<TrainingData>();
+        performedActivitiesData = new Dictionary<ACTIVITY_TYPE, PerformedActivityData>();
+        agentsPerformedActivities = new Dictionary<STATE_TYPE, Dictionary<ACTIVITY_TYPE, List<float>>>();
+        trainingData = new List<InferenceData>();
         InitializeEngine();
     }
 
@@ -52,7 +54,7 @@ public abstract class InferenceEngine : MonoBehaviour
     {
         if(saveTrainingData)
         {
-            TrainingDataWrapper trainingDataWrapper = new TrainingDataWrapper(agent.PerformedActivitiesData);
+            TrainingDataWrapper trainingDataWrapper = new TrainingDataWrapper(agent.Activities, agent.States, agent.PerformedActivitiesData);
             SaveTrainingData(trainingDataWrapper);
         }else
         {
@@ -64,7 +66,7 @@ public abstract class InferenceEngine : MonoBehaviour
     // TODO: Save scriptable object in the future, rn will be a JSON that works because gets serialized from the trainingDataScriptableObject so the list is respected, can just open it later
     private void SaveTrainingData(TrainingDataWrapper trainingDataWrapper)
     {
-        string trainingDataJSON = JsonUtility.ToJson(trainingDataWrapper);
+        string trainingDataJSON = JsonSerialization.ToJson(trainingDataWrapper);
         print("Final Training Data JSON" + trainingDataJSON);
 
         int fileCount = Directory.GetFiles("Assets/src/Data/TrainingData").Length;
@@ -89,16 +91,17 @@ public abstract class InferenceEngine : MonoBehaviour
     protected void RunTraining()
     {
         print("Called training in Inference Engine");
-        agent.StartTraining();
+        agent.StartTraining(verbose);
     }
 
     protected void RunInference()
     {
         print("Called inference in Inference Engine");
 
+        // Saves only the states that affect the current agent
         foreach (STATE_TYPE state in agent.States)
         {
-            statesOfAgent[state] = new Dictionary<ACTIVITY_TYPE, List<float>>();
+            agentsPerformedActivities[state] = new Dictionary<ACTIVITY_TYPE, List<float>>();
         }
         CacheTrainingData();
         CalculatePriors();
@@ -111,19 +114,19 @@ public abstract class InferenceEngine : MonoBehaviour
     protected void CacheTrainingData()
     {
         string jsonPath = $"Assets/src/Data/TrainingData/TrainedData{trainingDataFileNumber}.json";
-        string jsonText = System.IO.File.ReadAllText(jsonPath);
+        string jsonText = File.ReadAllText(jsonPath);
         print("JsonText: " + jsonText);
 
-        TrainingDataWrapper trainingDataObject = JsonUtility.FromJson<TrainingDataWrapper>(jsonText.ToString());
+        TrainingDataWrapper trainingDataObject = JsonSerialization.FromJson<TrainingDataWrapper>(jsonText.ToString());
 
-        print("TrainingDataObject: " + trainingDataObject.TrainingData.Count);
-        trainingData = trainingDataObject.TrainingData;
+        print("TrainingDataObject: " + trainingDataObject.InferenceData.Count);
+        trainingData = trainingDataObject.InferenceData;
 
         if (verbose)
         {
-            foreach (TrainingData data in trainingData)
+            foreach (InferenceData data in trainingData)
             {
-                Debug.Log(data.ToJson());
+                Debug.Log(JsonSerialization.ToJson(data));
             }
         }
     }
@@ -136,9 +139,10 @@ public abstract class InferenceEngine : MonoBehaviour
         foreach (ACTIVITY_TYPE activity in Enum.GetValues(typeof(ACTIVITY_TYPE)))
         {
             activityCounts[activity] = 0;
-            foreach (STATE_TYPE state in statesOfAgent.Keys)
+            // Per every state, it will create a list of every actovivity that was tested and the values that were gotten (from that state and activity)
+            foreach (STATE_TYPE state in agentsPerformedActivities.Keys)
             {
-                statesOfAgent[state][activity] = new List<float>();
+                agentsPerformedActivities[state][activity] = new List<float>();
             }
             // bathroomNeeds[activity] = new List<float>();
             // sleepNeeds[activity] = new List<float>();
@@ -147,12 +151,12 @@ public abstract class InferenceEngine : MonoBehaviour
         }
 
         // Count occurrences the ocurrances of each actovoty (in activityCounts) and store the values of the states in the corresponding lists (in bathroomNeeds, sleepNeeds, foodNeeds, crimeRates
-        foreach (TrainingData data in trainingData)
+        foreach (InferenceData data in trainingData)
         {
             activityCounts[data.ChosenActivity]++;
-            foreach (STATE_TYPE state in statesOfAgent.Keys)
+            foreach (STATE_TYPE state in agentsPerformedActivities.Keys)
             {
-                statesOfAgent[state][data.ChosenActivity].Add(data.GetStateValue(state));
+                agentsPerformedActivities[state][data.ChosenActivity].Add(data.GetStateValue(state));
             }
             // bathroomNeeds[data.ChosenActivity].Add(data.BathroomNeed);
             // sleepNeeds[data.ChosenActivity].Add(data.SleepNeed);
@@ -179,45 +183,28 @@ public abstract class InferenceEngine : MonoBehaviour
         return sum / values.Count;
     }
 
+    // To really be dynamic, the activities list should be gotten from the json itself, not from the current agent, as a prior agent could have different activities (but also no cause a dataset trained with different activities would not be useful for the current agent)
     protected void CalculateLikelihoods()
     {
         // Calculate priors and likelihoods (mean and variance)
-        foreach (ACTIVITY_TYPE activity in Enum.GetValues(typeof(ACTIVITY_TYPE)))
+        foreach (ACTIVITY_TYPE activityType in agent.Activities)
         {
-            float prior = (float)activityCounts[activity] / totalData;
+            float prior = (float)activityCounts[activityType] / totalData;
             
-            Dictionary<STATE_TYPE, ActivityOneStateData> statesData = new Dictionary<STATE_TYPE, ActivityOneStateData>();
+            List<GaussianInfo> statesData = new List<GaussianInfo>();
 
-            foreach (STATE_TYPE state in statesOfAgent.Keys)
+            foreach (STATE_TYPE stateType in agentsPerformedActivities.Keys)
             {
-                float stateMean = CalculateAverage(statesOfAgent[state][activity]);
-                float stateVariance = Variance(statesOfAgent[state][activity], stateMean);
-                ActivityOneStateData stateData = new ActivityOneStateData(stateMean, stateVariance, state);
-                statesData[state] = stateData;
+                float stateMean = CalculateAverage(agentsPerformedActivities[stateType][activityType]);
+                float stateVariance = Variance(agentsPerformedActivities[stateType][activityType], stateMean);
+                // Create a gaussian with the variance constructor, standard deviation will be -1
+                GaussianInfo stateData = new GaussianInfo(stateType, stateMean, 0, 100, stateVariance);
+                statesData.Add(stateData);
             }
 
-            // float bathroomMean = CalculateAverage(bathroomNeeds[activity]);
-            // float bathroomVariance = Variance(bathroomNeeds[activity], bathroomMean);
-            // ActivityOneStateData bathroomData = new ActivityOneStateData(statesOfAgent[STATE_TYPE.BathroomNeed].Mean, bathroomVariance, STATE_TYPE.BathroomNeed);
-
-            // float sleepMean = CalculateAverage(sleepNeeds[activity]);
-            // float sleepVariance = Variance(sleepNeeds[activity], sleepMean);
-            // ActivityOneStateData sleepData = new ActivityOneStateData(sleepMean, sleepVariance, STATE_TYPE.SleepNeed);
-
-            // float foodMean = CalculateAverage(foodNeeds[activity]);
-            // float foodVariance = Variance(foodNeeds[activity], foodMean);
-            // ActivityOneStateData foodData = new ActivityOneStateData(foodMean, foodVariance, STATE_TYPE.FoodNeed);
-
-            // float crimeMean = CalculateAverage(crimeRates[activity]);
-            // float crimeVariance = Variance(crimeRates[activity], crimeMean);
-            // ActivityOneStateData crimeData = new ActivityOneStateData(crimeMean, crimeVariance, STATE_TYPE.CrimeRate);
-
-            // ActivityData activityData = new ActivityData(prior, statesOfAgent[STATE_TYPE.BathroomNeed],statesOfAgent[STATE_TYPE.SleepNeed], statesOfAgent[STATE_TYPE.FoodNeed], statesOfAgent[STATE_TYPE.CrimeRate], activity);
-            ActivityData activityData = new ActivityData(prior, statesData[STATE_TYPE.BathroomNeed], statesData[STATE_TYPE.SleepNeed], statesData[STATE_TYPE.FoodNeed], statesData[STATE_TYPE.CrimeRate], activity);
+            PerformedActivityData activityData = new PerformedActivityData(prior, statesData, activityType);
             
-            // TODO: Change so Activity Data gets the statesOfAgent dictionary and dynamically generates the other data
-            // hroomData, sleepData, foodData, crimeData, activity);
-            activitiesData[activity] = activityData;
+            performedActivitiesData[activityType] = activityData;
         }
     }
     
@@ -231,7 +218,7 @@ public abstract class InferenceEngine : MonoBehaviour
         return (1 / Mathf.Sqrt(2 * Mathf.PI * variance)) * Mathf.Exp(-((x - mean) * (x - mean)) / (2 * variance));
     }
     
-    public abstract ACTIVITY_TYPE ChooseActivity(TrainingData currentStateValues);
+    public abstract ACTIVITY_TYPE ChooseActivity(InferenceData currentStateValues);
     public abstract void InitializeEngine();
     protected INFERENCE_ENGINE_TYPE inferenceEngineType;
 }
