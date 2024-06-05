@@ -11,7 +11,7 @@ public enum RUN_TYPE
     Inference
 }
 
-// Could be both a data trainer AND getting the inferences, but might be duplicating the getting the data code, will need to check. BUT NO because getting the data depends on which way of getting the data we want. Will implement both for now.
+// Inference Engine both handles the training (based on which Engine it is), and then the inference (based on that training.) It calls the functions on the Agent and (...)
 public abstract class InferenceEngine : MonoBehaviour
 {
     [SerializeField] protected RUN_TYPE runType;
@@ -26,17 +26,8 @@ public abstract class InferenceEngine : MonoBehaviour
     protected Dictionary<ACTIVITY_TYPE, PerformedActivityData> performedActivitiesData; // Used in run inference
     protected Dictionary<STATE_TYPE, Dictionary<ACTIVITY_TYPE, List<float>> > agentsPerformedActivities; // Also used in run inference. Per state that affects the Agent, the different actiivities that were tested are saved with a list of the values 
 
-    // To remove all of these, will have a dictionary of dictionaries of the data that get dinamically generated based on which needa affect the agent. The dictionary is a dictionary of states, and a keyvalue pair of the activity type and the list of values.
-    // private Dictionary<ACTIVITY_TYPE, int> activityCounts;
-    // private Dictionary<ACTIVITY_TYPE, List<float>> bathroomNeeds;
-    // private Dictionary<ACTIVITY_TYPE, List<float>> sleepNeeds;
-    // private Dictionary<ACTIVITY_TYPE, List<float>> crimeRates;
-    // private Dictionary<ACTIVITY_TYPE, List<float>> foodNeeds;
     protected int totalData = -1;
-
-    // Will need to change naming because one will be the stored training adat (trainingData) and the other the actively got trainedData (will be gotten from the agent for now)
     protected List<InferenceData> trainingData;
-    // private List<InferenceData> trainedData;
 
     protected void Awake() {
         activityCounts = new Dictionary<ACTIVITY_TYPE, int>();
@@ -46,7 +37,8 @@ public abstract class InferenceEngine : MonoBehaviour
         InitializeEngine();
     }
 
-    private void OnDisable() {
+    private void OnDisable()
+    {
         SaveTrainingData();
     }
 
@@ -183,7 +175,7 @@ public abstract class InferenceEngine : MonoBehaviour
         return sum / values.Count;
     }
 
-    // To really be dynamic, the activities list should be gotten from the json itself, not from the current agent, as a prior agent could have different activities (but also no cause a dataset trained with different activities would not be useful for the current agent)
+    // To really be dynamic, the activities list could be gotten from the InferenceData JSON itself. However, getting it from the current agent ensures that the agent has the Activities and the states. And it is important to ensure that the current agent with its current information is the one whos Training Data is being used, as no mixing should be done (maybe saving the agent and checking its the same would be great!)
     protected void CalculateLikelihoods()
     {
         // Calculate priors and likelihoods (mean and variance)
@@ -218,7 +210,8 @@ public abstract class InferenceEngine : MonoBehaviour
         return (1 / Mathf.Sqrt(2 * Mathf.PI * variance)) * Mathf.Exp(-((x - mean) * (x - mean)) / (2 * variance));
     }
     
-    public abstract ACTIVITY_TYPE ChooseActivity(InferenceData currentStateValues);
     public abstract void InitializeEngine();
+    public abstract ACTIVITY_TYPE InferActivity(InferenceData currentStateValues);
+    public abstract ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues);
     protected INFERENCE_ENGINE_TYPE inferenceEngineType;
 }

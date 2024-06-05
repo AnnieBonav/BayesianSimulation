@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using Unity.Serialization.Json;
 using UnityEngine;
 
-// FOR MORNING ANNIE:
-// The agent can choose what to do, but it is like it gets stuck in an activity and the values are not increasing? (Probably not increassing with passing time?) Could be that the agent is super quickly making the decision and then getting stuck in the activity?
-//Should start by checking the values of the states and the actions that are being performed. Could also tweak the actions so they take more time (also, probably the actions take too little based on how much they decrease the bad values?)
-// Also probably checking why they are getting stuck one one could be the way to go :)
 public class Agent : MonoBehaviour
 {
     [SerializeField] private string agentName;
@@ -20,7 +16,6 @@ public class Agent : MonoBehaviour
     [SerializeField] private float yPos = 0.6f;
     [SerializeField] private Day day;
 
-    // TODO: Cleanup these states state StateKeys...Can be simpler and less variables
     // Cannot acces the states that belong to the Agent, only the Types (same with the activities, only the types are accessible, not the instances)
     [SerializeField] private List<State> states;
     private List<STATE_TYPE> statesType;
@@ -37,10 +32,8 @@ public class Agent : MonoBehaviour
     [SerializeField] private bool hasDebugButtons = false;
     public List<Dictionary<string, object>> actionsHistory;
     [ReadOnly] private bool doingActivity = false;
-    private Vector3 placeholderPosition;
+    private Vector3 agentPosition;
     private float maxDistanceFromEnemy;
-    private float currentDistanceFromEnemy;
-    private float crimeRatePlaceholder;
 
     private List<InferenceData> performedActivitiesData;
     public List<InferenceData> PerformedActivitiesData => performedActivitiesData;
@@ -50,7 +43,7 @@ public class Agent : MonoBehaviour
     {
         agentTransform = this.transform;
         maxDistanceFromEnemy = cam.MaxDistance;
-        placeholderPosition = new Vector3(0, yPos, 0);
+        agentPosition = new Vector3(0, yPos, 0);
         actionsHistory = new List<Dictionary<string, object>>();
         performedActivitiesData = new List<InferenceData>();
         CacheStates();
@@ -94,10 +87,10 @@ public class Agent : MonoBehaviour
 
     private void MoveTo(Transform actionObjectToMoveTo)
     {
-        placeholderPosition.x = actionObjectToMoveTo.position.x;
-        placeholderPosition.z = actionObjectToMoveTo.position.z;
+        agentPosition.x = actionObjectToMoveTo.position.x;
+        agentPosition.z = actionObjectToMoveTo.position.z;
         
-        iTween.MoveTo(this.gameObject, iTween.Hash("position", placeholderPosition));
+        iTween.MoveTo(this.gameObject, iTween.Hash("position", agentPosition));
     }
 
     public void StartTraining(bool verbose = false)
@@ -152,7 +145,7 @@ public class Agent : MonoBehaviour
         InferenceData currentData = new InferenceData();
         currentData.InitializeInferenceData(states);
 
-        ACTIVITY_TYPE chosenActivityType = inferenceEngine.ChooseActivity(currentData);
+        ACTIVITY_TYPE chosenActivityType = inferenceEngine.InferActivity(currentData);
         Activity chosenActivity = activities.Find(activity => activity.ActivityType == chosenActivityType);
 
         return chosenActivity;
@@ -164,13 +157,11 @@ public class Agent : MonoBehaviour
         {
             if (!doingActivity)
             {
-                // TODO: Change trainingData to stateValues (once cretaing it per state is programmed)
-                // Generate random state values between 0 and 100
                 InferenceData randomTrainingData = new InferenceData();
                 randomTrainingData.InitializeRandomInferenceData(statesType);
 
                 // Choose activity based on basic heuristics
-                randomTrainingData.ChosenActivity = ChooseActivitySimpleHeuristics(randomTrainingData); // Initially use basic logic to choose activity
+                randomTrainingData.ChosenActivity = inferenceEngine.ChooseTrainingActivity(randomTrainingData); // Use the logic on the inferenceEngine
 
                 if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
 
@@ -178,24 +169,6 @@ public class Agent : MonoBehaviour
             }
             yield return new WaitForSeconds(0.01f);
         }
-    }
-
-
-    float GaussianProbability(float x, float mean, float variance)
-    {
-        return (1 / Mathf.Sqrt(2 * Mathf.PI * variance)) * Mathf.Exp(-((x - mean) * (x - mean)) / (2 * variance));
-    }
-
-
-    private ACTIVITY_TYPE ChooseActivitySimpleHeuristics(InferenceData trainingValues)
-    {
-        // Initial logic for choosing activity, this will be updated later with Naive Bayes inference. Will start with basic "importance" (bathroom > sleep > food > relax)
-        // TODO: Will be changed for integers?
-        // TODO: Need to change this to be dynamic, do not know how at the moment :)
-        if (trainingValues.GetStateValue(STATE_TYPE.BathroomNeed) > 70f) return ACTIVITY_TYPE.Bathroom;
-        if (trainingValues.GetStateValue(STATE_TYPE.SleepNeed) > 80f) return ACTIVITY_TYPE.Sleep;
-        if (trainingValues.GetStateValue(STATE_TYPE.FoodNeed) > 50f) return ACTIVITY_TYPE.Food;
-        return ACTIVITY_TYPE.Relax;
     }
 
     // Multiple needs could be affected from Action...Probably change names of PerformAction and PerformActivity
@@ -260,9 +233,9 @@ public class Agent : MonoBehaviour
                     state.Increase(foodNeedDelta);
                     break;
                 case STATE_TYPE.CrimeRate:
-                    currentDistanceFromEnemy = DistanceFromEnemy();
-                    crimeRatePlaceholder = Mathf.Pow(1 -NormalizeValue(currentDistanceFromEnemy, 0, maxDistanceFromEnemy), 2) * 100;
-                    state.UpdateValue(crimeRatePlaceholder);
+                    float currentDistanceFromEnemy = DistanceFromEnemy();
+                    float crimeRate = Mathf.Pow(1 -NormalizeValue(currentDistanceFromEnemy, 0, maxDistanceFromEnemy), 2) * 100;
+                    state.UpdateValue(crimeRate);
                     break;
                 default:
                     print("OOps! That does not exist!");
