@@ -29,6 +29,19 @@ public class Action : MonoBehaviour
         }
     }
 
+    public List<STATE_TYPE> GetAffectedStates(List<STATE_TYPE> statesType)
+    {
+        List<STATE_TYPE> affectedStates = new List<STATE_TYPE>();
+        foreach (STATE_TYPE stateType in this.AffectedStates.Keys)
+        {
+            if (statesType.Contains(stateType))
+            {
+                affectedStates.Add(stateType);
+            }
+        }
+        return affectedStates;
+    }
+
     public override string ToString()
     {
         return $"Action Name: {actionInfo.ActionName}, Time in Min: {actionInfo.TimeInMin}, Activity Type: {actionInfo.ActivityType}, Affected States: {affectedStatesString}";

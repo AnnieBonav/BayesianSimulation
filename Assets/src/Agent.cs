@@ -31,7 +31,6 @@ public class Agent : MonoBehaviour
 
     [SerializeField] private ActivityButtons debugActivityButtons;
     [SerializeField] private bool hasDebugButtons = false;
-    public List<Dictionary<string, object>> actionsHistory;
     [ReadOnly] private bool doingActivity = false;
     private Vector3 agentPosition;
     private float maxDistanceFromEnemy;
@@ -45,7 +44,6 @@ public class Agent : MonoBehaviour
         agentTransform = this.transform;
         maxDistanceFromEnemy = cam.MaxDistance;
         agentPosition = new Vector3(0, yPos, 0);
-        actionsHistory = new List<Dictionary<string, object>>();
         performedActivitiesData = new List<InferenceData>();
         inferenceEngine = inferenceEngineChooser.GetSelectedEngine();
 
@@ -83,24 +81,6 @@ public class Agent : MonoBehaviour
         }
     }
 
-    private float DistanceFromEnemy()
-    {
-        return Vector3.Distance(agentTransform.position, enemyTransform.position);
-    }
-
-    private float NormalizeValue(float value, float minValue, float maxValue)
-    {
-        return (value - minValue) / (maxValue - minValue);
-    }
-
-    private void MoveTo(Transform actionObjectToMoveTo)
-    {
-        agentPosition.x = actionObjectToMoveTo.position.x;
-        agentPosition.z = actionObjectToMoveTo.position.z;
-        
-        iTween.MoveTo(this.gameObject, iTween.Hash("position", agentPosition));
-    }
-
     public void StartTraining(bool verbose = false)
     {
         isTraining = true;
@@ -110,12 +90,46 @@ public class Agent : MonoBehaviour
     // Should probably chnage the names because there will be one inference engine that actually does active inference, so it will be traing and infering and naming can be confusing
     public void StartInfering()
     {
-        StartCoroutine(ActivityLoop());
+        StartCoroutine(InferenceLoop());
     }
 
     public void StartActiveInfering()
     {
         StartCoroutine(ActiveInferenceLoop());
+    }
+
+    IEnumerator TrainingLoop(bool verbose = false)
+    {
+        while (true)
+        {
+            if (!doingActivity)
+            {
+                InferenceData randomTrainingData = new InferenceData();
+                randomTrainingData.InitializeRandomInferenceData(statesType);
+
+                // Choose activity based on basic heuristics
+                randomTrainingData.ChosenActivity = inferenceEngine.ChooseTrainingActivity(randomTrainingData); // Use the logic on the inferenceEngine
+
+                if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
+
+                performedActivitiesData.Add(randomTrainingData); // Record the chosen activity
+            }
+            yield return new WaitForSeconds(0.01f);
+        }
+    }
+
+    IEnumerator InferenceLoop()
+    {
+        while (true)
+        {
+            if (!doingActivity)
+            {
+                Activity chosenActivity = ChooseActivityWithDataTrainer();
+                Action action = ChooseRandomActionFromActivity(chosenActivity);
+                PerformAction(action, false);
+            }
+            yield return new WaitForSeconds(1);
+        }
     }
 
     IEnumerator ActiveInferenceLoop(bool verbose = false)
@@ -145,34 +159,6 @@ public class Agent : MonoBehaviour
         }
     }
 
-    // TODO: make this disabling better, should probably not need to run if is training? Or maybe yes but maybe there is more than one option of running?
-    private void OnDisable() {
-        if(isTraining)
-        {
-            StopCoroutine(TrainingLoop());
-        }
-        else{
-            StopCoroutine(ActivityLoop());
-        }
-    }
-
-    IEnumerator ActivityLoop()
-    {
-        while (true)
-        {
-            if (!doingActivity)
-            {
-                // Will choose the activity based on the Naive Bayes, NOT CLEAN
-                Activity chosenActivity = ChooseActivityWithDataTrainer();
-                // Activity chosenActivity = ChooseActivity();
-
-                Action action = ChooseRandomActionFromActivity(chosenActivity);
-                PerformAction(action, false);
-            }
-            yield return new WaitForSeconds(1);
-        }
-    }
-
     private Action ChooseRandomActionFromActivity(Activity activity)
     {
         int randomIndex = Random.Range(0, activity.PossibleActions.Count);
@@ -190,57 +176,26 @@ public class Agent : MonoBehaviour
         return chosenActivity;
     }
 
-    IEnumerator TrainingLoop(bool verbose = false)
-    {
-        while (true)
-        {
-            if (!doingActivity)
-            {
-                InferenceData randomTrainingData = new InferenceData();
-                randomTrainingData.InitializeRandomInferenceData(statesType);
-
-                // Choose activity based on basic heuristics
-                randomTrainingData.ChosenActivity = inferenceEngine.ChooseTrainingActivity(randomTrainingData); // Use the logic on the inferenceEngine
-
-                if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
-
-                performedActivitiesData.Add(randomTrainingData); // Record the chosen activity
-            }
-            yield return new WaitForSeconds(0.01f);
-        }
-    }
-
     // Multiple needs could be affected from Action...Probably change names of PerformAction and PerformActivity
     public void PerformAction(Action action, bool verbose = false)
     {
         MoveTo(action.ActionTransform);
-        List<State> affectedStates = AffectedStatesByAction(action);
+        List<STATE_TYPE> affectedStates = action.GetAffectedStates(statesType);
         doingActivity = true;
 
         // I start it only one time because the time does not pass for each affected state
         StartCoroutine(AffectState(action, verbose));
 
-        foreach (State state in affectedStates)
+        foreach (STATE_TYPE stateType in affectedStates)
         {
             // Will affect the state (that I know corresponds to the action AND exists on the Agent as a state that affects) by the value of the action (by finding it in the dictionary, the affecting float is the value)
-            state.Affect(action.AffectedStates[state.StateType]);
+            statesDict[stateType].Affect(action.AffectedStates[statesDict[stateType].StateType]);
             if (verbose) print("DEBUG IN PERFORM ACTION" + "  Will be action " + action);
         }
         doingActivity = false;
     }
 
-    private List<State> AffectedStatesByAction(Action action)
-    {
-        List<State> affectedStates = new List<State>();
-        foreach (STATE_TYPE stateType in action.AffectedStates.Keys)
-        {
-            if (statesDict.ContainsKey(stateType))
-            {
-                affectedStates.Add(statesDict[stateType]);
-            }
-        }
-        return affectedStates;
-    }
+    
 
     IEnumerator AffectState(Action action, bool verbose = false)
     {
@@ -249,6 +204,14 @@ public class Agent : MonoBehaviour
         yield return new WaitForSeconds(waitingTime);
         
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(true);
+    }
+
+    private void MoveTo(Transform actionObjectToMoveTo)
+    {
+        agentPosition.x = actionObjectToMoveTo.position.x;
+        agentPosition.z = actionObjectToMoveTo.position.z;
+        
+        iTween.MoveTo(this.gameObject, iTween.Hash("position", agentPosition));
     }
 
     public void PassTime(string activity = null, string action = null)
@@ -282,61 +245,26 @@ public class Agent : MonoBehaviour
             }
             
         }
-
-        var infoJson = new Dictionary<string, object>
-        {
-            {"all_time_passed", day.SimAllMin},
-            {"day_number", day.SimDay},
-            {"current_day_time", day.SimCurrDayMin},
-            {"moment_of_day", day.ModTag.ToString()},
-            {"entry_type", "time_increase"},
-            {"character_name", name},
-            {"hunger_increase", foodNeedDelta},
-            {"tiredness_increase", sleepNeedDelta},
-            {"bladder_increase", bathroomNeedDelta},
-            // {"detectiveness_increase", detectivenessIncrease},
-            // {"relaxation_increase", relaxationDelta},
-            // {"modified_hunger_value", states["hunger"].CurrentValue},
-            // {"modified_tiredness_value", states["tiredness"].CurrentValue},
-            // {"modified_bladder_value", states["bladder"].CurrentValue},
-            // {"modified_detectiveness_value", states["detectiveness"].CurrentValue},
-            // {"modified_relaxation_value", states["relaxation"].CurrentValue
-        };
-
-        if (activity != null)
-        {
-            infoJson["called_by_activity"] = activity;
-            infoJson["specific_action"] = action;
-        }
-        // TODO: Make difference between Action and Activity throughout code
-        actionsHistory.Add(infoJson);
     }
 
-    public void PrintActionsHistory()
+    private float DistanceFromEnemy()
     {
-        Debug.Log("\n\nActions History");
-        foreach (var action in actionsHistory)
-        {
-            Debug.Log("\n" + action);
-        }
+        return Vector3.Distance(agentTransform.position, enemyTransform.position);
     }
 
-    public Activity ChooseActivity(bool verbose = false)
+    private float NormalizeValue(float value, float minValue, float maxValue)
     {
-        float highestLogSum = Mathf.NegativeInfinity;
-        Activity chosenActivity = null;
+        return (value - minValue) / (maxValue - minValue);
+    }
 
-        foreach (Activity activity in activities)
+    // TODO: make this disabling better, should probably not need to run if is training? Or maybe yes but maybe there is more than one option of running?
+    private void OnDisable() {
+        if(isTraining)
         {
-            float logSum = activity.GetLogsSum(states, verbose);
-            if (verbose) Debug.Log($"Activity: {activity.ActivityType}, Log Sum: {logSum}");
-            if (logSum > highestLogSum)
-            {
-                highestLogSum = logSum;
-                chosenActivity = activity;
-            }
+            StopCoroutine(TrainingLoop());
         }
-        if (verbose) print("Chosen Activity: " + JsonSerialization.ToJson(chosenActivity));
-        return chosenActivity;
-    } 
+        else{
+            StopCoroutine(InferenceLoop());
+        }
+    }
 }
