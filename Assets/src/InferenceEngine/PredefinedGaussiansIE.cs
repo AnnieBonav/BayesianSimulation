@@ -32,6 +32,6 @@ public class PredefinedGaussiansIE : InferenceEngine
         // }
         // if (verbose) print("Chosen Activity: " + JsonSerialization.ToJson(chosenActivity));
         // return chosenActivity;
-        return ACTIVITY_TYPE.None;
+        return ACTIVITY_TYPE.NONE;
     }
 }

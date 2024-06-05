@@ -6,7 +6,7 @@ public class StandardInference : InferenceEngine
 {
     public override ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues)
     {
-        return ACTIVITY_TYPE.None;
+        return ACTIVITY_TYPE.NONE;
     }
 
     public override ACTIVITY_TYPE InferActivity(InferenceData currentStateValues)

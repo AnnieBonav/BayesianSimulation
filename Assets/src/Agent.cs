@@ -7,8 +7,6 @@ public class Agent : MonoBehaviour
 {
     [SerializeField] private string agentName;
     public string AgentName => agentName;
-
-    // [SerializeField] private DataTrainer dataTrainer;
     [SerializeField] private InferenceEngineChooser inferenceEngineChooser;
     private InferenceEngine inferenceEngine;
     [SerializeField] private Transform enemyTransform;
@@ -104,15 +102,8 @@ public class Agent : MonoBehaviour
         {
             if (!doingActivity)
             {
-                InferenceData randomTrainingData = new InferenceData();
-                randomTrainingData.InitializeRandomInferenceData(statesType);
-
-                // Choose activity based on basic heuristics
-                randomTrainingData.ChosenActivity = inferenceEngine.ChooseTrainingActivity(randomTrainingData); // Use the logic on the inferenceEngine
-
-                if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
-
-                performedActivitiesData.Add(randomTrainingData); // Record the chosen activity
+                InferenceData trainingData = GetTrainingDataWithIE();
+                performedActivitiesData.Add(trainingData); // Record the chosen activity
             }
             yield return new WaitForSeconds(0.01f);
         }
@@ -124,7 +115,7 @@ public class Agent : MonoBehaviour
         {
             if (!doingActivity)
             {
-                Activity chosenActivity = ChooseActivityWithDataTrainer();
+                Activity chosenActivity = GetActivityWithIE();
                 Action action = ChooseRandomActionFromActivity(chosenActivity);
                 PerformAction(action, false);
             }
@@ -138,19 +129,20 @@ public class Agent : MonoBehaviour
         {
             if (!doingActivity)
             {
-                InferenceData randomTrainingData = new InferenceData();
-                randomTrainingData.InitializeRandomInferenceData(statesType);
+                InferenceData currentDataForTraining = new InferenceData();
+                currentDataForTraining.InitializeRandomInferenceData(statesType);
 
-                randomTrainingData.ChosenActivity = inferenceEngine.ChooseTrainingActivity(randomTrainingData);
+                currentDataForTraining.ChosenActivity = inferenceEngine.ChooseTrainingActivity(currentDataForTraining);
 
-                if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
+                if(verbose) print(JsonSerialization.ToJson(currentDataForTraining));
 
-                Activity chosenActivity = activities.Find(activity => activity.ActivityType == randomTrainingData.ChosenActivity);
+                Activity chosenActivity = activities.Find(activity => activity.ActivityType == currentDataForTraining.ChosenActivity);
                 Action action = ChooseRandomActionFromActivity(chosenActivity);
                 
                 PerformAction(action, false);
+                yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
 
-                performedActivitiesData.Add(randomTrainingData); // Record the chosen activity
+                performedActivitiesData.Add(currentDataForTraining); // Record the chosen activity
 
                 // Dynamically update the model
                 inferenceEngine.UpdateModel(performedActivitiesData);
@@ -164,8 +156,19 @@ public class Agent : MonoBehaviour
         int randomIndex = Random.Range(0, activity.PossibleActions.Count);
         return activity.PossibleActions[randomIndex];
     }
+
+    private InferenceData GetTrainingDataWithIE(bool verbose = false)
+    {
+        InferenceData randomTrainingData = new InferenceData();
+        randomTrainingData.InitializeRandomInferenceData(statesType);
+
+        randomTrainingData.ChosenActivity = inferenceEngine.ChooseTrainingActivity(randomTrainingData);
+
+        if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
+        return randomTrainingData;
+    }
     
-    private Activity ChooseActivityWithDataTrainer()
+    private Activity GetActivityWithIE()
     {
         InferenceData currentData = new InferenceData();
         currentData.InitializeInferenceData(states);
@@ -216,12 +219,13 @@ public class Agent : MonoBehaviour
     {
         foreach(State state in states)
         {
-            state.AffectByRate();
-            if(state.StateType == STATE_TYPE.CrimeRate){
+            if(state.StateType == STATE_TYPE.CRIME_RATE){
                 float currentDistanceFromEnemy = DistanceFromEnemy();
                 float crimeRate = Mathf.Pow(1 -NormalizeValue(currentDistanceFromEnemy, 0, maxDistanceFromEnemy), 2) * 100;
                 state.UpdateValue(crimeRate);
+                continue;
             }
+            state.AffectByRate();
         }
     }
 

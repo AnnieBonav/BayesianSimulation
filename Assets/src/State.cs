@@ -5,11 +5,11 @@ using UnityEngine.UI;
 // STATE_TYPE is an enum that represents the different states that an agent can have, which are the values that it receives (both internally and externally) and that it can change through its Actions (or simply change over time)
 public enum STATE_TYPE
 {
-    None,
-    BathroomNeed,
-    SleepNeed,
-    FoodNeed,
-    CrimeRate,
+    NONE,
+    BATHROOM_NEED,
+    SLEEP_NEED,
+    FOOD_NEED,
+    CRIME_RATE,
 }
 // FUNCTION_TYPE was the representation of the different types of functions that mapped the current STATE value to the probability of choosing it, but now Gaussians will be used.
 // FUNCTION_TYPE might become the function that explains the rate of change of the STATE value over time.

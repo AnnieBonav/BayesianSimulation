@@ -6,15 +6,15 @@ using System.Runtime.Serialization;
 public enum ACTIVITY_TYPE
 {
     [EnumMember(Value = "None")]
-    None,
+    NONE,
     [EnumMember(Value = "Bathroom")]
-    Bathroom,
+    BATHROOM,
     [EnumMember(Value = "Sleep")]
-    Sleep,
+    SLEEP,
     [EnumMember(Value = "Food")]
-    Food,
+    FOOD,
     [EnumMember(Value = "Relax")]
-    Relax,
+    RELAX,
 }
 
 // public class ActivityTypeConverter : JsonConverter<ACTIVITY_TYPE>

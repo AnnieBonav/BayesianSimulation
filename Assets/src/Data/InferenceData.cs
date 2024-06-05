@@ -47,7 +47,7 @@ public class InferenceData
     public InferenceData()
     {
         StatesValues = new List<StateData>();
-        ChosenActivity = ACTIVITY_TYPE.None;
+        ChosenActivity = ACTIVITY_TYPE.NONE;
     }
     public void InitializeRandomInferenceData(List<STATE_TYPE> states)
     {
