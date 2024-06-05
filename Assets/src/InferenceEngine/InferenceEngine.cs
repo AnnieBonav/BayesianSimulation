@@ -57,7 +57,7 @@ public abstract class InferenceEngine : MonoBehaviour
 
     private string NewTrainingDataFileName()
     {
-        int fileCount = Directory.GetFiles("Assets/src/Data/TrainingData", "*.asset").Length;
+        int fileCount = Directory.GetFiles("Assets/src/Data/TrainingData", "*.json").Length;
         string fileName;
 
         // TODO: Make this better by each implementation saving that information, these switches are not good
@@ -158,6 +158,7 @@ public abstract class InferenceEngine : MonoBehaviour
             case RUN_TYPE.TRAINING:
                 RunTraining();
                 break;
+
             case RUN_TYPE.INFERENCE:
                 RunInference();
                 break;
@@ -172,11 +173,9 @@ public abstract class InferenceEngine : MonoBehaviour
         }
     }
 
-    protected void RunActiveInference()
-    {
-        print("Called active inference in Inference Engine");
-        // agent.StartActiveInfering();
-    }
+    /*
+    MAIN RUNS
+    */
 
     protected void RunTraining()
     {
@@ -193,11 +192,34 @@ public abstract class InferenceEngine : MonoBehaviour
         {
             agentsPerformedActivities[state] = new Dictionary<ACTIVITY_TYPE, List<float>>();
         }
+
         CacheTrainingData();
         CalculatePriors();
         CalculateLikelihoods();
 
         agent.StartInfering();
+    }
+
+    protected void RunActiveInference()
+    {
+        print("Called active inference in Inference Engine");
+        // Is repeated code from RunInference but want to keep it like this until I make it work
+        foreach (STATE_TYPE state in agent.States)
+        {
+            agentsPerformedActivities[state] = new Dictionary<ACTIVITY_TYPE, List<float>>();
+        }
+
+        CalculatePriors();
+        CalculateLikelihoods();
+
+        agent.StartActiveInfering();
+    }
+
+    // Will be used only in Active Inference (for now)
+    public void UpdateModel(List<InferenceData> data)
+    {
+        CalculatePriors();
+        CalculateLikelihoods();
     }
 
     // Reads the data from a presaved JSON file
@@ -228,7 +250,7 @@ public abstract class InferenceEngine : MonoBehaviour
 
         // Initialize dictionaries with all the known ACTIVITY_TYPE values
         // TODO would need to make it dynamic if I need to control which activities affect it
-        foreach (ACTIVITY_TYPE activity in Enum.GetValues(typeof(ACTIVITY_TYPE)))
+        foreach (ACTIVITY_TYPE activity in agent.Activities)
         {
             activityCounts[activity] = 0;
             // Per every state, it will create a list of every activivity that was tested and the values that were gotten (from that state and activity)

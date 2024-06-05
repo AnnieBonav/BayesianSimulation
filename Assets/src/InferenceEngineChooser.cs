@@ -27,8 +27,8 @@ public class InferenceEngineChooser : MonoBehaviour
             case INFERENCE_ENGINE_TYPE.COMBINED_ACTIVITY:
                 return CombinedActivityIE;
             
-            // case INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE:
-            //     return ActiveInferenceEngine;
+            case INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE:
+                return ActiveInferenceEngine;
                 
             default:
                 Debug.LogError("Inference Engine not found");

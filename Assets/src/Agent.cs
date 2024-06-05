@@ -113,6 +113,38 @@ public class Agent : MonoBehaviour
         StartCoroutine(ActivityLoop());
     }
 
+    public void StartActiveInfering()
+    {
+        StartCoroutine(ActiveInferenceLoop());
+    }
+
+    IEnumerator ActiveInferenceLoop(bool verbose = false)
+    {
+        while (true)
+        {
+            if (!doingActivity)
+            {
+                InferenceData randomTrainingData = new InferenceData();
+                randomTrainingData.InitializeRandomInferenceData(statesType);
+
+                randomTrainingData.ChosenActivity = inferenceEngine.ChooseTrainingActivity(randomTrainingData);
+
+                if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
+
+                Activity chosenActivity = activities.Find(activity => activity.ActivityType == randomTrainingData.ChosenActivity);
+                Action action = ChooseRandomActionFromActivity(chosenActivity);
+                
+                PerformAction(action, false);
+
+                performedActivitiesData.Add(randomTrainingData); // Record the chosen activity
+
+                // Dynamically update the model
+                inferenceEngine.UpdateModel(performedActivitiesData);
+            }
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
     // TODO: make this disabling better, should probably not need to run if is training? Or maybe yes but maybe there is more than one option of running?
     private void OnDisable() {
         if(isTraining)

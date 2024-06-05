@@ -1067,7 +1067,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a662e579282a6476aacbaef7a96f8663, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ChosenInferenceEngineType: 4
+  ChosenInferenceEngineType: 3
   PredefinedGaussiansIE: {fileID: 1049884337}
   RandomActivityIE: {fileID: 279958171}
   BasicHeuristicsIE: {fileID: 2092072149}
@@ -4004,11 +4004,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27322f7c8a1114ced9d7a1c041fbe8a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  runType: 0
+  runType: 1
   saveTrainingData: 0
-  trainingDataFileNumber: 
-  verbose: 0
+  trainingDataFileNumber: 5
+  verbose: 1
   agent: {fileID: 669082639}
+  explorationRate: 0.8
 --- !u!4 &1562161792
 Transform:
   m_ObjectHideFlags: 0
