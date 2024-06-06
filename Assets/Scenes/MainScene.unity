@@ -2629,7 +2629,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   runType: 2
   saveTrainingData: 0
-  trainingDataFileNumber: 14
+  trainingDataFileNumber: 11
   verbose: 1
   agent: {fileID: 669082639}
 --- !u!4 &1091429271
@@ -4163,7 +4163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88ef82d2bc2c348f8856c1f867f205c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rtMinInSimDay: 1
+  rtMinInSimDay: 2
   modTag: 0
   agent: {fileID: 669082639}
   digitalClockLabel: {fileID: 309512025}

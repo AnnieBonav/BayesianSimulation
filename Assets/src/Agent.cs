@@ -270,4 +270,29 @@ public class Agent : MonoBehaviour
         PerformAction(action, true);
         yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
     }
+
+    /*
+    public IEnumerator ManuallyPerformActionForTraining(ACTIVITY_TYPE activityType, bool verbose = true)
+    {
+        print("ManuallyPerformActionForTraining");
+        Activity manuallyChosenActivity = activities.Find(activity => activity.ActivityType == activityType);
+        Action action = ChooseRandomActionFromActivity(manuallyChosenActivity);
+        List<STATE_TYPE> affectedStates = action.GetAffectedStates(statesType);
+
+        // NEED TO CONSIDER WITH WHICH INFO I TRAIN WHAT
+        InferenceData currentStatesForManualTraining = new InferenceData();
+        foreach (STATE_TYPE stateType in affectedStates)
+        {
+            currentStatesForManualTraining.AddStateData(statesDict[stateType]);
+        }
+
+        currentStatesForManualTraining.ChosenActivity = manuallyChosenActivity.ActivityType;
+
+        if(verbose) print(JsonSerialization.ToJson(currentStatesForManualTraining));
+        
+        performedActivitiesData.Add(currentStatesForManualTraining); // Record the chosen activity
+
+        PerformAction(action, true);
+        yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
+    }*/
 }

@@ -66,6 +66,11 @@ public class InferenceData
         }
     }
 
+    public void AddStateData(State state)
+    {
+        StatesValues.Add(new StateData(state.StateType, state.CurrentValue));
+    }
+
     // TODO: Would need to get min val and max val per each state
     private int GenerateRandomData()
     {

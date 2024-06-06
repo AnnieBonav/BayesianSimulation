@@ -17,5 +17,5 @@ MonoBehaviour:
   TimeInMin: 10
   AffectedStates:
   - StateType: 1
-    Value: -40
+    Value: -80
   Sprite: {fileID: 21300000, guid: 9e0c883e61e5a4c289e7912ea70f57a5, type: 3}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ActionScriptableObject
   ActionName: DeepSleep
   ActivityType: 2
-  TimeInMin: 40
+  TimeInMin: 30
   AffectedStates:
   - StateType: 2
     Value: -20
