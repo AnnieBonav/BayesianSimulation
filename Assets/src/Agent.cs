@@ -103,7 +103,7 @@ public class Agent : MonoBehaviour
             if (!doingActivity)
             {
                 InferenceData trainingData = GetTrainingDataWithIE();
-                performedActivitiesData.Add(trainingData); // Record the chosen activity
+                performedActivitiesData.Add(trainingData); // Record the randomly chosen activity
             }
             yield return new WaitForSeconds(0.01f);
         }
@@ -187,7 +187,7 @@ public class Agent : MonoBehaviour
         doingActivity = true;
 
         // I start it only one time because the time does not pass for each affected state
-        StartCoroutine(AffectState(action, verbose));
+        StartCoroutine(AffectState(action));
 
         foreach (STATE_TYPE stateType in affectedStates)
         {
@@ -198,7 +198,7 @@ public class Agent : MonoBehaviour
         doingActivity = false;
     }
 
-    IEnumerator AffectState(Action action, bool verbose = false)
+    IEnumerator AffectState(Action action)
     {
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(false);
         float waitingTime = action.ActionInfo.TimeInMin * day.RTSecInSimMin;
@@ -245,8 +245,29 @@ public class Agent : MonoBehaviour
         {
             StopCoroutine(TrainingLoop());
         }
-        else{
+        else
+        {
             StopCoroutine(InferenceLoop());
         }
+    }
+
+    // Externally send the activity that will be done, create the performed action information and add it so it can be saved (and then used for inference)
+    public IEnumerator ManuallyPerformActionForTraining(ACTIVITY_TYPE activityType, bool verbose = true)
+    {
+        print("ManuallyPerformActionForTraining");
+        Activity manuallyChosenActivity = activities.Find(activity => activity.ActivityType == activityType);
+        Action action = ChooseRandomActionFromActivity(manuallyChosenActivity);
+
+        InferenceData currentStatesForManualTraining = new InferenceData();
+        currentStatesForManualTraining.InitializeRandomInferenceData(statesType);
+
+        currentStatesForManualTraining.ChosenActivity = manuallyChosenActivity.ActivityType;
+
+        if(verbose) print(JsonSerialization.ToJson(currentStatesForManualTraining));
+        
+        performedActivitiesData.Add(currentStatesForManualTraining); // Record the chosen activity
+
+        PerformAction(action, true);
+        yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
     }
 }

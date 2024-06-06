@@ -8,7 +8,8 @@ using UnityEngine;
 
 public enum RUN_TYPE
 {
-    TRAINING,
+    AUTOMATIC_TRAINING,
+    MANUAL_TRAINING,
     INFERENCE,
     ACTIVE_INFERENCE
 }
@@ -20,7 +21,8 @@ public enum INFERENCE_ENGINE_TYPE
     RANDOM_ACTIVITY,
     BASIC_HEURISTICS_ACTIVITY,
     COMBINED_ACTIVITY,
-    ACTIVE_INFERENCE
+    ACTIVE_INFERENCE,
+    MANUAL_TRAINING
 }
 
 // Inference Engine both handles the training (based on which Engine it is), and then the inference (based on that training.) It calls the functions on the Agent and (...)
@@ -83,6 +85,10 @@ public abstract class InferenceEngine : MonoBehaviour
                 fileName = $"ActiveInference{fileCount}";
                 break;
 
+            case INFERENCE_ENGINE_TYPE.MANUAL_TRAINING:
+                fileName = $"ManualTraining{fileCount}";
+                break;
+
             default: // Stupid that it makes me add default (unasigeable variable fileName) cause I am adding all the cases, but it is what it is
                 fileName = $"TrainingData{fileCount}";
                 break;
@@ -113,6 +119,10 @@ public abstract class InferenceEngine : MonoBehaviour
 
             case INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE:
                 fileName = $"ActiveInference{trainingDataFileNumber}";
+                break;
+
+            case INFERENCE_ENGINE_TYPE.MANUAL_TRAINING:
+                fileName = $"ManualTraining{trainingDataFileNumber}";
                 break;
 
             default:
@@ -155,8 +165,12 @@ public abstract class InferenceEngine : MonoBehaviour
 
         // Do in Start and not awake cause Agent needs to be initialized first. Could probably use some better architecture
         switch(runType){
-            case RUN_TYPE.TRAINING:
+            case RUN_TYPE.AUTOMATIC_TRAINING:
                 RunTraining();
+                break;
+
+            case RUN_TYPE.MANUAL_TRAINING:
+                print("Manual training not implemented yet");
                 break;
 
             case RUN_TYPE.INFERENCE:

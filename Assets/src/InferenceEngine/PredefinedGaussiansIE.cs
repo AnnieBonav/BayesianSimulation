@@ -17,8 +17,8 @@ public class PredefinedGaussiansIE : InferenceEngine
 
     public override ACTIVITY_TYPE InferActivity(InferenceData currentStateValues)
     {
-        float highestLogSum = Mathf.NegativeInfinity;
-        Activity chosenActivity = null;
+        // float highestLogSum = Mathf.NegativeInfinity;
+        // Activity chosenActivity = null;
 
         // foreach (Activity activity in activities)
         // {

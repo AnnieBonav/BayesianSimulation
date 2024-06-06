@@ -10,6 +10,7 @@ public class InferenceEngineChooser : MonoBehaviour
     [SerializeField] private BasicHeuristicsIE BasicHeuristicsIE;
     [SerializeField] private CombinedActivityIE CombinedActivityIE;
     [SerializeField] private ActiveInferenceEngine ActiveInferenceEngine;
+    [SerializeField] private ManualTrainingIE ManualTrainingIE;
 
     public InferenceEngine GetSelectedEngine()
     {
@@ -29,6 +30,9 @@ public class InferenceEngineChooser : MonoBehaviour
             
             case INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE:
                 return ActiveInferenceEngine;
+
+            case INFERENCE_ENGINE_TYPE.MANUAL_TRAINING:
+                return ManualTrainingIE;
                 
             default:
                 Debug.LogError("Inference Engine not found");
