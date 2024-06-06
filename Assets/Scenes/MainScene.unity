@@ -1078,6 +1078,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a662e579282a6476aacbaef7a96f8663, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  overrideSelectedIESettings: 1
+  runType: 2
+  saveTrainingData: 0
+  trainingDataFileNumber: 0
   ChosenInferenceEngineType: 6
   PredefinedGaussiansIE: {fileID: 1049884337}
   RandomActivityIE: {fileID: 279958171}

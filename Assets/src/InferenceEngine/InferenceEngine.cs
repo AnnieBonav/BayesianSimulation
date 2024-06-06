@@ -29,8 +29,25 @@ public enum INFERENCE_ENGINE_TYPE
 public abstract class InferenceEngine : MonoBehaviour
 {
     [SerializeField] protected RUN_TYPE runType;
+    // This setter and getter is used in case the Inference Engine Chooser is overriding the action
+    public RUN_TYPE RunType
+    {
+        get { return runType; }
+        set { runType = value; }
+    }
     [SerializeField] protected bool saveTrainingData;
+    public bool SaveTrainingData
+    {
+        get { return saveTrainingData; }
+        set { saveTrainingData = value; }
+    }
+
     [SerializeField] protected string trainingDataFileNumber;
+    public string TrainingDataFileNumber
+    {
+        get { return trainingDataFileNumber; }
+        set { trainingDataFileNumber = value; }
+    }
     [SerializeField] protected bool verbose = false;
     // Based on the agents, its states will be used to create the training data
     [SerializeField] protected Agent agent;
@@ -54,7 +71,15 @@ public abstract class InferenceEngine : MonoBehaviour
 
     private void OnDisable()
     {
-        SaveTrainingData();
+        if(saveTrainingData)
+        {
+            TrainingDataWrapper trainingDataWrapper = new TrainingDataWrapper(agent.Activities, agent.States, agent.PerformedActivitiesData);
+            SaveData(trainingDataWrapper);
+        }
+        else
+        {
+            print("Training Data not saved");
+        }
     }
 
     private string NewTrainingDataFileName()
@@ -133,21 +158,9 @@ public abstract class InferenceEngine : MonoBehaviour
         return fileName;
     }
 
-    protected void SaveTrainingData()
-    {
-        if(saveTrainingData)
-        {
-            TrainingDataWrapper trainingDataWrapper = new TrainingDataWrapper(agent.Activities, agent.States, agent.PerformedActivitiesData);
-            SaveTrainingData(trainingDataWrapper);
-        }else
-        {
-            print("Training Data not saved");
-        }
-    }
-
     // TODO: Change save data to the engine? Engine should hear what the agent is doing and based on that save the data
     // TODO: Save scriptable object in the future, rn will be a JSON that works because gets serialized from the trainingDataScriptableObject so the list is respected, can just open it later
-    private void SaveTrainingData(TrainingDataWrapper trainingDataWrapper)
+    private void SaveData(TrainingDataWrapper trainingDataWrapper)
     {
         string trainingDataJSON = JsonSerialization.ToJson(trainingDataWrapper);
         print("Final Training Data JSON" + trainingDataJSON);

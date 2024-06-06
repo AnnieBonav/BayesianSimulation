@@ -1,0 +1,163 @@
+{
+    "ActivityTypes": [
+        1,
+        2,
+        3,
+        4
+    ],
+    "StateTypes": [
+        1,
+        2,
+        3,
+        4
+    ],
+    "InferenceData": [
+        {
+            "StatesValues": [
+                {
+                    "StateType": 1,
+                    "Value": 23
+                },
+                {
+                    "StateType": 2,
+                    "Value": 92
+                },
+                {
+                    "StateType": 3,
+                    "Value": 81
+                },
+                {
+                    "StateType": 4,
+                    "Value": 25
+                }
+            ],
+            "ChosenActivity": 4
+        },
+        {
+            "StatesValues": [
+                {
+                    "StateType": 1,
+                    "Value": 75
+                },
+                {
+                    "StateType": 2,
+                    "Value": 98
+                },
+                {
+                    "StateType": 3,
+                    "Value": 50
+                },
+                {
+                    "StateType": 4,
+                    "Value": 36
+                }
+            ],
+            "ChosenActivity": 4
+        },
+        {
+            "StatesValues": [
+                {
+                    "StateType": 1,
+                    "Value": 6
+                },
+                {
+                    "StateType": 2,
+                    "Value": 58
+                },
+                {
+                    "StateType": 3,
+                    "Value": 78
+                },
+                {
+                    "StateType": 4,
+                    "Value": 28
+                }
+            ],
+            "ChosenActivity": 1
+        },
+        {
+            "StatesValues": [
+                {
+                    "StateType": 1,
+                    "Value": 6
+                },
+                {
+                    "StateType": 2,
+                    "Value": 82
+                },
+                {
+                    "StateType": 3,
+                    "Value": 3
+                },
+                {
+                    "StateType": 4,
+                    "Value": 8
+                }
+            ],
+            "ChosenActivity": 3
+        },
+        {
+            "StatesValues": [
+                {
+                    "StateType": 1,
+                    "Value": 31
+                },
+                {
+                    "StateType": 2,
+                    "Value": 58
+                },
+                {
+                    "StateType": 3,
+                    "Value": 0
+                },
+                {
+                    "StateType": 4,
+                    "Value": 29
+                }
+            ],
+            "ChosenActivity": 3
+        },
+        {
+            "StatesValues": [
+                {
+                    "StateType": 1,
+                    "Value": 94
+                },
+                {
+                    "StateType": 2,
+                    "Value": 47
+                },
+                {
+                    "StateType": 3,
+                    "Value": 18
+                },
+                {
+                    "StateType": 4,
+                    "Value": 61
+                }
+            ],
+            "ChosenActivity": 3
+        },
+        {
+            "StatesValues": [
+                {
+                    "StateType": 1,
+                    "Value": 18
+                },
+                {
+                    "StateType": 2,
+                    "Value": 24
+                },
+                {
+                    "StateType": 3,
+                    "Value": 63
+                },
+                {
+                    "StateType": 4,
+                    "Value": 41
+                }
+            ],
+            "ChosenActivity": 1
+        }
+    ]
+}
