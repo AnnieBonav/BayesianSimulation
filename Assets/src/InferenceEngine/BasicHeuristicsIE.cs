@@ -11,6 +11,8 @@ public class BasicHeuristicsIE : StandardInference
     public override ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues)
     {
         // TODO: Need to change this to be dynamic, do not know how at the moment :)
+        // SEE I had an issea because this was callinhg relax and that didnt exist anymore **angry** need to change
+        if (trainingStateValues.GetStateValue(STATE_TYPE.CRIME_RATE) > 70f) return ACTIVITY_TYPE.DETECTIVE;
         if (trainingStateValues.GetStateValue(STATE_TYPE.BATHROOM_NEED) > 70f) return ACTIVITY_TYPE.BATHROOM;
         if (trainingStateValues.GetStateValue(STATE_TYPE.SLEEP_NEED) > 80f) return ACTIVITY_TYPE.SLEEP;
         if (trainingStateValues.GetStateValue(STATE_TYPE.FOOD_NEED) > 50f) return ACTIVITY_TYPE.FOOD;

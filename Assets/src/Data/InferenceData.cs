@@ -11,9 +11,8 @@ public class TrainingDataWrapper
     public List<STATE_TYPE> StateTypes;
     public List<InferenceData> InferenceData;
 
-    public TrainingDataWrapper()
-    {
-    }
+    // Use it for serialization;
+    public TrainingDataWrapper(){}
 
     public TrainingDataWrapper(List<ACTIVITY_TYPE> activityTypes, List<STATE_TYPE> stateTypes, List<InferenceData> trainingData)
     {
@@ -28,9 +27,7 @@ public class StateData
 {
     public STATE_TYPE StateType;
     public float Value;
-    public StateData()
-    {
-    }
+    public StateData(){}
     public StateData(STATE_TYPE stateType, float value)
     {
         StateType = stateType;

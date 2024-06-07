@@ -15,10 +15,10 @@ public enum STATE_TYPE
 // FUNCTION_TYPE might become the function that explains the rate of change of the STATE value over time.
 public enum FUNCTION_TYPE
 {
-    Exponential,
-    Logarithmic,
-    Square,
-    Linear
+    EXPONENTIAL,
+    LOGARITHMIC,
+    SQUARE,
+    LINEAR
 }
 public class State : MonoBehaviour
 {

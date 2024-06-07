@@ -28,12 +28,33 @@ public class Villain : MonoBehaviour
         StopCoroutine(MoveLoop());
     }
 
+    // Instead of move to random should probably make it go closer to perry
     private void MoveToRandom()
     {
         placeholderPosition.x = UnityEngine.Random.Range(cam.LeftCamLimit, cam.RightCamLimit);
         placeholderPosition.z = UnityEngine.Random.Range(cam.BottomCamLimit, cam.TopCamLimit);
 
         iTween.MoveTo(this.gameObject, iTween.Hash("position", placeholderPosition));
+    }
+
+    public void ScareAway(float minDistance, float maxDistance)
+    {
+        print("Scaring away " + villainName);
+        // Calculate a random direction
+        Vector2 randomDirection = UnityEngine.Random.insideUnitCircle.normalized;
+
+        // Calculate a random distance between minDistance and maxDistance
+        float randomDistance = UnityEngine.Random.Range(minDistance, maxDistance);
+
+        // Calculate the new position
+        Vector2 newPosition = (Vector2)this.transform.position + randomDirection * randomDistance;
+
+        // Ensure the new position is within the camera limits
+        // newPosition.x = Mathf.Clamp(newPosition.x, cam.LeftCamLimit, cam.RightCamLimit);
+        // newPosition.y = Mathf.Clamp(newPosition.y, cam.BottomCamLimit, cam.TopCamLimit);
+
+        // Move the villain to the new position
+        iTween.MoveTo(this.gameObject, iTween.Hash("position", newPosition));
     }
 
     IEnumerator MoveLoop()

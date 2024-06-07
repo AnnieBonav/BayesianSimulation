@@ -49,6 +49,12 @@ public abstract class InferenceEngine : MonoBehaviour
         set { trainingDataFileNumber = value; }
     }
     [SerializeField] protected bool verbose = false;
+    public bool Verbose
+    {
+        get { return verbose; }
+        set { verbose = value; }
+    }
+    
     // Based on the agents, its states will be used to create the training data
     [SerializeField] protected Agent agent;
     // CONSIDER: Need to use the TYPE for checking so the actual states and activities...do not go outside of the Agent
@@ -67,19 +73,6 @@ public abstract class InferenceEngine : MonoBehaviour
         agentsPerformedActivities = new Dictionary<STATE_TYPE, Dictionary<ACTIVITY_TYPE, List<float>>>();
         trainingData = new List<InferenceData>();
         activityTypes = new List<ACTIVITY_TYPE>();
-    }
-
-    private void OnDisable()
-    {
-        if(saveTrainingData)
-        {
-            TrainingDataWrapper trainingDataWrapper = new TrainingDataWrapper(agent.Activities, agent.States, agent.PerformedActivitiesData);
-            SaveData(trainingDataWrapper);
-        }
-        else
-        {
-            print("Training Data not saved");
-        }
     }
 
     private string NewTrainingDataFileName()
@@ -171,6 +164,11 @@ public abstract class InferenceEngine : MonoBehaviour
         File.WriteAllText(filePath, trainingDataJSON);
     }
 
+    public virtual void InitializeEngine()
+    {
+        StartEngine();
+    }
+
     protected void StartEngine()
     {
         // Caches the activities from the agent
@@ -179,18 +177,21 @@ public abstract class InferenceEngine : MonoBehaviour
         // Do in Start and not awake cause Agent needs to be initialized first. Could probably use some better architecture
         switch(runType){
             case RUN_TYPE.AUTOMATIC_TRAINING:
+                print("Automatic training running");
                 RunTraining();
                 break;
 
             case RUN_TYPE.MANUAL_TRAINING:
-                print("Manual training not implemented yet");
+                print("Manual training not implemented yet...what?");
                 break;
 
             case RUN_TYPE.INFERENCE:
+                print("Inference running");
                 RunInference();
                 break;
 
             case RUN_TYPE.ACTIVE_INFERENCE:
+                print("Active Inference running");
                 RunActiveInference();
                 break;
 
@@ -224,7 +225,7 @@ public abstract class InferenceEngine : MonoBehaviour
         CalculatePriors();
         CalculateLikelihoods();
 
-        agent.StartInfering();
+        agent.StartInfering(verbose);
     }
 
     protected void RunActiveInference()
@@ -239,7 +240,7 @@ public abstract class InferenceEngine : MonoBehaviour
         CalculatePriors();
         CalculateLikelihoods();
 
-        agent.StartActiveInfering();
+        agent.StartActiveInfering(verbose);
     }
 
     // Will be used only in Active Inference (for now)
@@ -350,10 +351,15 @@ public abstract class InferenceEngine : MonoBehaviour
     {
         return (1 / Mathf.Sqrt(2 * Mathf.PI * variance)) * Mathf.Exp(-((x - mean) * (x - mean)) / (2 * variance));
     }
-    
-    public virtual void InitializeEngine()
+
+    private void OnDisable()
     {
-        StartEngine();
+        if(saveTrainingData)
+        {
+            print("Saved Training Data not saved");
+            TrainingDataWrapper trainingDataWrapper = new TrainingDataWrapper(agent.Activities, agent.States, agent.PerformedActivitiesData);
+            SaveData(trainingDataWrapper);
+        }
     }
 
     public abstract ACTIVITY_TYPE InferActivity(InferenceData currentStateValues);

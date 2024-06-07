@@ -6,6 +6,7 @@ public class InferenceEngineChooser : MonoBehaviour
     [SerializeField] private RUN_TYPE runType;
     [SerializeField] private bool saveTrainingData;
     [SerializeField] private string trainingDataFileNumber;
+    [SerializeField] private bool verbose = false;
     [SerializeField] private INFERENCE_ENGINE_TYPE ChosenInferenceEngineType;
     [SerializeField] private PredefinedGaussiansIE PredefinedGaussiansIE;
     [SerializeField] private RandomActivityIE RandomActivityIE;
@@ -52,6 +53,7 @@ public class InferenceEngineChooser : MonoBehaviour
             selectedInferenceEngine.RunType = runType;
             selectedInferenceEngine.SaveTrainingData = saveTrainingData;
             selectedInferenceEngine.TrainingDataFileNumber = trainingDataFileNumber;
+            selectedInferenceEngine.Verbose = verbose;
         }
 
         return selectedInferenceEngine;

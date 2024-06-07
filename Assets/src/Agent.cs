@@ -9,20 +9,23 @@ public class Agent : MonoBehaviour
     public string AgentName => agentName;
     [SerializeField] private InferenceEngineChooser inferenceEngineChooser;
     private InferenceEngine inferenceEngine;
-    [SerializeField] private Transform enemyTransform;
+    [SerializeField] private Villain villain;
+    private Transform villainTransform;
     [SerializeField] private GameCamera cam;
     private Transform agentTransform;
     [SerializeField] private float yPos = 0.6f;
     [SerializeField] private Day day;
 
     // Cannot acces the states that belong to the Agent, only the Types (same with the activities, only the types are accessible, not the instances)
-    [SerializeField] private List<State> states;
-    private List<STATE_TYPE> statesType;
+    [SerializeField] private GameObject statesParent;
+    private List<State> states;
     public List<STATE_TYPE> States => statesType;
+    private List<STATE_TYPE> statesType;
     // Dictionaries are used for quick lookup
     private Dictionary<STATE_TYPE, State> statesDict;
 
-    [SerializeField] private List<Activity> activities;
+    [SerializeField] private GameObject activitiesParent;
+    private List<Activity> activities;
     private List<ACTIVITY_TYPE> activitiesType;
     public List<ACTIVITY_TYPE> Activities => activitiesType;
     private Dictionary<ACTIVITY_TYPE, Activity> activitiesDict;
@@ -40,6 +43,8 @@ public class Agent : MonoBehaviour
     private void Awake()
     {
         agentTransform = this.transform;
+        villainTransform = villain.transform;
+
         maxDistanceFromEnemy = cam.MaxDistance;
         agentPosition = new Vector3(0, yPos, 0);
         performedActivitiesData = new List<InferenceData>();
@@ -56,11 +61,16 @@ public class Agent : MonoBehaviour
 
     private void CacheStates()
     {
+        states = new List<State>();
         statesType = new List<STATE_TYPE>();
         statesDict = new Dictionary<STATE_TYPE, State>();
 
-        foreach (State state in states)
+        foreach(Transform child in statesParent.transform)
         {
+            // Will not use "TryGetComponent" cause I prefer the errror
+            // TODO: Check if it returns null or an error
+            State state = child.GetComponent<State>();
+            states.Add(state);
             statesType.Add(state.StateType);
             statesDict.Add(state.StateType, state);
         }
@@ -69,34 +79,43 @@ public class Agent : MonoBehaviour
     // Gets the ACTIVITY_TYPEs from all the activities that were dragged into the agent, so it is easier to go through them when doing the Naive Bayes
     private void CacheActivities()
     {
+        // TODO: Learn if having an inactiev object still gets added to the activities
+        activities = new List<Activity>();
         activitiesType = new List<ACTIVITY_TYPE>();
         activitiesDict = new Dictionary<ACTIVITY_TYPE, Activity>();
 
-        foreach (Activity activity in activities)
+        foreach (Transform child in activitiesParent.transform)
         {
+            Activity activity = child.GetComponent<Activity>();
+            if (activity != null)
+            {
+            activities.Add(activity);
             activitiesType.Add(activity.ActivityType);
             activitiesDict.Add(activity.ActivityType, activity);
+            }
         }
     }
 
-    public void StartTraining(bool verbose = false)
+    // Verbose is sent from the Inference Engine (where this is called)
+    public void StartTraining(bool verbose)
     {
         isTraining = true;
         StartCoroutine(TrainingLoop(verbose));
     }
 
-    // Should probably chnage the names because there will be one inference engine that actually does active inference, so it will be traing and infering and naming can be confusing
-    public void StartInfering()
+    // Verbose is sent from the Inference Engine (where this is called)
+    public void StartInfering(bool verbose)
     {
-        StartCoroutine(InferenceLoop());
+        StartCoroutine(InferenceLoop(verbose));
     }
 
-    public void StartActiveInfering()
+    // Verbose is sent from the Inference Engine (where this is called)
+    public void StartActiveInfering(bool verbose)
     {
-        StartCoroutine(ActiveInferenceLoop());
+        StartCoroutine(ActiveInferenceLoop(verbose));
     }
 
-    IEnumerator TrainingLoop(bool verbose = false)
+    IEnumerator TrainingLoop(bool verbose)
     {
         while (true)
         {
@@ -104,20 +123,32 @@ public class Agent : MonoBehaviour
             {
                 InferenceData trainingData = GetTrainingDataWithIE();
                 performedActivitiesData.Add(trainingData); // Record the randomly chosen activity
+                if(verbose) print(JsonSerialization.ToJson(performedActivitiesData));
             }
             yield return new WaitForSeconds(0.01f);
         }
     }
 
-    IEnumerator InferenceLoop()
+    IEnumerator InferenceLoop(bool verbose)
     {
+        print("STarted inference loop");
         while (true)
         {
             if (!doingActivity)
             {
+                print("Will choose actovity");
                 Activity chosenActivity = GetActivityWithIE();
-                Action action = ChooseRandomActionFromActivity(chosenActivity);
-                PerformAction(action, false);
+                Action action = null;
+                if (chosenActivity.ActivityType != ACTIVITY_TYPE.DETECTIVE)
+                {
+                    print("Chosen activity: " + chosenActivity.ActivityType);
+                    action = ChooseRandomActionFromActivity(chosenActivity);
+                    PerformAction(action, verbose);
+                }else
+                {
+                    print("Solving THE INFERENCE crime");
+                    StartCoroutine(SolveCrime());
+                }
             }
             yield return new WaitForSeconds(1);
         }
@@ -136,7 +167,7 @@ public class Agent : MonoBehaviour
 
                 if(verbose) print(JsonSerialization.ToJson(currentDataForTraining));
 
-                Activity chosenActivity = activities.Find(activity => activity.ActivityType == currentDataForTraining.ChosenActivity);
+                Activity chosenActivity = activitiesDict[currentDataForTraining.ChosenActivity];
                 Action action = ChooseRandomActionFromActivity(chosenActivity);
                 
                 PerformAction(action, false);
@@ -174,13 +205,13 @@ public class Agent : MonoBehaviour
         currentData.InitializeInferenceData(states);
 
         ACTIVITY_TYPE chosenActivityType = inferenceEngine.InferActivity(currentData);
-        Activity chosenActivity = activities.Find(activity => activity.ActivityType == chosenActivityType);
+        Activity chosenActivity = activitiesDict[chosenActivityType];
 
         return chosenActivity;
     }
 
     // Multiple needs could be affected from Action...Probably change names of PerformAction and PerformActivity
-    public void PerformAction(Action action, bool verbose = false)
+    public void PerformAction(Action action, bool verbose)
     {
         MoveTo(action.ActionTransform);
         List<STATE_TYPE> affectedStates = action.GetAffectedStates(statesType);
@@ -198,6 +229,20 @@ public class Agent : MonoBehaviour
         doingActivity = false;
     }
 
+    // This architecture could be better, but works for now for solving crimes
+    // TODO: probably need to check the disabling enebling and state functions
+    public IEnumerator SolveCrime()
+    {
+        // Will probably have debug buttons because this is for the manual training (for now)
+        if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(false);
+        print("Solving crime");
+        MoveTo(villainTransform);
+        villain.ScareAway(10, 15);
+        SaveCurrentStatesData(activitiesDict[ACTIVITY_TYPE.DETECTIVE]);
+        yield return new WaitForSeconds(3);
+        if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(true);
+    }
+
     IEnumerator AffectState(Action action)
     {
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(false);
@@ -211,7 +256,7 @@ public class Agent : MonoBehaviour
     {
         agentPosition.x = actionObjectToMoveTo.position.x;
         agentPosition.z = actionObjectToMoveTo.position.z;
-        
+        print("Moving to: " + actionObjectToMoveTo.position);
         iTween.MoveTo(this.gameObject, iTween.Hash("position", agentPosition));
     }
 
@@ -231,7 +276,7 @@ public class Agent : MonoBehaviour
 
     private float DistanceFromEnemy()
     {
-        return Vector3.Distance(agentTransform.position, enemyTransform.position);
+        return Vector3.Distance(agentTransform.position, villainTransform.position);
     }
 
     private float NormalizeValue(float value, float minValue, float maxValue)
@@ -243,32 +288,34 @@ public class Agent : MonoBehaviour
     private void OnDisable() {
         if(isTraining)
         {
-            StopCoroutine(TrainingLoop());
+            StopCoroutine(TrainingLoop(false));
         }
         else
         {
-            StopCoroutine(InferenceLoop());
+            StopCoroutine(InferenceLoop(false));
         }
     }
 
     // Externally send the activity that will be done, create the performed action information and add it so it can be saved (and then used for inference)
-    public IEnumerator ManuallyPerformActionForTraining(ACTIVITY_TYPE activityType, bool verbose = true)
+    public IEnumerator ManuallyPerformActionForTraining(ACTIVITY_TYPE activityType, bool verbose = false)
     {
         print("ManuallyPerformActionForTraining");
-        Activity manuallyChosenActivity = activities.Find(activity => activity.ActivityType == activityType);
+        Activity manuallyChosenActivity = activitiesDict[activityType];
         Action action = ChooseRandomActionFromActivity(manuallyChosenActivity);
 
+        SaveCurrentStatesData(manuallyChosenActivity, verbose);
+        PerformAction(action, true);
+        yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
+    }
+
+    private void SaveCurrentStatesData(Activity chosenActivity, bool verbose = false)
+    {
         InferenceData currentStatesForManualTraining = new InferenceData();
         currentStatesForManualTraining.InitializeRandomInferenceData(statesType);
-
-        currentStatesForManualTraining.ChosenActivity = manuallyChosenActivity.ActivityType;
-
+        currentStatesForManualTraining.ChosenActivity = chosenActivity.ActivityType;
         if(verbose) print(JsonSerialization.ToJson(currentStatesForManualTraining));
         
         performedActivitiesData.Add(currentStatesForManualTraining); // Record the chosen activity
-
-        PerformAction(action, true);
-        yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
     }
 
     /*
