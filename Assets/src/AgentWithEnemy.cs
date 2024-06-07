@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using Unity.Serialization.Json;
 using UnityEngine;
 
-public class Agent : MonoBehaviour
+public class AgentWithEnemy : MonoBehaviour
 {
     [SerializeField] private string agentName;
     public string AgentName => agentName;
     [SerializeField] private InferenceEngineChooser inferenceEngineChooser;
     private InferenceEngine inferenceEngine;
+    [SerializeField] private Villain villain;
+    private Transform villainTransform;
     [SerializeField] private GameCamera cam;
+    private Transform agentTransform;
     [SerializeField] private float yPos = 0.6f;
     [SerializeField] private Day day;
 
@@ -39,6 +42,9 @@ public class Agent : MonoBehaviour
 
     private void Awake()
     {
+        agentTransform = this.transform;
+        villainTransform = villain.transform;
+
         maxDistanceFromEnemy = cam.MaxDistance;
         agentPosition = new Vector3(0, yPos, 0);
         performedActivitiesData = new List<InferenceData>();
@@ -125,13 +131,24 @@ public class Agent : MonoBehaviour
 
     IEnumerator InferenceLoop(bool verbose)
     {
+        print("STarted inference loop");
         while (true)
         {
             if (!doingActivity)
             {
+                print("Will choose actovity");
                 Activity chosenActivity = GetActivityWithIE();
-                Action action = ChooseRandomActionFromActivity(chosenActivity);
-                PerformAction(action, verbose);   
+                Action action = null;
+                if (chosenActivity.ActivityType != ACTIVITY_TYPE.DETECTIVE)
+                {
+                    print("Chosen activity: " + chosenActivity.ActivityType);
+                    action = ChooseRandomActionFromActivity(chosenActivity);
+                    PerformAction(action, verbose);
+                }else
+                {
+                    print("Solving THE INFERENCE crime");
+                    StartCoroutine(SolveCrime());
+                }
             }
             yield return new WaitForSeconds(1);
         }
@@ -212,6 +229,20 @@ public class Agent : MonoBehaviour
         doingActivity = false;
     }
 
+    // This architecture could be better, but works for now for solving crimes
+    // TODO: probably need to check the disabling enebling and state functions
+    public IEnumerator SolveCrime()
+    {
+        // Will probably have debug buttons because this is for the manual training (for now)
+        if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(false);
+        print("Solving crime");
+        MoveTo(villainTransform);
+        villain.ScareAway(10, 15);
+        SaveCurrentStatesData(activitiesDict[ACTIVITY_TYPE.DETECTIVE]);
+        yield return new WaitForSeconds(3);
+        if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(true);
+    }
+
     IEnumerator AffectState(Action action)
     {
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(false);
@@ -225,7 +256,7 @@ public class Agent : MonoBehaviour
     {
         agentPosition.x = actionObjectToMoveTo.position.x;
         agentPosition.z = actionObjectToMoveTo.position.z;
-        
+        print("Moving to: " + actionObjectToMoveTo.position);
         iTween.MoveTo(this.gameObject, iTween.Hash("position", agentPosition));
     }
 
@@ -233,8 +264,19 @@ public class Agent : MonoBehaviour
     {
         foreach(State state in states)
         {
+            if(state.StateType == STATE_TYPE.CRIME_RATE){
+                float currentDistanceFromEnemy = DistanceFromEnemy();
+                float crimeRate = Mathf.Pow(1 -NormalizeValue(currentDistanceFromEnemy, 0, maxDistanceFromEnemy), 2) * 100;
+                state.UpdateValue(crimeRate);
+                continue;
+            }
             state.AffectByRate();
         }
+    }
+
+    private float DistanceFromEnemy()
+    {
+        return Vector3.Distance(agentTransform.position, villainTransform.position);
     }
 
     private float NormalizeValue(float value, float minValue, float maxValue)
@@ -275,4 +317,29 @@ public class Agent : MonoBehaviour
         
         performedActivitiesData.Add(currentStatesForManualTraining); // Record the chosen activity
     }
+
+    /*
+    public IEnumerator ManuallyPerformActionForTraining(ACTIVITY_TYPE activityType, bool verbose = true)
+    {
+        print("ManuallyPerformActionForTraining");
+        Activity manuallyChosenActivity = activities.Find(activity => activity.ActivityType == activityType);
+        Action action = ChooseRandomActionFromActivity(manuallyChosenActivity);
+        List<STATE_TYPE> affectedStates = action.GetAffectedStates(statesType);
+
+        // NEED TO CONSIDER WITH WHICH INFO I TRAIN WHAT
+        InferenceData currentStatesForManualTraining = new InferenceData();
+        foreach (STATE_TYPE stateType in affectedStates)
+        {
+            currentStatesForManualTraining.AddStateData(statesDict[stateType]);
+        }
+
+        currentStatesForManualTraining.ChosenActivity = manuallyChosenActivity.ActivityType;
+
+        if(verbose) print(JsonSerialization.ToJson(currentStatesForManualTraining));
+        
+        performedActivitiesData.Add(currentStatesForManualTraining); // Record the chosen activity
+
+        PerformAction(action, true);
+        yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
+    }*/
 }

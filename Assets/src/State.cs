@@ -74,9 +74,18 @@ public class State : MonoBehaviour
         UpdateUI();
     }
 
+    // TODO: Could add different types of affect functions, and use the FUNCTION_TYPE enum to choose which one to use
     public void AffectByRate()
     {
-        currentValue += 1 / affectRate;
+        if(stateType == STATE_TYPE.CRIME_RATE)
+        {
+            currentValue += Mathf.Sin(Time.deltaTime) * affectRate;
+        }
+        else
+        {
+            currentValue += 1 / affectRate;
+        }
+
         if (currentValue > maxValue)
         {
             currentValue = maxValue;

@@ -8,11 +8,5 @@ public class ActivityDebugBtn : MonoBehaviour
     public void PerformAction()
     {
         StartCoroutine(agent.ManuallyPerformActionForTraining(activityType));
-        // agent.ManuallyPerformActionForTraining(activityType);
-    }
-
-    public void Detective()
-    {
-        StartCoroutine(agent.SolveCrime());
     }
 }
