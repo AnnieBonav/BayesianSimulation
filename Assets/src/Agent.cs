@@ -112,9 +112,10 @@ public class Agent : MonoBehaviour
         {
             if (!doingActivity)
             {
-                InferenceData trainingData = GetTrainingDataWithIE();
-                performedActivitiesData.Add(trainingData); // Record the randomly chosen activity
-                if(verbose) print(JsonSerialization.ToJson(performedActivitiesData));
+                // InferenceData trainingData = GetTrainingDataWithIE(verbose);
+                GetTrainingDataWithIE(verbose);
+                // performedActivitiesData.Add(trainingData); // Record the randomly chosen activity
+                // if(verbose) print(JsonSerialization.ToJson(performedActivitiesData));
             }
             yield return new WaitForSeconds(0.01f);
         }
@@ -168,6 +169,7 @@ public class Agent : MonoBehaviour
         return activity.PossibleActions[randomIndex];
     }
 
+    // Will not use it to get but to perform, need to change name
     private InferenceData GetTrainingDataWithIE(bool verbose = false)
     {
         InferenceData randomTrainingData = new InferenceData();
@@ -175,7 +177,24 @@ public class Agent : MonoBehaviour
 
         randomTrainingData.ChosenActivity = inferenceEngine.ChooseTrainingActivity(randomTrainingData);
 
-        if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
+        Activity chosenActivity = activitiesDict[randomTrainingData.ChosenActivity];
+        // Paste from manuallyPerformActionForTraining
+        // TODO: would need to change training with one state vs all of them
+        Action action = ChooseRandomActionFromActivity(activitiesDict[randomTrainingData.ChosenActivity]); 
+        List<STATE_TYPE> affectedStates = action.GetAffectedStates(statesType);
+
+        if(affectedStates.Count == 0)
+        {
+            SaveCurrentStatesData(chosenActivity);
+            if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
+        }else
+        {
+            // Save the main affected state (the first one in the list), cause its the most important one and no need to worry about breaking something for now
+            State mainAffectedState = statesDict[affectedStates[0]];
+            SaveSingleStateData(mainAffectedState, chosenActivity, verbose);
+            if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
+        }
+
         return randomTrainingData;
     }
     
@@ -218,6 +237,14 @@ public class Agent : MonoBehaviour
         if(hasDebugButtons) debugActivityButtons.SetButtonsInteractable(true);
     }
 
+    public void DebugResetStates()
+    {
+        foreach (State state in states)
+        {
+            state.UpdateValue(0);
+        }
+    }
+
     private void MoveTo(Transform actionObjectToMoveTo)
     {
         agentPosition.x = actionObjectToMoveTo.position.x;
@@ -252,16 +279,16 @@ public class Agent : MonoBehaviour
     }
 
     // Externally send the activity that will be done, create the performed action information and add it so it can be saved (and then used for inference)
-    public IEnumerator ManuallyPerformActionForTraining(ACTIVITY_TYPE activityType, bool verbose = false)
-    {
-        print("ManuallyPerformActionForTraining");
-        Activity manuallyChosenActivity = activitiesDict[activityType];
-        Action action = ChooseRandomActionFromActivity(manuallyChosenActivity);
+    // public IEnumerator ManuallyPerformActionForTraining(ACTIVITY_TYPE activityType, bool verbose = false)
+    // {
+    //     print("ManuallyPerformActionForTraining");
+    //     Activity manuallyChosenActivity = activitiesDict[activityType];
+    //     Action action = ChooseRandomActionFromActivity(manuallyChosenActivity);
 
-        SaveCurrentStatesData(manuallyChosenActivity, verbose);
-        PerformAction(action, true);
-        yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
-    }
+    //     SaveCurrentStatesData(manuallyChosenActivity, verbose);
+    //     PerformAction(action, true);
+    //     yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
+    // }
 
     private void SaveCurrentStatesData(Activity chosenActivity, bool verbose = false)
     {
@@ -271,5 +298,46 @@ public class Agent : MonoBehaviour
         if(verbose) print(JsonSerialization.ToJson(currentStatesForManualTraining));
         
         performedActivitiesData.Add(currentStatesForManualTraining); // Record the chosen activity
+    }
+
+    private void SaveSingleStateData(State state, Activity chosenActivity, bool verbose = false)
+    {
+        InferenceData currentStateForManualTraining = new InferenceData();
+        currentStateForManualTraining.AddStateData(state);
+        currentStateForManualTraining.ChosenActivity = chosenActivity.ActivityType;
+        if(verbose) print(JsonSerialization.ToJson(currentStateForManualTraining));
+
+        performedActivitiesData.Add(currentStateForManualTraining); // Record the chosen activity
+    }
+
+    
+    public IEnumerator ManuallyPerformActionForTraining(ACTIVITY_TYPE activityType, bool verbose = true)
+    {
+        //     print("ManuallyPerformActionForTraining");
+        //     Activity manuallyChosenActivity = activitiesDict[activityType];
+        //     Action action = ChooseRandomActionFromActivity(manuallyChosenActivity);
+
+        //     SaveCurrentStatesData(manuallyChosenActivity, verbose);
+        //     PerformAction(action, true);
+        //     yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
+        print("ManuallyPerformActionForTraining");
+        Activity manuallyChosenActivity = activitiesDict[activityType];
+        Action action = ChooseRandomActionFromActivity(manuallyChosenActivity);
+        List<STATE_TYPE> affectedStates = action.GetAffectedStates(statesType);
+
+        // Save the main affected state (the first one in the list), cause its the most important one and no need to worry about breaking something for now
+
+        if(affectedStates.Count == 0)
+        {
+            SaveCurrentStatesData(manuallyChosenActivity);
+        }
+        else
+        {
+            State mainAffectedState = statesDict[affectedStates[0]];
+            SaveSingleStateData(mainAffectedState, manuallyChosenActivity, verbose);
+        }
+        
+        PerformAction(action, true);
+        yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
     }
 }

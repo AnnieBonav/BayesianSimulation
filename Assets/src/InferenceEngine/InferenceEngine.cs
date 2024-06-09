@@ -220,9 +220,13 @@ public abstract class InferenceEngine : MonoBehaviour
         foreach (InferenceData data in trainingData)
         {
             activityCounts[data.ChosenActivity]++;
-            foreach (STATE_TYPE state in agentsPerformedActivities.Keys)
+            List<StateData> statesValues = data.StatesValues;
+
+            // Will iterate over the States that are related with that InferenceData instance, should probably only be one for now (because Agent State mainAffectedState = statesDict[affectedStates[0]]; in ManuallyPerformActionForTraining)
+            foreach (StateData state in statesValues)
             {
-                agentsPerformedActivities[state][data.ChosenActivity].Add(data.GetStateValue(state));
+                STATE_TYPE stateType = state.StateType;
+                agentsPerformedActivities[stateType][data.ChosenActivity].Add(data.GetStateValue(stateType));
             }
         }
 

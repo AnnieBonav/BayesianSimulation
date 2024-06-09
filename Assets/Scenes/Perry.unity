@@ -308,7 +308,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   runType: 1
-  saveTrainingData: 0
+  saveRunData: 0
   trainingDataFileNumber: 0
   verbose: 1
   agent: {fileID: 669082639}
@@ -353,7 +353,7 @@ PrefabInstance:
     - target: {fileID: 1496961891734506030, guid: 2ceba7912bc9649268eb77e22cc9b1b3,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1496961891734506030, guid: 2ceba7912bc9649268eb77e22cc9b1b3,
         type: 3}
@@ -363,7 +363,7 @@ PrefabInstance:
     - target: {fileID: 1496961891734506030, guid: 2ceba7912bc9649268eb77e22cc9b1b3,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1496961891734506030, guid: 2ceba7912bc9649268eb77e22cc9b1b3,
         type: 3}
@@ -413,12 +413,12 @@ PrefabInstance:
     - target: {fileID: 1496961891734506030, guid: 2ceba7912bc9649268eb77e22cc9b1b3,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 80
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1496961891734506030, guid: 2ceba7912bc9649268eb77e22cc9b1b3,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -129.12
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1496961891734506030, guid: 2ceba7912bc9649268eb77e22cc9b1b3,
         type: 3}
@@ -449,7 +449,7 @@ PrefabInstance:
         type: 3}
       propertyPath: action
       value: 
-      objectReference: {fileID: 2032627050}
+      objectReference: {fileID: 0}
     - target: {fileID: 2282312208585207037, guid: 2ceba7912bc9649268eb77e22cc9b1b3,
         type: 3}
       propertyPath: activityType
@@ -473,7 +473,7 @@ PrefabInstance:
     - target: {fileID: 8855168108260689698, guid: 2ceba7912bc9649268eb77e22cc9b1b3,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1178,11 +1178,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   overrideSelectedIESettings: 1
-  runType: 2
-  saveTrainingData: 0
-  trainingDataFileNumber: 0
+  runType: 1
+  saveRunData: 1
+  trainingDataFileNumber: 5
   verbose: 1
-  ChosenInferenceEngineType: 3
+  ChosenInferenceEngineType: 6
   PredefinedGaussiansIE: {fileID: 1049884337}
   RandomActivityIE: {fileID: 279958171}
   BasicHeuristicsIE: {fileID: 2092072149}
@@ -1391,7 +1391,7 @@ PrefabInstance:
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: affectRate
-      value: 2
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
@@ -2554,7 +2554,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   runType: 0
-  saveTrainingData: 0
+  saveRunData: 0
   trainingDataFileNumber: 
   verbose: 0
   agent: {fileID: 669082639}
@@ -2604,7 +2604,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   runType: 2
-  saveTrainingData: 0
+  saveRunData: 0
   trainingDataFileNumber: 11
   verbose: 1
   agent: {fileID: 669082639}
@@ -2849,7 +2849,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   runType: 1
-  saveTrainingData: 0
+  saveRunData: 0
   trainingDataFileNumber: 0
   verbose: 1
   agent: {fileID: 669082639}
@@ -4027,7 +4027,7 @@ PrefabInstance:
         type: 3}
       propertyPath: action
       value: 
-      objectReference: {fileID: 2032627050}
+      objectReference: {fileID: 0}
     - target: {fileID: 2282312208585207037, guid: 2ceba7912bc9649268eb77e22cc9b1b3,
         type: 3}
       propertyPath: activityType
@@ -4125,7 +4125,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   runType: 1
-  saveTrainingData: 0
+  saveRunData: 0
   trainingDataFileNumber: 8
   verbose: 1
   agent: {fileID: 669082639}
@@ -4925,7 +4925,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   runType: 1
-  saveTrainingData: 0
+  saveRunData: 0
   trainingDataFileNumber: 0
   verbose: 1
   agent: {fileID: 669082639}

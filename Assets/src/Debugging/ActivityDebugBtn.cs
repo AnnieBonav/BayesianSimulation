@@ -9,4 +9,9 @@ public class ActivityDebugBtn : MonoBehaviour
     {
         StartCoroutine(agent.ManuallyPerformActionForTraining(activityType));
     }
+
+    public void ResetStates()
+    {
+        agent.DebugResetStates();
+    }
 }

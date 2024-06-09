@@ -1,21 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System;
-using System.Runtime.Serialization;
 
 public enum ACTIVITY_TYPE
 {
-    [EnumMember(Value = "None")]
     NONE,
-    [EnumMember(Value = "Bathroom")]
     BATHROOM,
-    [EnumMember(Value = "Sleep")]
     SLEEP,
-    [EnumMember(Value = "Food")]
     FOOD,
-    [EnumMember(Value = "Relax")]
     RELAX,
-    [EnumMember(Value = "Detective")]
     DETECTIVE
 }
 
