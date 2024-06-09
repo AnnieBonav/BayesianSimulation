@@ -17,19 +17,19 @@ public class ManualTrainingIE : StandardInference
         print("IN MANUAL " + JsonSerialization.ToJson(trainingStateValues));
         // TODO: Need to change this to be dynamic, do not know how at the moment :)
         // SEE I had an issea because this was callinhg relax and that didnt exist anymore **angry** need to change
-        if (trainingStateValues.GetStateValue(STATE_TYPE.CRIME_RATE) > 50f)
+        if (trainingStateValues.GetStateValue(STATE_TYPE.CRIME_RATE) > 30f && trainingStateValues.GetStateValue(STATE_TYPE.CRIME_RATE) < 40f)
         {
             activityType = ACTIVITY_TYPE.DETECTIVE;
         }
-        else if (trainingStateValues.GetStateValue(STATE_TYPE.BATHROOM_NEED) > 70f)
+        else if (trainingStateValues.GetStateValue(STATE_TYPE.BATHROOM_NEED) > 70f && trainingStateValues.GetStateValue(STATE_TYPE.BATHROOM_NEED) < 80f)
         {
             activityType = ACTIVITY_TYPE.BATHROOM;
         }
-        else if (trainingStateValues.GetStateValue(STATE_TYPE.SLEEP_NEED) > 60f)
+        else if (trainingStateValues.GetStateValue(STATE_TYPE.SLEEP_NEED) > 90f && trainingStateValues.GetStateValue(STATE_TYPE.SLEEP_NEED) < 95f)
         {
             activityType = ACTIVITY_TYPE.SLEEP;
         }
-        else if (trainingStateValues.GetStateValue(STATE_TYPE.FOOD_NEED) > 50f)
+        else if (trainingStateValues.GetStateValue(STATE_TYPE.FOOD_NEED) > 45f && trainingStateValues.GetStateValue(STATE_TYPE.FOOD_NEED) < 55f)
         {
             activityType = ACTIVITY_TYPE.FOOD;
         }

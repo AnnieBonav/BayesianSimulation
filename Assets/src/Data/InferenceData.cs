@@ -84,4 +84,9 @@ public class InferenceData
         StateData stateData = StatesValues.Find(foundState => foundState.StateType == stateType);
         stateData.Value = value;
     }
+
+    public void KeepOnlyOneState(STATE_TYPE stateType)
+    {
+        StatesValues.RemoveAll(stateData => stateData.StateType != stateType);
+    }
 }

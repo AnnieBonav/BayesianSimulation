@@ -1198,7 +1198,7 @@ MonoBehaviour:
   overrideSelectedIESettings: 1
   runType: 2
   saveRunData: 0
-  trainingDataFileNumber: 2
+  trainingDataFileNumber: 11
   verbose: 1
   ChosenInferenceEngineType: 6
   PredefinedGaussiansIE: {fileID: 1049884337}
@@ -1409,7 +1409,7 @@ PrefabInstance:
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}
       propertyPath: affectRate
-      value: 10
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 7920664735219817551, guid: 43546f7a3a39947c8b56bbb2050e8c7b,
         type: 3}

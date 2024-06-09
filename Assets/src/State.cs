@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 // STATE_TYPE is an enum that represents the different states that an agent can have, which are the values that it receives (both internally and externally) and that it can change through its Actions (or simply change over time)
 public enum STATE_TYPE
@@ -20,6 +21,8 @@ public enum FUNCTION_TYPE
     SQUARE,
     LINEAR
 }
+
+[Serializable]
 public class State : MonoBehaviour
 {
     [SerializeField] private STATE_TYPE stateType;

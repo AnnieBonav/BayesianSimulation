@@ -186,14 +186,11 @@ public class Agent : MonoBehaviour
 
         if(affectedStates.Count == 0)
         {
-            SaveCurrentStatesData(chosenActivity);
-            if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
+            performedActivitiesData.Add(randomTrainingData); // Record the chosen activity, all the states (it is relax)
         }else
         {
-            // Save the main affected state (the first one in the list), cause its the most important one and no need to worry about breaking something for now
-            State mainAffectedState = statesDict[affectedStates[0]];
-            SaveSingleStateData(mainAffectedState, chosenActivity, verbose);
-            if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
+            randomTrainingData.KeepOnlyOneState(affectedStates[0]);
+            performedActivitiesData.Add(randomTrainingData); // Record the chosen activity, only the affected state
         }
 
         return randomTrainingData;
@@ -304,10 +301,11 @@ public class Agent : MonoBehaviour
         performedActivitiesData.Add(currentStatesForManualTraining); // Record the chosen activity
     }
 
-    private void SaveSingleStateData(State state, Activity chosenActivity, bool verbose = false)
+    private void SaveSingleCurrentStateData(State state, Activity chosenActivity, bool verbose = false)
     {
         InferenceData currentStateForManualTraining = new InferenceData();
         currentStateForManualTraining.AddStateData(state);
+        print("DEBUG IN SAVE SINGLE STATE DATA" + "  " + state.CurrentValue);
         currentStateForManualTraining.ChosenActivity = chosenActivity.ActivityType;
         if(verbose) print(JsonSerialization.ToJson(currentStateForManualTraining));
 
@@ -338,7 +336,7 @@ public class Agent : MonoBehaviour
         else
         {
             State mainAffectedState = statesDict[affectedStates[0]];
-            SaveSingleStateData(mainAffectedState, manuallyChosenActivity, verbose);
+            SaveSingleCurrentStateData(mainAffectedState, manuallyChosenActivity, verbose);
         }
         
         PerformAction(action, true);
