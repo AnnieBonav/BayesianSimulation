@@ -145,7 +145,7 @@ public class Agent : MonoBehaviour
                 InferenceData currentDataForTraining = new InferenceData();
                 currentDataForTraining.InitializeRandomInferenceData(statesType);
 
-                currentDataForTraining.ChosenActivity = inferenceEngine.ChooseTrainingActivity(currentDataForTraining);
+                currentDataForTraining.ChosenActivity = inferenceEngine.DataTrainer.ChooseTrainingActivity(activitiesType, currentDataForTraining);
 
                 if(verbose) print(JsonSerialization.ToJson(currentDataForTraining));
 
@@ -158,7 +158,8 @@ public class Agent : MonoBehaviour
                 performedActivitiesData.Add(currentDataForTraining); // Record the chosen activity
 
                 // Dynamically update the model
-                inferenceEngine.UpdateModel(performedActivitiesData);
+                // TODO: Check removed reference to update
+                // inferenceEngine.UpdateModel(performedActivitiesData);
             }
             yield return new WaitForSeconds(0.1f);
         }
@@ -176,7 +177,8 @@ public class Agent : MonoBehaviour
         InferenceData randomTrainingData = new InferenceData();
         randomTrainingData.InitializeRandomInferenceData(statesType);
 
-        randomTrainingData.ChosenActivity = inferenceEngine.ChooseTrainingActivity(randomTrainingData);
+        // TODO: Addded sending atcivtiies
+        randomTrainingData.ChosenActivity = inferenceEngine.DataTrainer.ChooseTrainingActivity(activitiesType, randomTrainingData);
 
         Activity chosenActivity = activitiesDict[randomTrainingData.ChosenActivity];
         // Paste from manuallyPerformActionForTraining

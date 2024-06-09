@@ -5,36 +5,8 @@ using UnityEngine;
 // Having an abstract method inside of an abstract method is not allowed, and the fix will create a funky architecture, but its fine for now
 public class StandardInference : InferenceEngine
 {
-    public override ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues)
-    {
-        return ACTIVITY_TYPE.NONE;
-    }
-
-    // public override ACTIVITY_TYPE InferActivity(InferenceData currentStateValues)
-    // {
-    //     Dictionary<ACTIVITY_TYPE, float> posteriorProbabilities = new Dictionary<ACTIVITY_TYPE, float>();
-
-    //     foreach(ACTIVITY_TYPE activity in activityTypes)
-    //     {
-    //         performedActivitiesData.TryGetValue(activity, out PerformedActivityData performedActivityData);
-
-    //         float prior = performedActivityData.Prior; // Retrieve stored prior
-    //         float posterior = prior;
-    //         foreach (StateData stateData in currentStateValues.StatesValues)
-    //         {
-    //             float stateLikelihood = GaussianProbability(stateData.Value, performedActivityData.StatesData[stateData.StateType].Mean, performedActivityData.StatesData[stateData.StateType].Variance);
-    //             posterior *= stateLikelihood;
-    //         }
-
-    //         posteriorProbabilities[activity] = posterior;
-    //     }
-
-    //     // Gets the activity with the highest posterior probability
-    //     return posteriorProbabilities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
-    // }
-
     public override ACTIVITY_TYPE InferActivity(InferenceData currentStateValues)
-{
+    {
     Dictionary<ACTIVITY_TYPE, float> logPosteriorProbabilities = new Dictionary<ACTIVITY_TYPE, float>();
 
     foreach (ACTIVITY_TYPE activity in activityTypes)
@@ -59,5 +31,30 @@ public class StandardInference : InferenceEngine
 
     // Gets the activity with the highest log posterior probability
     return logPosteriorProbabilities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
-}
+    }
+
+    protected override void RunInference()
+    {
+        print("Called inference in Standard Inference Engine");
+
+        // Saves only the states that affect the current agent
+        foreach (STATE_TYPE state in agent.States)
+        {
+            agentsPerformedActivities[state] = new Dictionary<ACTIVITY_TYPE, List<float>>();
+        }
+
+        CacheTrainingData();
+        CalculatePriors();
+        CalculateLikelihoods();
+
+        agent.StartInfering(verbose);
+    }
+
+    protected override void RunAutomaticTraining()
+    {
+        print("Called Automatic Training in Standard Inference Engine");
+        newTrainingDataFileName = $"StandardInference{fileCount}";
+        existingTrainingDataFileName = $"StandardInference{trainingDataFileNumber}";
+        agent.StartTraining(verbose);
+    }
 }

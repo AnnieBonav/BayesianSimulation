@@ -2,27 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Unity.Serialization.Json;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum RUN_TYPE
 {
     AUTOMATIC_TRAINING,
     MANUAL_TRAINING,
-    INFERENCE,
-    ACTIVE_INFERENCE
+    // If I do inference with Active Inference Engine, then it is active inference
+    INFERENCE
+}
+
+public enum DATA_TRAINER_TYPE
+{
+    RANDOM,
+    HEURISTICS,
+    COMBINED
 }
 
 public enum INFERENCE_ENGINE_TYPE
 {
     NONE,
-    PREDEFINED_GAUSSIANS,
-    RANDOM_ACTIVITY,
-    BASIC_HEURISTICS_ACTIVITY,
-    COMBINED_ACTIVITY,
-    ACTIVE_INFERENCE,
-    MANUAL_TRAINING
+    STANDARD_INFERENCE,
+    ACTIVE_INFERENCE
 }
 
 // Inference Engine both handles the training (based on which Engine it is), and then the inference (based on that training.) It calls the functions on the Agent and (...)
@@ -34,6 +37,14 @@ public abstract class InferenceEngine : MonoBehaviour
     {
         get { return runType; }
         set { runType = value; }
+    }
+
+    // Train single state would be that only bathroom need is taken into consideration for the bathroom activity, sleep need for sleep activity, etc. This is to train one activity at a time, except the idle activity (relax) which is trained with all the states
+    [SerializeField] protected bool trainSingleState = false;
+    public bool TrainSingleState
+    {
+        get { return trainSingleState; }
+        set { trainSingleState = value; }
     }
 
     // Change it to "Run Data" and not "Training Data" because Inference can save the data too, should maybe change the name of the file based on the run type
@@ -56,6 +67,22 @@ public abstract class InferenceEngine : MonoBehaviour
         get { return verbose; }
         set { verbose = value; }
     }
+
+    [SerializeField] protected bool verboseInitialData = false;
+    public bool VerboseInitialData
+    {
+        get { return verboseInitialData; }
+        set { verboseInitialData = value; }
+    }
+
+    [SerializeField] protected DATA_TRAINER_TYPE dataTrainerType;
+
+    private DataTrainer dataTrainer;
+    public DataTrainer DataTrainer
+    {
+        get { return dataTrainer; }
+        set { dataTrainer = value; }
+    }
     
     // Based on the agents, its states will be used to create the training data
     [SerializeField] protected Agent agent;
@@ -74,26 +101,22 @@ public abstract class InferenceEngine : MonoBehaviour
     protected int fileCount;
 
     protected void Awake() {
+        // Creates a Data Trainer based on the type, using a factory method
+        dataTrainer = DataTrainer.CreateDataTrainer(dataTrainerType);
+
+        // Initializes the dictionaries
         activityCounts = new Dictionary<ACTIVITY_TYPE, int>();
         performedActivitiesData = new Dictionary<ACTIVITY_TYPE, PerformedActivityData>();
         agentsPerformedActivities = new Dictionary<STATE_TYPE, Dictionary<ACTIVITY_TYPE, List<float>>>();
         trainingData = new List<InferenceData>();
         activityTypes = new List<ACTIVITY_TYPE>();
+
+        // Handles file names
         fileCount = Directory.GetFiles("Assets/src/Data/TrainingData", "*.json").Length;
         newTrainingDataFileName = $"TrainingData{fileCount}";
     }
 
-    // TODO: Change save data to the engine? Engine should hear what the agent is doing and based on that save the data
-    // TODO: Save scriptable object in the future, rn will be a JSON that works because gets serialized from the trainingDataScriptableObject so the list is respected, can just open it later
-    private void SaveData(InferenceDataWrapper trainingDataWrapper)
-    {
-        string trainingDataJSON = JsonSerialization.ToJson(trainingDataWrapper);
-        print("Final Training Data JSON" + trainingDataJSON);
-        string filePath = $"Assets/src/Data/TrainingData/{newTrainingDataFileName}.json";
-
-        File.WriteAllText(filePath, trainingDataJSON);
-    }
-
+    // Created so that the inherited classes can do their own thing, set everything they need and then call the base method.
     public virtual void InitializeEngine()
     {
         StartEngine();
@@ -105,24 +128,21 @@ public abstract class InferenceEngine : MonoBehaviour
         activityTypes = agent.Activities;
 
         // Do in Start and not awake cause Agent needs to be initialized first. Could probably use some better architecture
+        // Calls the training method that will use what is implemented in each Inference Engine.
         switch(runType){
             case RUN_TYPE.AUTOMATIC_TRAINING:
                 print("Automatic training running");
-                RunTraining();
+                RunAutomaticTraining();
                 break;
 
             case RUN_TYPE.MANUAL_TRAINING:
+                // TODO: Make the world not change states to avoid confusion
                 print("Manual training not implemented yet...what?");
                 break;
 
             case RUN_TYPE.INFERENCE:
                 print("Inference running");
                 RunInference();
-                break;
-
-            case RUN_TYPE.ACTIVE_INFERENCE:
-                print("Active Inference running");
-                RunActiveInference();
                 break;
 
             default:
@@ -135,56 +155,20 @@ public abstract class InferenceEngine : MonoBehaviour
     MAIN RUNS
     */
 
-    protected void RunTraining()
-    {
-        print("Called training in Inference Engine");
-        agent.StartTraining(verbose);
-    }
-
-    protected void RunInference()
-    {
-        print("Called inference in Inference Engine");
-
-        // Saves only the states that affect the current agent
-        foreach (STATE_TYPE state in agent.States)
-        {
-            agentsPerformedActivities[state] = new Dictionary<ACTIVITY_TYPE, List<float>>();
-        }
-
-        CacheTrainingData();
-        CalculatePriors();
-        CalculateLikelihoods();
-
-        agent.StartInfering(verbose);
-    }
-
-    protected void RunActiveInference()
-    {
-        print("Called active inference in Inference Engine");
-        // Is repeated code from RunInference but want to keep it like this until I make it work
-        foreach (STATE_TYPE state in agent.States)
-        {
-            agentsPerformedActivities[state] = new Dictionary<ACTIVITY_TYPE, List<float>>();
-        }
-
-        CalculatePriors();
-        CalculateLikelihoods();
-
-        agent.StartActiveInfering(verbose);
-    }
-
-    // Will be used only in Active Inference (for now)
-    public void UpdateModel(List<InferenceData> data)
-    {
-        CalculatePriors();
-        CalculateLikelihoods();
-    }
+    // kept for remembering, remove later
+    // will change cause the engine should be in charge of the ttraiing, not the agent
+    // protected void RunAutomaticTraining()
+    // {
+    //     print("Called training in Inference Engine");
+    //     agent.StartTraining(verbose);
+    // }
 
     // Reads the data from a presaved JSON file
     protected void CacheTrainingData()
     {
-        string filePath = $"Assets/src/Data/TrainingData/{existingTrainingDataFileName}.json";
-
+        // TODO: fix the name saving, it is using default
+        // string filePath = $"Assets/src/Data/TrainingData/{existingTrainingDataFileName}.json";
+        string filePath = $"Assets/src/Data/TrainingData/StandardInference3.json";
         string jsonText = File.ReadAllText(filePath);
         print("JsonText: " + jsonText);
 
@@ -193,54 +177,25 @@ public abstract class InferenceEngine : MonoBehaviour
         print("TrainingDataObject: " + trainingDataObject.InferenceData.Count);
         trainingData = trainingDataObject.InferenceData;
 
-        if (verbose)
+        if (verboseInitialData)
         {
-            // foreach (InferenceData data in trainingData)
-            // {
-            //     Debug.Log(JsonSerialization.ToJson(data));
-            // }
+            foreach (InferenceData data in trainingData)
+            {
+                print(JsonSerialization.ToJson(data));
+            }
         }
     }
 
-    // protected void CalculatePriors()
-    // {
-
-    //     // Initialize dictionaries with all the known ACTIVITY_TYPE values
-    //     foreach (ACTIVITY_TYPE activity in agent.Activities)
-    //     {
-    //         activityCounts[activity] = 0;
-    //         // Per every state, it will create a list of every activivity that was tested and the values that were gotten (from that state and activity)
-    //         foreach (STATE_TYPE state in agentsPerformedActivities.Keys)
-    //         {
-    //             agentsPerformedActivities[state][activity] = new List<float>();
-    //         }
-    //     }
-
-    //     // Count occurrences the ocurrances of each actovoty (in activityCounts) and store the values of the states in the corresponding lists (in bathroomNeeds, sleepNeeds, foodNeeds, crimeRates
-    //     foreach (InferenceData data in trainingData)
-    //     {
-    //         activityCounts[data.ChosenActivity]++;
-    //         List<StateData> statesValues = data.StatesValues;
-
-    //         // Will iterate over the States that are related with that InferenceData instance, should probably only be one for now (because Agent State mainAffectedState = statesDict[affectedStates[0]]; in ManuallyPerformActionForTraining)
-    //         foreach (StateData state in statesValues)
-    //         {
-    //             STATE_TYPE stateType = state.StateType;
-    //             agentsPerformedActivities[stateType][data.ChosenActivity].Add(data.GetStateValue(stateType));
-    //         }
-    //     }
-
-    //     totalData = trainingData.Count;
-    // }
-
     protected void CalculatePriors()
     {
-        // Initialize dictionaries
+        // Initialize dictionaries with the data in the agent
         foreach (ACTIVITY_TYPE activity in agent.Activities)
         {
             activityCounts[activity] = 0;
+            // Creates a list of every activity that was tested and the values that were gotten (from that state and activity)
             foreach (STATE_TYPE state in agent.States)
             {
+                // TODO: Check why it does this
                 if (!agentsPerformedActivities.ContainsKey(state))
                 {
                     agentsPerformedActivities[state] = new Dictionary<ACTIVITY_TYPE, List<float>>();
@@ -268,31 +223,6 @@ public abstract class InferenceEngine : MonoBehaviour
         }
     }
 
-    // To really be dynamic, the activities list could be gotten from the InferenceData JSON itself. However, getting it from the current agent ensures that the agent has the Activities and the states. And it is important to ensure that the current agent with its current information is the one whos Training Data is being used, as no mixing should be done (maybe saving the agent and checking its the same would be great!)
-    // protected void CalculateLikelihoods()
-    // {
-    //     // Calculate priors and likelihoods (mean and variance)
-    //     foreach (ACTIVITY_TYPE activityType in agent.Activities)
-    //     {
-    //         float prior = (float)activityCounts[activityType] / totalData;
-            
-    //         List<GaussianInfo> statesData = new List<GaussianInfo>();
-
-    //         foreach (STATE_TYPE stateType in agentsPerformedActivities.Keys)
-    //         {
-    //             float stateMean = CalculateAverage(agentsPerformedActivities[stateType][activityType]);
-    //             float stateVariance = Variance(agentsPerformedActivities[stateType][activityType], stateMean);
-    //             // Create a gaussian with the variance constructor, standard deviation will be -1
-    //             GaussianInfo stateData = new GaussianInfo(stateType, stateMean, 0, 100, stateVariance);
-    //             statesData.Add(stateData);
-    //         }
-
-    //         PerformedActivityData activityData = new PerformedActivityData(prior, statesData, activityType);
-            
-    //         performedActivitiesData[activityType] = activityData;
-    //     }
-    // }
-
     protected void CalculateLikelihoods()
     {
         foreach (ACTIVITY_TYPE activityType in agent.Activities)
@@ -312,18 +242,13 @@ public abstract class InferenceEngine : MonoBehaviour
                 statesData.Add(stateData);
 
                 // Debug statements to check means and variances
-                Debug.Log($"Activity: {activityType}, State: {stateType}, Mean: {stateMean}, Variance: {stateVariance}");
+                print($"Activity: {activityType}, State: {stateType}, Mean: {stateMean}, Variance: {stateVariance}");
             }
 
             PerformedActivityData activityData = new PerformedActivityData(prior, statesData, activityType);
             performedActivitiesData[activityType] = activityData;
         }
     }
-    
-    // protected float Variance(List<float> values, float mean)
-    // {
-    //     return values.Select(v => (v - mean) * (v - mean)).Sum() / values.Count;
-    // }
 
     private float Variance(List<float> values, float mean)
     {
@@ -331,33 +256,12 @@ public abstract class InferenceEngine : MonoBehaviour
         return values.Select(v => (v - mean) * (v - mean)).Sum() / values.Count;
     }
 
-    // protected float CalculateAverage(List<float> values)
-    // {
-    //     if (values.Count == 0)
-    //     {
-    //         return 0f;
-    //     }
-
-    //     float sum = 0f;
-    //     foreach (float value in values)
-    //     {
-    //         sum += value;
-    //     }
-
-    //     return sum / values.Count;
-    // }
-
     private float CalculateAverage(List<float> values)
     {
         if (values.Count == 0) return 0f;
         float sum = values.Sum();
         return sum / values.Count;
     }
-
-    // protected float GaussianProbability(float x, float mean, float variance)
-    // {
-    //     return (1 / Mathf.Sqrt(2 * Mathf.PI * variance)) * Mathf.Exp(-((x - mean) * (x - mean)) / (2 * variance));
-    // }
 
     protected float GaussianProbability(float x, float mean, float variance)
     {
@@ -369,6 +273,16 @@ public abstract class InferenceEngine : MonoBehaviour
         return (1 / Mathf.Sqrt(2 * Mathf.PI * variance)) * exponent;
     }
 
+    // TODO: Change save data to the engine? Engine should hear what the agent is doing and based on that save the data
+    // TODO: Save scriptable object in the future, rn will be a JSON that works because gets serialized from the trainingDataScriptableObject so the list is respected, can just open it later
+    private void SaveData(InferenceDataWrapper trainingDataWrapper)
+    {
+        string trainingDataJSON = JsonSerialization.ToJson(trainingDataWrapper);
+        print("Final Training Data JSON" + trainingDataJSON);
+        string filePath = $"Assets/src/Data/TrainingData/{newTrainingDataFileName}.json";
+
+        File.WriteAllText(filePath, trainingDataJSON);
+    }
     private void OnDisable()
     {
         if(saveRunData)
@@ -379,7 +293,8 @@ public abstract class InferenceEngine : MonoBehaviour
         }
     }
 
+    protected abstract void RunAutomaticTraining();
+    protected abstract void RunInference();
     public abstract ACTIVITY_TYPE InferActivity(InferenceData currentStateValues);
-    public abstract ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues);
     protected INFERENCE_ENGINE_TYPE inferenceEngineType;
 }

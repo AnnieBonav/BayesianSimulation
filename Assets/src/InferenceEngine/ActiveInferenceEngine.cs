@@ -14,17 +14,24 @@ public class ActiveInferenceEngine : InferenceEngine
     }
 
     // It is actually training and inferring
-    public override ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues)
+    // public override ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues)
+    // {
+    //     if (Random.value < explorationRate)
+    //     {
+    //         // Random exploration
+    //         return (ACTIVITY_TYPE)Random.Range(1, activityTypes.Count + 1);
+    //     }
+    //     else
+    //     {
+    //         return InferActivity(trainingStateValues);
+    //     }
+    // }
+
+    // Will be used only in Active Inference (for now) WAS IN ENGINE
+    public void UpdateModel(List<InferenceData> data)
     {
-        if (Random.value < explorationRate)
-        {
-            // Random exploration
-            return (ACTIVITY_TYPE)Random.Range(1, activityTypes.Count + 1);
-        }
-        else
-        {
-            return InferActivity(trainingStateValues);
-        }
+        CalculatePriors();
+        CalculateLikelihoods();
     }
 
     public override ACTIVITY_TYPE InferActivity(InferenceData currentStateValues)
@@ -49,6 +56,26 @@ public class ActiveInferenceEngine : InferenceEngine
 
         // Gets the activity with the highest posterior probability
         return posteriorProbabilities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+    }
+
+    protected override void RunInference()
+    {
+        print("Called active inference in Inference Engine");
+        // Is repeated code from RunInference but want to keep it like this until I make it work
+        foreach (STATE_TYPE state in agent.States)
+        {
+            agentsPerformedActivities[state] = new Dictionary<ACTIVITY_TYPE, List<float>>();
+        }
+
+        CalculatePriors();
+        CalculateLikelihoods();
+
+        agent.StartActiveInfering(verbose);
+    }
+
+    protected override void RunAutomaticTraining()
+    {
+        throw new System.NotImplementedException();
     }
 }
 

@@ -163,7 +163,8 @@ public class AgentWithEnemy : MonoBehaviour
                 InferenceData currentDataForTraining = new InferenceData();
                 currentDataForTraining.InitializeRandomInferenceData(statesType);
 
-                currentDataForTraining.ChosenActivity = inferenceEngine.ChooseTrainingActivity(currentDataForTraining);
+                // Added sending activities
+                currentDataForTraining.ChosenActivity = inferenceEngine.DataTrainer.ChooseTrainingActivity(activitiesType, currentDataForTraining);
 
                 if(verbose) print(JsonSerialization.ToJson(currentDataForTraining));
 
@@ -176,7 +177,8 @@ public class AgentWithEnemy : MonoBehaviour
                 performedActivitiesData.Add(currentDataForTraining); // Record the chosen activity
 
                 // Dynamically update the model
-                inferenceEngine.UpdateModel(performedActivitiesData);
+                // Check removed reference
+                // inferenceEngine.UpdateModel(performedActivitiesData);
             }
             yield return new WaitForSeconds(0.1f);
         }
@@ -193,7 +195,8 @@ public class AgentWithEnemy : MonoBehaviour
         InferenceData randomTrainingData = new InferenceData();
         randomTrainingData.InitializeRandomInferenceData(statesType);
 
-        randomTrainingData.ChosenActivity = inferenceEngine.ChooseTrainingActivity(randomTrainingData);
+        // TODO: Added sending activities
+        randomTrainingData.ChosenActivity = inferenceEngine.DataTrainer.ChooseTrainingActivity(activitiesType, randomTrainingData);
 
         if(verbose) print(JsonSerialization.ToJson(randomTrainingData));
         return randomTrainingData;
