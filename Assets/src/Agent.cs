@@ -128,6 +128,7 @@ public class Agent : MonoBehaviour
             if (!doingActivity)
             {
                 Activity chosenActivity = GetActivityWithIE();
+                print("Looping" + chosenActivity.ActivityType);
                 Action action = ChooseRandomActionFromActivity(chosenActivity);
                 PerformAction(action, verbose);   
             }
@@ -202,10 +203,12 @@ public class Agent : MonoBehaviour
     {
         InferenceData currentData = new InferenceData();
         currentData.InitializeInferenceData(states);
+        print("DEBUG IN GET ACTIVITY WITH IE" + "  " + JsonSerialization.ToJson(currentData));
 
         ACTIVITY_TYPE chosenActivityType = inferenceEngine.InferActivity(currentData);
         Activity chosenActivity = activitiesDict[chosenActivityType];
 
+        print("DEBUG IN GET ACTIVITY WITH IE" + "  " + chosenActivityType);
         return chosenActivity;
     }
 
@@ -223,6 +226,7 @@ public class Agent : MonoBehaviour
         {
             // Will affect the state (that I know corresponds to the action AND exists on the Agent as a state that affects) by the value of the action (by finding it in the dictionary, the affecting float is the value)
             statesDict[stateType].Affect(action.AffectedStates[statesDict[stateType].StateType]);
+            
             if (verbose) print("DEBUG IN PERFORM ACTION" + "  Will be action " + action);
         }
         doingActivity = false;

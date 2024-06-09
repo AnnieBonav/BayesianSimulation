@@ -7,8 +7,8 @@ public enum ACTIVITY_TYPE
     BATHROOM,
     SLEEP,
     FOOD,
-    RELAX,
-    DETECTIVE
+    DETECTIVE,
+    RELAX
 }
 
 // Activities are the different classes the classifier will choose from

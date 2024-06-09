@@ -195,88 +195,163 @@ public abstract class InferenceEngine : MonoBehaviour
 
         if (verbose)
         {
-            foreach (InferenceData data in trainingData)
-            {
-                Debug.Log(JsonSerialization.ToJson(data));
-            }
+            // foreach (InferenceData data in trainingData)
+            // {
+            //     Debug.Log(JsonSerialization.ToJson(data));
+            // }
         }
     }
 
+    // protected void CalculatePriors()
+    // {
+
+    //     // Initialize dictionaries with all the known ACTIVITY_TYPE values
+    //     foreach (ACTIVITY_TYPE activity in agent.Activities)
+    //     {
+    //         activityCounts[activity] = 0;
+    //         // Per every state, it will create a list of every activivity that was tested and the values that were gotten (from that state and activity)
+    //         foreach (STATE_TYPE state in agentsPerformedActivities.Keys)
+    //         {
+    //             agentsPerformedActivities[state][activity] = new List<float>();
+    //         }
+    //     }
+
+    //     // Count occurrences the ocurrances of each actovoty (in activityCounts) and store the values of the states in the corresponding lists (in bathroomNeeds, sleepNeeds, foodNeeds, crimeRates
+    //     foreach (InferenceData data in trainingData)
+    //     {
+    //         activityCounts[data.ChosenActivity]++;
+    //         List<StateData> statesValues = data.StatesValues;
+
+    //         // Will iterate over the States that are related with that InferenceData instance, should probably only be one for now (because Agent State mainAffectedState = statesDict[affectedStates[0]]; in ManuallyPerformActionForTraining)
+    //         foreach (StateData state in statesValues)
+    //         {
+    //             STATE_TYPE stateType = state.StateType;
+    //             agentsPerformedActivities[stateType][data.ChosenActivity].Add(data.GetStateValue(stateType));
+    //         }
+    //     }
+
+    //     totalData = trainingData.Count;
+    // }
+
     protected void CalculatePriors()
     {
-
-        // Initialize dictionaries with all the known ACTIVITY_TYPE values
+        // Initialize dictionaries
         foreach (ACTIVITY_TYPE activity in agent.Activities)
         {
             activityCounts[activity] = 0;
-            // Per every state, it will create a list of every activivity that was tested and the values that were gotten (from that state and activity)
-            foreach (STATE_TYPE state in agentsPerformedActivities.Keys)
+            foreach (STATE_TYPE state in agent.States)
             {
+                if (!agentsPerformedActivities.ContainsKey(state))
+                {
+                    agentsPerformedActivities[state] = new Dictionary<ACTIVITY_TYPE, List<float>>();
+                }
                 agentsPerformedActivities[state][activity] = new List<float>();
             }
         }
 
-        // Count occurrences the ocurrances of each actovoty (in activityCounts) and store the values of the states in the corresponding lists (in bathroomNeeds, sleepNeeds, foodNeeds, crimeRates
+        // Count occurrences and store state values
         foreach (InferenceData data in trainingData)
         {
             activityCounts[data.ChosenActivity]++;
-            List<StateData> statesValues = data.StatesValues;
-
-            // Will iterate over the States that are related with that InferenceData instance, should probably only be one for now (because Agent State mainAffectedState = statesDict[affectedStates[0]]; in ManuallyPerformActionForTraining)
-            foreach (StateData state in statesValues)
+            foreach (StateData state in data.StatesValues)
             {
-                STATE_TYPE stateType = state.StateType;
-                agentsPerformedActivities[stateType][data.ChosenActivity].Add(data.GetStateValue(stateType));
+                agentsPerformedActivities[state.StateType][data.ChosenActivity].Add(state.Value);
             }
         }
 
         totalData = trainingData.Count;
-    }
 
-    protected float CalculateAverage(List<float> values)
-    {
-        if (values.Count == 0)
+        // Debug statements to check priors
+        foreach (var kvp in activityCounts)
         {
-            return 0f;
+            Debug.Log($"Activity: {kvp.Key}, Count: {kvp.Value}");
         }
-
-        float sum = 0f;
-        foreach (float value in values)
-        {
-            sum += value;
-        }
-
-        return sum / values.Count;
     }
 
     // To really be dynamic, the activities list could be gotten from the InferenceData JSON itself. However, getting it from the current agent ensures that the agent has the Activities and the states. And it is important to ensure that the current agent with its current information is the one whos Training Data is being used, as no mixing should be done (maybe saving the agent and checking its the same would be great!)
+    // protected void CalculateLikelihoods()
+    // {
+    //     // Calculate priors and likelihoods (mean and variance)
+    //     foreach (ACTIVITY_TYPE activityType in agent.Activities)
+    //     {
+    //         float prior = (float)activityCounts[activityType] / totalData;
+            
+    //         List<GaussianInfo> statesData = new List<GaussianInfo>();
+
+    //         foreach (STATE_TYPE stateType in agentsPerformedActivities.Keys)
+    //         {
+    //             float stateMean = CalculateAverage(agentsPerformedActivities[stateType][activityType]);
+    //             float stateVariance = Variance(agentsPerformedActivities[stateType][activityType], stateMean);
+    //             // Create a gaussian with the variance constructor, standard deviation will be -1
+    //             GaussianInfo stateData = new GaussianInfo(stateType, stateMean, 0, 100, stateVariance);
+    //             statesData.Add(stateData);
+    //         }
+
+    //         PerformedActivityData activityData = new PerformedActivityData(prior, statesData, activityType);
+            
+    //         performedActivitiesData[activityType] = activityData;
+    //     }
+    // }
+
     protected void CalculateLikelihoods()
     {
-        // Calculate priors and likelihoods (mean and variance)
         foreach (ACTIVITY_TYPE activityType in agent.Activities)
         {
             float prior = (float)activityCounts[activityType] / totalData;
-            
             List<GaussianInfo> statesData = new List<GaussianInfo>();
 
             foreach (STATE_TYPE stateType in agentsPerformedActivities.Keys)
             {
-                float stateMean = CalculateAverage(agentsPerformedActivities[stateType][activityType]);
-                float stateVariance = Variance(agentsPerformedActivities[stateType][activityType], stateMean);
-                // Create a gaussian with the variance constructor, standard deviation will be -1
+                List<float> values = agentsPerformedActivities[stateType][activityType];
+                if (values.Count == 0) continue;
+
+                float stateMean = CalculateAverage(values);
+                float stateVariance = Variance(values, stateMean);
+
                 GaussianInfo stateData = new GaussianInfo(stateType, stateMean, 0, 100, stateVariance);
                 statesData.Add(stateData);
+
+                // Debug statements to check means and variances
+                Debug.Log($"Activity: {activityType}, State: {stateType}, Mean: {stateMean}, Variance: {stateVariance}");
             }
 
             PerformedActivityData activityData = new PerformedActivityData(prior, statesData, activityType);
-            
             performedActivitiesData[activityType] = activityData;
         }
     }
     
-    protected float Variance(List<float> values, float mean)
+    // protected float Variance(List<float> values, float mean)
+    // {
+    //     return values.Select(v => (v - mean) * (v - mean)).Sum() / values.Count;
+    // }
+
+    private float Variance(List<float> values, float mean)
     {
+        if (values.Count == 0) return 0f;
         return values.Select(v => (v - mean) * (v - mean)).Sum() / values.Count;
+    }
+
+    // protected float CalculateAverage(List<float> values)
+    // {
+    //     if (values.Count == 0)
+    //     {
+    //         return 0f;
+    //     }
+
+    //     float sum = 0f;
+    //     foreach (float value in values)
+    //     {
+    //         sum += value;
+    //     }
+
+    //     return sum / values.Count;
+    // }
+
+    private float CalculateAverage(List<float> values)
+    {
+        if (values.Count == 0) return 0f;
+        float sum = values.Sum();
+        return sum / values.Count;
     }
 
     protected float GaussianProbability(float x, float mean, float variance)

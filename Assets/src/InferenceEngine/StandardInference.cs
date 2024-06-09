@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 // Having an abstract method inside of an abstract method is not allowed, and the fix will create a funky architecture, but its fine for now
 public class StandardInference : InferenceEngine
@@ -9,26 +10,54 @@ public class StandardInference : InferenceEngine
         return ACTIVITY_TYPE.NONE;
     }
 
+    // public override ACTIVITY_TYPE InferActivity(InferenceData currentStateValues)
+    // {
+    //     Dictionary<ACTIVITY_TYPE, float> posteriorProbabilities = new Dictionary<ACTIVITY_TYPE, float>();
+
+    //     foreach(ACTIVITY_TYPE activity in activityTypes)
+    //     {
+    //         performedActivitiesData.TryGetValue(activity, out PerformedActivityData performedActivityData);
+
+    //         float prior = performedActivityData.Prior; // Retrieve stored prior
+    //         float posterior = prior;
+    //         foreach (StateData stateData in currentStateValues.StatesValues)
+    //         {
+    //             float stateLikelihood = GaussianProbability(stateData.Value, performedActivityData.StatesData[stateData.StateType].Mean, performedActivityData.StatesData[stateData.StateType].Variance);
+    //             posterior *= stateLikelihood;
+    //         }
+
+    //         posteriorProbabilities[activity] = posterior;
+    //     }
+
+    //     // Gets the activity with the highest posterior probability
+    //     return posteriorProbabilities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+    // }
+
     public override ACTIVITY_TYPE InferActivity(InferenceData currentStateValues)
+{
+    Dictionary<ACTIVITY_TYPE, float> logPosteriorProbabilities = new Dictionary<ACTIVITY_TYPE, float>();
+
+    foreach (ACTIVITY_TYPE activity in activityTypes)
     {
-        Dictionary<ACTIVITY_TYPE, float> posteriorProbabilities = new Dictionary<ACTIVITY_TYPE, float>();
-
-        foreach(ACTIVITY_TYPE activity in activityTypes)
+        if (performedActivitiesData.TryGetValue(activity, out PerformedActivityData performedActivityData))
         {
-            performedActivitiesData.TryGetValue(activity, out PerformedActivityData performedActivityData);
+            float logPrior = Mathf.Log(performedActivityData.Prior); // Retrieve and log the prior
+            float logPosterior = logPrior;
 
-            float prior = performedActivityData.Prior; // Retrieve stored prior
-            float posterior = prior;
             foreach (StateData stateData in currentStateValues.StatesValues)
             {
-                float stateLikelihood = GaussianProbability(stateData.Value, performedActivityData.StatesData[stateData.StateType].Mean, performedActivityData.StatesData[stateData.StateType].Variance);
-                posterior *= stateLikelihood;
+                if (performedActivityData.StatesData.TryGetValue(stateData.StateType, out GaussianInfo stateStatistics))
+                {
+                    float stateLogLikelihood = Mathf.Log(GaussianProbability(stateData.Value, stateStatistics.Mean, stateStatistics.Variance));
+                    logPosterior += stateLogLikelihood;
+                }
             }
 
-            posteriorProbabilities[activity] = posterior;
+            logPosteriorProbabilities[activity] = logPosterior;
         }
-
-        // Gets the activity with the highest posterior probability
-        return posteriorProbabilities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
     }
+
+    // Gets the activity with the highest log posterior probability
+    return logPosteriorProbabilities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+}
 }
