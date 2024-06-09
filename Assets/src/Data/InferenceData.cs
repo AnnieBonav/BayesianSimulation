@@ -4,7 +4,7 @@ using UnityEngine;
 
 // TODO: Should remove the scriptable object and just have a list of InferenceData?
 // Define a wrapper class for your list of InferenceData
-public class TrainingDataWrapper
+public class InferenceDataWrapper
 {
     // TODO: Check, cause maybe the ACTIVITY_TYPE should each have its affected by states? (- cause maybe ACTIVITY_TYPE and STATE_TYPE should be in the InferenceData-)
     public List<ACTIVITY_TYPE> ActivityTypes;
@@ -12,9 +12,9 @@ public class TrainingDataWrapper
     public List<InferenceData> InferenceData;
 
     // Use it for serialization;
-    public TrainingDataWrapper(){}
+    public InferenceDataWrapper(){}
 
-    public TrainingDataWrapper(List<ACTIVITY_TYPE> activityTypes, List<STATE_TYPE> stateTypes, List<InferenceData> trainingData)
+    public InferenceDataWrapper(List<ACTIVITY_TYPE> activityTypes, List<STATE_TYPE> stateTypes, List<InferenceData> trainingData)
     {
         ActivityTypes = activityTypes;
         StateTypes = stateTypes;

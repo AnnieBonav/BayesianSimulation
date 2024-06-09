@@ -35,11 +35,13 @@ public abstract class InferenceEngine : MonoBehaviour
         get { return runType; }
         set { runType = value; }
     }
-    [SerializeField] protected bool saveTrainingData;
-    public bool SaveTrainingData
+
+    // Change it to "Run Data" and not "Training Data" because Inference can save the data too, should maybe change the name of the file based on the run type
+    [SerializeField] protected bool saveRunData;
+    public bool SaveRunData
     {
-        get { return saveTrainingData; }
-        set { saveTrainingData = value; }
+        get { return saveRunData; }
+        set { saveRunData = value; }
     }
 
     [SerializeField] protected string trainingDataFileNumber;
@@ -83,7 +85,7 @@ public abstract class InferenceEngine : MonoBehaviour
 
     // TODO: Change save data to the engine? Engine should hear what the agent is doing and based on that save the data
     // TODO: Save scriptable object in the future, rn will be a JSON that works because gets serialized from the trainingDataScriptableObject so the list is respected, can just open it later
-    private void SaveData(TrainingDataWrapper trainingDataWrapper)
+    private void SaveData(InferenceDataWrapper trainingDataWrapper)
     {
         string trainingDataJSON = JsonSerialization.ToJson(trainingDataWrapper);
         print("Final Training Data JSON" + trainingDataJSON);
@@ -186,7 +188,7 @@ public abstract class InferenceEngine : MonoBehaviour
         string jsonText = File.ReadAllText(filePath);
         print("JsonText: " + jsonText);
 
-        TrainingDataWrapper trainingDataObject = JsonSerialization.FromJson<TrainingDataWrapper>(jsonText.ToString());
+        InferenceDataWrapper trainingDataObject = JsonSerialization.FromJson<InferenceDataWrapper>(jsonText.ToString());
 
         print("TrainingDataObject: " + trainingDataObject.InferenceData.Count);
         trainingData = trainingDataObject.InferenceData;
@@ -204,7 +206,6 @@ public abstract class InferenceEngine : MonoBehaviour
     {
 
         // Initialize dictionaries with all the known ACTIVITY_TYPE values
-        // TODO would need to make it dynamic if I need to control which activities affect it
         foreach (ACTIVITY_TYPE activity in agent.Activities)
         {
             activityCounts[activity] = 0;
@@ -281,10 +282,10 @@ public abstract class InferenceEngine : MonoBehaviour
 
     private void OnDisable()
     {
-        if(saveTrainingData)
+        if(saveRunData)
         {
             print("Saved Training Data not saved");
-            TrainingDataWrapper trainingDataWrapper = new TrainingDataWrapper(agent.Activities, agent.States, agent.PerformedActivitiesData);
+            InferenceDataWrapper trainingDataWrapper = new InferenceDataWrapper(agent.Activities, agent.States, agent.PerformedActivitiesData);
             SaveData(trainingDataWrapper);
         }
     }
