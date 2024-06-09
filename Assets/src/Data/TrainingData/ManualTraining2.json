@@ -142,6 +142,33 @@
         {
             "StatesValues": [
                 {
+                    "StateType": 3,
+                    "Value": 65.33338
+                }
+            ],
+            "ChosenActivity": 3
+        },
+        {
+            "StatesValues": [
+                {
+                    "StateType": 3,
+                    "Value": 48.33338
+                }
+            ],
+            "ChosenActivity": 3
+        },
+        {
+            "StatesValues": [
+                {
+                    "StateType": 3,
+                    "Value": 38.33338
+                }
+            ],
+            "ChosenActivity": 3
+        },
+        {
+            "StatesValues": [
+                {
                     "StateType": 1,
                     "Value": 58.20015
                 }
@@ -156,15 +183,6 @@
                 }
             ],
             "ChosenActivity": 3
-        },
-        {
-            "StatesValues": [
-                {
-                    "StateType": 4,
-                    "Value": 65.19553
-                }
-            ],
-            "ChosenActivity": 4
         },
         {
             "StatesValues": [
@@ -269,15 +287,6 @@
             "StatesValues": [
                 {
                     "StateType": 4,
-                    "Value": 51.18968
-                }
-            ],
-            "ChosenActivity": 4
-        },
-        {
-            "StatesValues": [
-                {
-                    "StateType": 4,
                     "Value": 54.78602
                 }
             ],
@@ -358,7 +367,7 @@
         {
             "StatesValues": [
                 {
-                    "StateType": 4,
+                    "StateType": 3,
                     "Value": 59.59246
                 }
             ],
@@ -507,15 +516,6 @@
                 }
             ],
             "ChosenActivity": 1
-        },
-        {
-            "StatesValues": [
-                {
-                    "StateType": 4,
-                    "Value": 54.59628
-                }
-            ],
-            "ChosenActivity": 4
         },
         {
             "StatesValues": [

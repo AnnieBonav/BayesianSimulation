@@ -354,9 +354,19 @@ public abstract class InferenceEngine : MonoBehaviour
         return sum / values.Count;
     }
 
+    // protected float GaussianProbability(float x, float mean, float variance)
+    // {
+    //     return (1 / Mathf.Sqrt(2 * Mathf.PI * variance)) * Mathf.Exp(-((x - mean) * (x - mean)) / (2 * variance));
+    // }
+
     protected float GaussianProbability(float x, float mean, float variance)
     {
-        return (1 / Mathf.Sqrt(2 * Mathf.PI * variance)) * Mathf.Exp(-((x - mean) * (x - mean)) / (2 * variance));
+        // Add a small epsilon to variance to avoid division by zero
+        float epsilon = 1e-6f;
+        variance = Math.Max(variance, epsilon);
+
+        float exponent = Mathf.Exp(-Mathf.Pow(x - mean, 2) / (2 * variance));
+        return (1 / Mathf.Sqrt(2 * Mathf.PI * variance)) * exponent;
     }
 
     private void OnDisable()
