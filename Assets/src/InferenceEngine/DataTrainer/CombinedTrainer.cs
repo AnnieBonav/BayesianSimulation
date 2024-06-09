@@ -34,4 +34,9 @@ public class CombinedTrainer : DataTrainer
     {
         throw new System.NotImplementedException();
     }
+
+    public CombinedTrainer()
+    {
+        dataTrainerType = DATA_TRAINER_TYPE.COMBINED;
+    }
 }

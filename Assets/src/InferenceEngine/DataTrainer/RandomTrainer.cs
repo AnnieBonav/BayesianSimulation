@@ -25,4 +25,9 @@ public class RandomTrainer : DataTrainer
         Debug.Log("IN RANDOM TRAINER " + JsonUtility.ToJson(trainingStateValues) + $"  Chosen Activity: {activityType}");
         return activityType;
     }
+
+    public RandomTrainer()
+    {
+        dataTrainerType = DATA_TRAINER_TYPE.RANDOM;
+    }
 }

@@ -64,4 +64,9 @@ public class HeuristicsTrainer : DataTrainer
 
         return activityType;
     }
+
+    public HeuristicsTrainer()
+    {
+        dataTrainerType = DATA_TRAINER_TYPE.HEURISTICS;
+    }
 }

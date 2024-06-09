@@ -77,7 +77,7 @@ public abstract class InferenceEngine : MonoBehaviour
 
     [SerializeField] protected DATA_TRAINER_TYPE dataTrainerType;
 
-    private DataTrainer dataTrainer;
+    protected DataTrainer dataTrainer;
     public DataTrainer DataTrainer
     {
         get { return dataTrainer; }
@@ -166,9 +166,7 @@ public abstract class InferenceEngine : MonoBehaviour
     // Reads the data from a presaved JSON file
     protected void CacheTrainingData()
     {
-        // TODO: fix the name saving, it is using default
-        // string filePath = $"Assets/src/Data/TrainingData/{existingTrainingDataFileName}.json";
-        string filePath = $"Assets/src/Data/TrainingData/StandardInference3.json";
+        string filePath = $"Assets/src/Data/TrainingData/{existingTrainingDataFileName}.json";
         string jsonText = File.ReadAllText(filePath);
         print("JsonText: " + jsonText);
 

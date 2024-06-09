@@ -53,8 +53,13 @@ public class StandardInference : InferenceEngine
     protected override void RunAutomaticTraining()
     {
         print("Called Automatic Training in Standard Inference Engine");
-        newTrainingDataFileName = $"StandardInference{fileCount}";
-        existingTrainingDataFileName = $"StandardInference{trainingDataFileNumber}";
         agent.StartTraining(verbose);
+    }
+
+    public override void InitializeEngine()
+    {
+        newTrainingDataFileName = $"StandardInference_{dataTrainer.DataTrainerType}_{fileCount}";
+        existingTrainingDataFileName = $"StandardInference_{dataTrainer.DataTrainerType}_{trainingDataFileNumber}";
+        base.InitializeEngine();
     }
 }

@@ -2584,9 +2584,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   runType: 2
-  trainSingleState: 1
+  trainSingleState: 0
   saveRunData: 0
-  trainingDataFileNumber: 3
+  trainingDataFileNumber: 4
   verbose: 1
   verboseInitialData: 1
   dataTrainerType: 1
