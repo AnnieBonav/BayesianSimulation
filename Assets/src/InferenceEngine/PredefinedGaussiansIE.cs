@@ -24,6 +24,8 @@ public class PredefinedGaussiansIE : InferenceEngine
             statesGaussiansValues.Add(gaussianInfo.StateType, plotValues);
         }
 
+        newTrainingDataFileName = $"PredefinedGaussians{fileCount}";
+        existingTrainingDataFileName = $"PredefinedGaussians{trainingDataFileNumber}";
         base.InitializeEngine();
     }
 

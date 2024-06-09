@@ -8,6 +8,8 @@ public class ActiveInferenceEngine : InferenceEngine
     public override void InitializeEngine()
     {
         inferenceEngineType = INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE;
+        newTrainingDataFileName = $"ActiveInference{fileCount}";
+        existingTrainingDataFileName = $"ActiveInference{trainingDataFileNumber}";
         base.InitializeEngine();
     }
 

@@ -5,6 +5,8 @@ public class BasicHeuristicsIE : StandardInference
         // Could add here the getting the file name and stuff to avoid switches on the Engine Chooser/Parent Inference Engine class
         // Also probably this assignment could be done in the parent using typeof(this) or something like that
         inferenceEngineType = INFERENCE_ENGINE_TYPE.BASIC_HEURISTICS_ACTIVITY;
+        newTrainingDataFileName = $"BasicHeuristicsActivity{fileCount}";
+        existingTrainingDataFileName = $"BasicHeuristicsActivity{trainingDataFileNumber}";
         base.InitializeEngine();
     }
 

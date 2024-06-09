@@ -1179,8 +1179,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   overrideSelectedIESettings: 1
   runType: 2
-  saveTrainingData: 1
-  trainingDataFileNumber: 5
+  saveTrainingData: 0
+  trainingDataFileNumber: 0
   verbose: 1
   ChosenInferenceEngineType: 3
   PredefinedGaussiansIE: {fileID: 1049884337}
@@ -1447,7 +1447,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   agentName: Perry
   inferenceEngineChooser: {fileID: 588071166}
-  cam: {fileID: 330585548}
   yPos: 0.6
   day: {fileID: 1734314896}
   statesParent: {fileID: 836485423}

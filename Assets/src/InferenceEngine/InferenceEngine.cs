@@ -67,88 +67,18 @@ public abstract class InferenceEngine : MonoBehaviour
     protected List<InferenceData> trainingData;
     protected List<ACTIVITY_TYPE> activityTypes;
 
+    protected string newTrainingDataFileName;
+    protected string existingTrainingDataFileName;
+    protected int fileCount;
+
     protected void Awake() {
         activityCounts = new Dictionary<ACTIVITY_TYPE, int>();
         performedActivitiesData = new Dictionary<ACTIVITY_TYPE, PerformedActivityData>();
         agentsPerformedActivities = new Dictionary<STATE_TYPE, Dictionary<ACTIVITY_TYPE, List<float>>>();
         trainingData = new List<InferenceData>();
         activityTypes = new List<ACTIVITY_TYPE>();
-    }
-
-    private string NewTrainingDataFileName()
-    {
-        int fileCount = Directory.GetFiles("Assets/src/Data/TrainingData", "*.json").Length;
-        string fileName;
-
-        // TODO: Make this better by each implementation saving that information, these switches are not good
-        switch(inferenceEngineType)
-        {
-            case INFERENCE_ENGINE_TYPE.PREDEFINED_GAUSSIANS:
-                fileName = $"PredefinedGaussians{fileCount}";
-                break;
-
-            case INFERENCE_ENGINE_TYPE.RANDOM_ACTIVITY:
-                fileName = $"RandomActivity{fileCount}";
-                break;
-
-            case INFERENCE_ENGINE_TYPE.BASIC_HEURISTICS_ACTIVITY:
-                fileName = $"BasicHeuristicsActivity{fileCount}";
-                break;
-
-            case INFERENCE_ENGINE_TYPE.COMBINED_ACTIVITY:
-                fileName = $"CombinedActivity{fileCount}";
-                break;
-
-            case INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE:
-                fileName = $"ActiveInference{fileCount}";
-                break;
-
-            case INFERENCE_ENGINE_TYPE.MANUAL_TRAINING:
-                fileName = $"ManualTraining{fileCount}";
-                break;
-
-            default: // Stupid that it makes me add default (unasigeable variable fileName) cause I am adding all the cases, but it is what it is
-                fileName = $"TrainingData{fileCount}";
-                break;
-        }
-        return fileName;
-    }
-
-    private string ExistingTrainingDataFileName()
-    {
-        string fileName;
-        switch(inferenceEngineType)
-        {
-            case INFERENCE_ENGINE_TYPE.PREDEFINED_GAUSSIANS:
-                fileName = $"PredefinedGaussians{trainingDataFileNumber}";
-                break;
-
-            case INFERENCE_ENGINE_TYPE.RANDOM_ACTIVITY:
-                fileName = $"RandomActivity{trainingDataFileNumber}";
-                break;
-
-            case INFERENCE_ENGINE_TYPE.BASIC_HEURISTICS_ACTIVITY:
-                fileName = $"BasicHeuristicsActivity{trainingDataFileNumber}";
-                break;
-
-            case INFERENCE_ENGINE_TYPE.COMBINED_ACTIVITY:
-                fileName = $"CombinedActivity{trainingDataFileNumber}";
-                break;
-
-            case INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE:
-                fileName = $"ActiveInference{trainingDataFileNumber}";
-                break;
-
-            case INFERENCE_ENGINE_TYPE.MANUAL_TRAINING:
-                fileName = $"ManualTraining{trainingDataFileNumber}";
-                break;
-
-            default:
-                fileName = $"TrainingData{trainingDataFileNumber}";
-                break;
-        }
-
-        return fileName;
+        fileCount = Directory.GetFiles("Assets/src/Data/TrainingData", "*.json").Length;
+        newTrainingDataFileName = $"TrainingData{fileCount}";
     }
 
     // TODO: Change save data to the engine? Engine should hear what the agent is doing and based on that save the data
@@ -157,9 +87,7 @@ public abstract class InferenceEngine : MonoBehaviour
     {
         string trainingDataJSON = JsonSerialization.ToJson(trainingDataWrapper);
         print("Final Training Data JSON" + trainingDataJSON);
-
-        string fileName = NewTrainingDataFileName();
-        string filePath = $"Assets/src/Data/TrainingData/{fileName}.json";
+        string filePath = $"Assets/src/Data/TrainingData/{newTrainingDataFileName}.json";
 
         File.WriteAllText(filePath, trainingDataJSON);
     }
@@ -253,8 +181,7 @@ public abstract class InferenceEngine : MonoBehaviour
     // Reads the data from a presaved JSON file
     protected void CacheTrainingData()
     {
-        string fileName = ExistingTrainingDataFileName();
-        string filePath = $"Assets/src/Data/TrainingData/{fileName}.json";
+        string filePath = $"Assets/src/Data/TrainingData/{existingTrainingDataFileName}.json";
 
         string jsonText = File.ReadAllText(filePath);
         print("JsonText: " + jsonText);

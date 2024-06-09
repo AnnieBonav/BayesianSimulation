@@ -5,6 +5,8 @@ public class RandomActivityIE : StandardInference
     public override void InitializeEngine()
     {
         inferenceEngineType = INFERENCE_ENGINE_TYPE.RANDOM_ACTIVITY;
+        newTrainingDataFileName = $"RandomActivity{fileCount}";
+        existingTrainingDataFileName = $"RandomActivity{trainingDataFileNumber}";
         base.InitializeEngine();
     }
 

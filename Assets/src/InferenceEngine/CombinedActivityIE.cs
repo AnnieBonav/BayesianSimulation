@@ -7,6 +7,8 @@ public class CombinedActivityIE : StandardInference
     public override void InitializeEngine()
     {
         inferenceEngineType = INFERENCE_ENGINE_TYPE.COMBINED_ACTIVITY;
+        newTrainingDataFileName = $"CombinedActivity{fileCount}";
+        existingTrainingDataFileName = $"CombinedActivity{trainingDataFileNumber}";
         base.InitializeEngine();
     }
 

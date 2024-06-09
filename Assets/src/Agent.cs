@@ -9,7 +9,6 @@ public class Agent : MonoBehaviour
     public string AgentName => agentName;
     [SerializeField] private InferenceEngineChooser inferenceEngineChooser;
     private InferenceEngine inferenceEngine;
-    [SerializeField] private GameCamera cam;
     [SerializeField] private float yPos = 0.6f;
     [SerializeField] private Day day;
 
@@ -31,7 +30,6 @@ public class Agent : MonoBehaviour
     [SerializeField] private bool hasDebugButtons = false;
     [ReadOnly] private bool doingActivity = false;
     private Vector3 agentPosition;
-    private float maxDistanceFromEnemy;
 
     private List<InferenceData> performedActivitiesData;
     public List<InferenceData> PerformedActivitiesData => performedActivitiesData;
@@ -39,7 +37,6 @@ public class Agent : MonoBehaviour
 
     private void Awake()
     {
-        maxDistanceFromEnemy = cam.MaxDistance;
         agentPosition = new Vector3(0, yPos, 0);
         performedActivitiesData = new List<InferenceData>();
         inferenceEngine = inferenceEngineChooser.GetSelectedEngine();
