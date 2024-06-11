@@ -48,4 +48,5 @@ public class GaussianInfo
 public class GaussianScriptableObject : ScriptableObject
 {
     public List<GaussianInfo> gaussians;
+    public ACTIVITY_TYPE ActivityType;
 }

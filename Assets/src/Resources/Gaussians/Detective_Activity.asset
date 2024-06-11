@@ -10,26 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: Food_Activity
+  m_Name: Detective_Activity
   m_EditorClassIdentifier: Assembly-CSharp::GaussianScriptableObject
   gaussians:
   - StateType: 1
     Mean: 50
-    StandardDeviation: 30
+    StandardDeviation: 60
     MinValue: 0
     MaxValue: 100
+    Variance: 0
   - StateType: 2
-    Mean: 45
-    StandardDeviation: 55.092
+    Mean: 30
+    StandardDeviation: 47.434
     MinValue: 0
     MaxValue: 100
+    Variance: 0
   - StateType: 3
-    Mean: 90
+    Mean: 25
+    StandardDeviation: 35
+    MinValue: 0
+    MaxValue: 100
+    Variance: 0
+  - StateType: 4
+    Mean: 50
     StandardDeviation: 15.811
     MinValue: 0
     MaxValue: 100
-  - StateType: 4
-    Mean: 20
-    StandardDeviation: 25.495
-    MinValue: 0
-    MaxValue: 100
+    Variance: 0
+  ActivityType: 4

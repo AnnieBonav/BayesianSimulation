@@ -18,18 +18,23 @@ MonoBehaviour:
     StandardDeviation: 15
     MinValue: 0
     MaxValue: 100
+    Variance: 0
   - StateType: 2
     Mean: 90
     StandardDeviation: 10
     MinValue: 0
     MaxValue: 100
+    Variance: 0
   - StateType: 3
     Mean: 25
     StandardDeviation: 17.678
     MinValue: 0
     MaxValue: 100
+    Variance: 0
   - StateType: 4
     Mean: 25
     StandardDeviation: 25
     MinValue: 0
     MaxValue: 100
+    Variance: 0
+  ActivityType: 2

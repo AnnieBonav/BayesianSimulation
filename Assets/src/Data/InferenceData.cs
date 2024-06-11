@@ -46,7 +46,7 @@ public class InferenceData
         StatesValues = new List<StateData>();
         ChosenActivity = ACTIVITY_TYPE.NONE;
     }
-    public void InitializeRandomInferenceData(List<STATE_TYPE> states)
+    public void InitializeRandom(List<STATE_TYPE> states)
     {
         foreach (STATE_TYPE state in states)
         {
@@ -54,7 +54,7 @@ public class InferenceData
         }
     }
 
-    public void InitializeInferenceData(List<State> states)
+    public void InitializeWithStates(List<State> states)
     {
         StatesValues = new List<StateData>();
         foreach (State state in states)

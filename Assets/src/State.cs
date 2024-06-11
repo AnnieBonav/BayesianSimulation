@@ -30,8 +30,8 @@ public class State : MonoBehaviour
     [ReadOnly] private float currentValue;
     public float CurrentValue => currentValue;
     [Header("Values Parameters")]
-    [SerializeField] private float affectRate = 0.1f;
-    public float IncreaseRate => affectRate;
+    [SerializeField] private float affectRateMin = 0.1f;
+    [SerializeField] private float affectRateMax = 0.2f;
     [SerializeField] private float minValue = 0;
     public float MinValue => minValue;
 
@@ -80,6 +80,7 @@ public class State : MonoBehaviour
     // TODO: Could add different types of affect functions, and use the FUNCTION_TYPE enum to choose which one to use
     public void AffectByRate()
     {
+        float affectRate = UnityEngine.Random.Range(affectRateMin, affectRateMax);
         if(stateType == STATE_TYPE.CRIME_RATE)
         {
             currentValue += Mathf.Sin(Time.deltaTime) * affectRate;

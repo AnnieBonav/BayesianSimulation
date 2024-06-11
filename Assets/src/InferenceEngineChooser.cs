@@ -5,38 +5,24 @@ public class InferenceEngineChooser : MonoBehaviour
     [SerializeField] private bool overrideSelectedIESettings;
     [SerializeField] private RUN_TYPE runType;
     [SerializeField] private bool saveRunData;
+    [SerializeReference] private bool trainSingleState;
     [SerializeField] private string trainingDataFileNumber;
     [SerializeField] private bool verbose = false;
+    [SerializeField] private bool verboseInitialData = false;
+    [SerializeField] private DATA_TRAINER_TYPE dataTrainerType;
     [SerializeField] private INFERENCE_ENGINE_TYPE ChosenInferenceEngineType;
     [SerializeField] private PredefinedGaussiansIE PredefinedGaussiansIE;
-    // [SerializeField] private RandomActivityIE RandomActivityIE;
-    // [SerializeField] private BasicHeuristicsIE BasicHeuristicsIE;
-    // [SerializeField] private CombinedActivityIE CombinedActivityIE;
-    
     [SerializeField] private StandardInference StandardInferenceEngine;
-
     [SerializeField] private ActiveInferenceEngine ActiveInferenceEngine;
-    // [SerializeField] private ManualTrainingIE ManualTrainingIE;
 
     public InferenceEngine GetSelectedEngine()
     {
         InferenceEngine selectedInferenceEngine;
         switch (ChosenInferenceEngineType)
         {
-            // case INFERENCE_ENGINE_TYPE.PREDEFINED_GAUSSIANS:
-            //     return PredefinedGaussiansIE;
-
-            // case INFERENCE_ENGINE_TYPE.RANDOM_ACTIVITY:
-            //     selectedInferenceEngine = RandomActivityIE;
-            //     break;
-
-            // case INFERENCE_ENGINE_TYPE.BASIC_HEURISTICS_ACTIVITY:
-            //     selectedInferenceEngine = BasicHeuristicsIE;
-            //     break;
-
-            // case INFERENCE_ENGINE_TYPE.COMBINED_ACTIVITY:
-            //     selectedInferenceEngine = CombinedActivityIE;
-            //     break;
+            case INFERENCE_ENGINE_TYPE.PREDEFINED_GAUSSIANS:
+                selectedInferenceEngine = PredefinedGaussiansIE;
+                break;
 
             case INFERENCE_ENGINE_TYPE.STANDARD_INFERENCE:
                 selectedInferenceEngine = StandardInferenceEngine;
@@ -45,10 +31,6 @@ public class InferenceEngineChooser : MonoBehaviour
             case INFERENCE_ENGINE_TYPE.ACTIVE_INFERENCE:
                 selectedInferenceEngine = ActiveInferenceEngine;
                 break;
-
-            // case INFERENCE_ENGINE_TYPE.MANUAL_TRAINING:
-            //     selectedInferenceEngine = ManualTrainingIE;
-            //     break;
                 
             default:
                 Debug.LogError("Inference Engine not found");
@@ -58,9 +40,12 @@ public class InferenceEngineChooser : MonoBehaviour
         if(overrideSelectedIESettings)
         {
             selectedInferenceEngine.RunType = runType;
+            selectedInferenceEngine.TrainSingleState = trainSingleState;
             selectedInferenceEngine.SaveRunData = saveRunData;
             selectedInferenceEngine.TrainingDataFileNumber = trainingDataFileNumber;
             selectedInferenceEngine.Verbose = verbose;
+            selectedInferenceEngine.VerboseInitialData = verboseInitialData;
+            selectedInferenceEngine.DataTrainerType = dataTrainerType;
         }
 
         return selectedInferenceEngine;

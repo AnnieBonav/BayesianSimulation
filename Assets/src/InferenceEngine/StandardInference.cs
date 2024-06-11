@@ -7,30 +7,8 @@ public class StandardInference : InferenceEngine
 {
     public override ACTIVITY_TYPE InferActivity(InferenceData currentStateValues)
     {
-    Dictionary<ACTIVITY_TYPE, float> logPosteriorProbabilities = new Dictionary<ACTIVITY_TYPE, float>();
-
-    foreach (ACTIVITY_TYPE activity in activityTypes)
-    {
-        if (performedActivitiesData.TryGetValue(activity, out PerformedActivityData performedActivityData))
-        {
-            float logPrior = Mathf.Log(performedActivityData.Prior); // Retrieve and log the prior
-            float logPosterior = logPrior;
-
-            foreach (StateData stateData in currentStateValues.StatesValues)
-            {
-                if (performedActivityData.StatesData.TryGetValue(stateData.StateType, out GaussianInfo stateStatistics))
-                {
-                    float stateLogLikelihood = Mathf.Log(GaussianProbability(stateData.Value, stateStatistics.Mean, stateStatistics.Variance));
-                    logPosterior += stateLogLikelihood;
-                }
-            }
-
-            logPosteriorProbabilities[activity] = logPosterior;
-        }
-    }
-
-    // Gets the activity with the highest log posterior probability
-    return logPosteriorProbabilities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+        ACTIVITY_TYPE chosenActivityType = InferActivityBase(currentStateValues);
+        return chosenActivityType;
     }
 
     protected override void RunInference()

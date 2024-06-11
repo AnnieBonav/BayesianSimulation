@@ -13,20 +13,6 @@ public class ActiveInferenceEngine : InferenceEngine
         base.InitializeEngine();
     }
 
-    // It is actually training and inferring
-    // public override ACTIVITY_TYPE ChooseTrainingActivity(InferenceData trainingStateValues)
-    // {
-    //     if (Random.value < explorationRate)
-    //     {
-    //         // Random exploration
-    //         return (ACTIVITY_TYPE)Random.Range(1, activityTypes.Count + 1);
-    //     }
-    //     else
-    //     {
-    //         return InferActivity(trainingStateValues);
-    //     }
-    // }
-
     // Will be used only in Active Inference (for now) WAS IN ENGINE
     public void UpdateModel(List<InferenceData> data)
     {
@@ -36,26 +22,18 @@ public class ActiveInferenceEngine : InferenceEngine
 
     public override ACTIVITY_TYPE InferActivity(InferenceData currentStateValues)
     {
-        Dictionary<ACTIVITY_TYPE, float> posteriorProbabilities = new Dictionary<ACTIVITY_TYPE, float>();
-
-        foreach (ACTIVITY_TYPE activity in activityTypes)
+        ACTIVITY_TYPE chosenActivityType;
+        if (Random.value < explorationRate)
         {
-            performedActivitiesData.TryGetValue(activity, out PerformedActivityData performedActivityData);
-            
-            float prior = performedActivityData.Prior; // Retrieve stored prior
-            float posterior = prior;
-
-            foreach (StateData stateData in currentStateValues.StatesValues)
-            {
-                float stateLikelihood = GaussianProbability(stateData.Value, performedActivityData.StatesData[stateData.StateType].Mean, performedActivityData.StatesData[stateData.StateType].Variance);
-                posterior *= stateLikelihood;
-            }
-
-            posteriorProbabilities[activity] = posterior;
+            // Random exploration
+            chosenActivityType = (ACTIVITY_TYPE)Random.Range(1, activityTypes.Count + 1);
         }
-
-        // Gets the activity with the highest posterior probability
-        return posteriorProbabilities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+        else
+        {
+            // Using base inference
+            chosenActivityType = InferActivityBase(currentStateValues);
+        }
+            return chosenActivityType;
     }
 
     protected override void RunInference()
@@ -69,8 +47,14 @@ public class ActiveInferenceEngine : InferenceEngine
 
         CalculatePriors();
         CalculateLikelihoods();
-
+        
         agent.StartActiveInfering(verbose);
+    }
+
+    public void UpdateModel()
+    {
+        CalculatePriors();
+        CalculateLikelihoods();
     }
 
     protected override void RunAutomaticTraining()

@@ -15,6 +15,7 @@ public class Agent : MonoBehaviour
     // Cannot acces the states that belong to the Agent, only the Types (same with the activities, only the types are accessible, not the instances)
     [SerializeField] private GameObject statesParent;
     private List<State> states;
+    public List<State> StatesForGaussians => states;
     public List<STATE_TYPE> States => statesType;
     private List<STATE_TYPE> statesType;
     // Dictionaries are used for quick lookup
@@ -91,7 +92,7 @@ public class Agent : MonoBehaviour
     public void StartTraining(bool verbose)
     {
         isTraining = true;
-        StartCoroutine(TrainingLoop(verbose));
+        StartCoroutine(AutomaticTrainingLoop(verbose));
     }
 
     // Verbose is sent from the Inference Engine (where this is called)
@@ -106,19 +107,41 @@ public class Agent : MonoBehaviour
         StartCoroutine(ActiveInferenceLoop(verbose));
     }
 
-    IEnumerator TrainingLoop(bool verbose)
+    IEnumerator AutomaticTrainingLoop(bool verbose)
     {
         while (true)
         {
             if (!doingActivity)
             {
-                // InferenceData trainingData = GetTrainingDataWithIE(verbose);
-                GetTrainingDataWithIE(verbose);
-                // performedActivitiesData.Add(trainingData); // Record the randomly chosen activity
-                // if(verbose) print(JsonSerialization.ToJson(performedActivitiesData));
+                AutomaticTrainWithIE(verbose);
             }
             yield return new WaitForSeconds(0.01f);
         }
+    }
+
+    // Saves the automatically generated data (random states and activity, following pr not following heuristics depending of the DataTrainer on the IE) and adds it to the performed activities data
+    private InferenceData AutomaticTrainWithIE(bool verbose = false)
+    {
+        InferenceData randomTrainingData = new InferenceData();
+        randomTrainingData.InitializeRandom(statesType);
+
+        randomTrainingData.ChosenActivity = inferenceEngine.DataTrainer.ChooseTrainingActivity(activitiesType, randomTrainingData);
+
+        Action action = ChooseRandomActionFromActivity(activitiesDict[randomTrainingData.ChosenActivity]); 
+        List<STATE_TYPE> affectedStates = action.GetAffectedStates(statesType);
+
+        // Will save all states for relaxing, representing idle, or all the activities if not Train Single State (not what doing in the moment, but could be done in the future)
+        if(affectedStates.Count == 0 || !inferenceEngine.TrainSingleState)
+        {
+            performedActivitiesData.Add(randomTrainingData); // Record the chosen activity, all the states (it is relax)
+        }
+        else
+        {
+            randomTrainingData.KeepOnlyOneState(affectedStates[0]);
+            performedActivitiesData.Add(randomTrainingData); // Record the chosen activity, only the affected state
+        }
+
+        return randomTrainingData;
     }
 
     IEnumerator InferenceLoop(bool verbose)
@@ -127,13 +150,25 @@ public class Agent : MonoBehaviour
         {
             if (!doingActivity)
             {
-                Activity chosenActivity = GetActivityWithIE();
-                print("Looping" + chosenActivity.ActivityType);
+                Activity chosenActivity = GetActivityFromIE();
                 Action action = ChooseRandomActionFromActivity(chosenActivity);
                 PerformAction(action, verbose);   
             }
             yield return new WaitForSeconds(1);
         }
+    }
+
+    private Activity GetActivityFromIE()
+    {
+        InferenceData currentData = new InferenceData();
+        currentData.InitializeWithStates(states);
+        print("DEBUG IN GET ACTIVITY WITH IE" + "  " + JsonSerialization.ToJson(currentData));
+
+        ACTIVITY_TYPE chosenActivityType = inferenceEngine.InferActivity(currentData);
+        Activity chosenActivity = activitiesDict[chosenActivityType];
+
+        print("DEBUG IN GET ACTIVITY WITH IE" + "  " + chosenActivityType);
+        return chosenActivity;
     }
 
     IEnumerator ActiveInferenceLoop(bool verbose = false)
@@ -143,7 +178,7 @@ public class Agent : MonoBehaviour
             if (!doingActivity)
             {
                 InferenceData currentDataForTraining = new InferenceData();
-                currentDataForTraining.InitializeRandomInferenceData(statesType);
+                currentDataForTraining.InitializeRandom(statesType);
 
                 currentDataForTraining.ChosenActivity = inferenceEngine.DataTrainer.ChooseTrainingActivity(activitiesType, currentDataForTraining);
 
@@ -157,9 +192,9 @@ public class Agent : MonoBehaviour
 
                 performedActivitiesData.Add(currentDataForTraining); // Record the chosen activity
 
-                // Dynamically update the model
-                // TODO: Check removed reference to update
-                // inferenceEngine.UpdateModel(performedActivitiesData);
+                // Can update the model because it is ensured that Active Inference is being used
+                // TODO: Could update inside the InferenceEngine so it is only updated when new data is being added. Would need to store the performed actions there
+                ((ActiveInferenceEngine)inferenceEngine).UpdateModel(performedActivitiesData);
             }
             yield return new WaitForSeconds(0.1f);
         }
@@ -169,46 +204,6 @@ public class Agent : MonoBehaviour
     {
         int randomIndex = Random.Range(0, activity.PossibleActions.Count);
         return activity.PossibleActions[randomIndex];
-    }
-
-    // Will not use it to get but to perform, need to change name
-    private InferenceData GetTrainingDataWithIE(bool verbose = false)
-    {
-        InferenceData randomTrainingData = new InferenceData();
-        randomTrainingData.InitializeRandomInferenceData(statesType);
-
-        // TODO: Addded sending atcivtiies
-        randomTrainingData.ChosenActivity = inferenceEngine.DataTrainer.ChooseTrainingActivity(activitiesType, randomTrainingData);
-
-        Activity chosenActivity = activitiesDict[randomTrainingData.ChosenActivity];
-        // Paste from manuallyPerformActionForTraining
-        // TODO: would need to change training with one state vs all of them
-        Action action = ChooseRandomActionFromActivity(activitiesDict[randomTrainingData.ChosenActivity]); 
-        List<STATE_TYPE> affectedStates = action.GetAffectedStates(statesType);
-
-        if(affectedStates.Count == 0)
-        {
-            performedActivitiesData.Add(randomTrainingData); // Record the chosen activity, all the states (it is relax)
-        }else
-        {
-            randomTrainingData.KeepOnlyOneState(affectedStates[0]);
-            performedActivitiesData.Add(randomTrainingData); // Record the chosen activity, only the affected state
-        }
-
-        return randomTrainingData;
-    }
-    
-    private Activity GetActivityWithIE()
-    {
-        InferenceData currentData = new InferenceData();
-        currentData.InitializeInferenceData(states);
-        print("DEBUG IN GET ACTIVITY WITH IE" + "  " + JsonSerialization.ToJson(currentData));
-
-        ACTIVITY_TYPE chosenActivityType = inferenceEngine.InferActivity(currentData);
-        Activity chosenActivity = activitiesDict[chosenActivityType];
-
-        print("DEBUG IN GET ACTIVITY WITH IE" + "  " + chosenActivityType);
-        return chosenActivity;
     }
 
     // Multiple needs could be affected from Action...Probably change names of PerformAction and PerformActivity
@@ -264,16 +259,11 @@ public class Agent : MonoBehaviour
         }
     }
 
-    private float NormalizeValue(float value, float minValue, float maxValue)
-    {
-        return (value - minValue) / (maxValue - minValue);
-    }
-
     // TODO: make this disabling better, should probably not need to run if is training? Or maybe yes but maybe there is more than one option of running?
     private void OnDisable() {
         if(isTraining)
         {
-            StopCoroutine(TrainingLoop(false));
+            StopCoroutine(AutomaticTrainingLoop(false));
         }
         else
         {
@@ -281,57 +271,25 @@ public class Agent : MonoBehaviour
         }
     }
 
-    // Externally send the activity that will be done, create the performed action information and add it so it can be saved (and then used for inference)
-    // public IEnumerator ManuallyPerformActionForTraining(ACTIVITY_TYPE activityType, bool verbose = false)
-    // {
-    //     print("ManuallyPerformActionForTraining");
-    //     Activity manuallyChosenActivity = activitiesDict[activityType];
-    //     Action action = ChooseRandomActionFromActivity(manuallyChosenActivity);
-
-    //     SaveCurrentStatesData(manuallyChosenActivity, verbose);
-    //     PerformAction(action, true);
-    //     yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
-    // }
-
     private void SaveCurrentStatesData(Activity chosenActivity, bool verbose = false)
     {
         InferenceData currentStatesForManualTraining = new InferenceData();
-        currentStatesForManualTraining.InitializeRandomInferenceData(statesType);
+        currentStatesForManualTraining.InitializeRandom(statesType);
         currentStatesForManualTraining.ChosenActivity = chosenActivity.ActivityType;
         if(verbose) print(JsonSerialization.ToJson(currentStatesForManualTraining));
         
         performedActivitiesData.Add(currentStatesForManualTraining); // Record the chosen activity
     }
-
-    private void SaveSingleCurrentStateData(State state, Activity chosenActivity, bool verbose = false)
-    {
-        InferenceData currentStateForManualTraining = new InferenceData();
-        currentStateForManualTraining.AddStateData(state);
-        print("DEBUG IN SAVE SINGLE STATE DATA" + "  " + state.CurrentValue);
-        currentStateForManualTraining.ChosenActivity = chosenActivity.ActivityType;
-        if(verbose) print(JsonSerialization.ToJson(currentStateForManualTraining));
-
-        performedActivitiesData.Add(currentStateForManualTraining); // Record the chosen activity
-    }
-
     
     public IEnumerator ManuallyPerformActionForTraining(ACTIVITY_TYPE activityType, bool verbose = true)
     {
-        //     print("ManuallyPerformActionForTraining");
-        //     Activity manuallyChosenActivity = activitiesDict[activityType];
-        //     Action action = ChooseRandomActionFromActivity(manuallyChosenActivity);
-
-        //     SaveCurrentStatesData(manuallyChosenActivity, verbose);
-        //     PerformAction(action, true);
-        //     yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
         print("ManuallyPerformActionForTraining");
         Activity manuallyChosenActivity = activitiesDict[activityType];
         Action action = ChooseRandomActionFromActivity(manuallyChosenActivity);
         List<STATE_TYPE> affectedStates = action.GetAffectedStates(statesType);
 
         // Save the main affected state (the first one in the list), cause its the most important one and no need to worry about breaking something for now
-
-        if(affectedStates.Count == 0)
+        if(affectedStates.Count == 0 || !inferenceEngine.TrainSingleState)
         {
             SaveCurrentStatesData(manuallyChosenActivity);
         }
@@ -343,5 +301,17 @@ public class Agent : MonoBehaviour
         
         PerformAction(action, true);
         yield return new WaitForSeconds(action.ActionInfo.TimeInMin * day.RTSecInSimMin);
+    }
+
+    // TODO: This could be cleaned up, but it is not a priority
+    private void SaveSingleCurrentStateData(State state, Activity chosenActivity, bool verbose = false)
+    {
+        InferenceData currentStateForManualTraining = new InferenceData();
+        currentStateForManualTraining.AddStateData(state);
+        print("DEBUG IN SAVE SINGLE STATE DATA" + "  " + state.CurrentValue);
+        currentStateForManualTraining.ChosenActivity = chosenActivity.ActivityType;
+        if(verbose) print(JsonSerialization.ToJson(currentStateForManualTraining));
+
+        performedActivitiesData.Add(currentStateForManualTraining); // Record the chosen activity
     }
 }

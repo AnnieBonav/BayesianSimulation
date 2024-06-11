@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Unity.Serialization.Json;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public enum RUN_TYPE
@@ -25,7 +24,8 @@ public enum INFERENCE_ENGINE_TYPE
 {
     NONE,
     STANDARD_INFERENCE,
-    ACTIVE_INFERENCE
+    ACTIVE_INFERENCE,
+    PREDEFINED_GAUSSIANS
 }
 
 // Inference Engine both handles the training (based on which Engine it is), and then the inference (based on that training.) It calls the functions on the Agent and (...)
@@ -76,6 +76,11 @@ public abstract class InferenceEngine : MonoBehaviour
     }
 
     [SerializeField] protected DATA_TRAINER_TYPE dataTrainerType;
+    public DATA_TRAINER_TYPE DataTrainerType
+    {
+        get { return dataTrainerType; }
+        set { dataTrainerType = value; }
+    }
 
     protected DataTrainer dataTrainer;
     public DataTrainer DataTrainer
@@ -154,14 +159,6 @@ public abstract class InferenceEngine : MonoBehaviour
     /*
     MAIN RUNS
     */
-
-    // kept for remembering, remove later
-    // will change cause the engine should be in charge of the ttraiing, not the agent
-    // protected void RunAutomaticTraining()
-    // {
-    //     print("Called training in Inference Engine");
-    //     agent.StartTraining(verbose);
-    // }
 
     // Reads the data from a presaved JSON file
     protected void CacheTrainingData()
@@ -289,6 +286,34 @@ public abstract class InferenceEngine : MonoBehaviour
             InferenceDataWrapper trainingDataWrapper = new InferenceDataWrapper(agent.Activities, agent.States, agent.PerformedActivitiesData);
             SaveData(trainingDataWrapper);
         }
+    }
+
+    public virtual ACTIVITY_TYPE InferActivityBase(InferenceData currentStateValues)
+    {
+        Dictionary<ACTIVITY_TYPE, float> logPosteriorProbabilities = new Dictionary<ACTIVITY_TYPE, float>();
+
+        foreach (ACTIVITY_TYPE activity in activityTypes)
+        {
+            if (performedActivitiesData.TryGetValue(activity, out PerformedActivityData performedActivityData))
+            {
+                float logPrior = Mathf.Log(performedActivityData.Prior); // Retrieve and log the prior
+                float logPosterior = logPrior;
+
+                foreach (StateData stateData in currentStateValues.StatesValues)
+                {
+                    if (performedActivityData.StatesData.TryGetValue(stateData.StateType, out GaussianInfo stateStatistics))
+                    {
+                        float stateLogLikelihood = Mathf.Log(GaussianProbability(stateData.Value, stateStatistics.Mean, stateStatistics.Variance));
+                        logPosterior += stateLogLikelihood;
+                    }
+                }
+
+                logPosteriorProbabilities[activity] = logPosterior;
+            }
+        }
+
+        // Gets the activity with the highest log posterior probability
+        return logPosteriorProbabilities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
     }
 
     protected abstract void RunAutomaticTraining();

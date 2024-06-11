@@ -2,30 +2,6 @@ using System.Collections.Generic;
 using Unity.Serialization.Json;
 using UnityEngine;
 
-// public class ManualTrainingIE : StandardInference
-// {
-//     public override void InitializeEngine()
-//     {
-//         inferenceEngineType = INFERENCE_ENGINE_TYPE.MANUAL_TRAINING;
-//         newTrainingDataFileName = $"ManualTraining{fileCount}";
-//         existingTrainingDataFileName = $"ManualTraining{trainingDataFileNumber}";
-        
-//         base.InitializeEngine();
-//     }
-
-    
-// }
-
-// public override void InitializeEngine()
-//     {
-//         // Could add here the getting the file name and stuff to avoid switches on the Engine Chooser/Parent Inference Engine class
-//         // Also probably this assignment could be done in the parent using typeof(this) or something like that
-//         inferenceEngineType = INFERENCE_ENGINE_TYPE.BASIC_HEURISTICS_ACTIVITY;
-//         newTrainingDataFileName = $"BasicHeuristicsActivity{fileCount}";
-//         existingTrainingDataFileName = $"BasicHeuristicsActivity{trainingDataFileNumber}";
-//         base.InitializeEngine();
-//     }
-
 // This heuristics trainer simulates a human-like decision making process for the training, based on the state values (and what the human would do in that situation). It is used to avoid needing to manually train the model.
 public class HeuristicsTrainer : DataTrainer
 {

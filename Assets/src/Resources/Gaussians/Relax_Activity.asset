@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: Detective_Activity
+  m_Name: Relax_Activity
   m_EditorClassIdentifier: Assembly-CSharp::GaussianScriptableObject
   gaussians:
   - StateType: 1
@@ -18,18 +18,23 @@ MonoBehaviour:
     StandardDeviation: 53.852
     MinValue: 0
     MaxValue: 100
+    Variance: 0
   - StateType: 2
     Mean: 50
     StandardDeviation: 60
     MinValue: 0
     MaxValue: 100
+    Variance: 0
   - StateType: 3
     Mean: 50
     StandardDeviation: 50
     MinValue: 0
     MaxValue: 100
+    Variance: 0
   - StateType: 4
     Mean: 30
     StandardDeviation: 58.31
     MinValue: 0
     MaxValue: 100
+    Variance: 0
+  ActivityType: 5

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 public abstract class DataTrainer
 {
@@ -14,6 +13,8 @@ public abstract class DataTrainer
                 return new RandomTrainer();
             case DATA_TRAINER_TYPE.HEURISTICS:
                 return new HeuristicsTrainer();
+            case DATA_TRAINER_TYPE.COMBINED:
+                return new CombinedTrainer();
             default:
                 throw new System.Exception("Invalid Data Trainer type");
         }
