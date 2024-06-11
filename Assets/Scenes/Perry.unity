@@ -1143,12 +1143,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a662e579282a6476aacbaef7a96f8663, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  overrideSelectedIESettings: 0
+  overrideSelectedIESettings: 1
   runType: 2
+  trainSingleState: 0
   saveRunData: 0
   trainingDataFileNumber: 1
-  verbose: 0
-  ChosenInferenceEngineType: 1
+  verbose: 1
+  verboseInitialData: 1
+  dataTrainerType: 1
+  ChosenInferenceEngineType: 2
   PredefinedGaussiansIE: {fileID: 1049884337}
   StandardInferenceEngine: {fileID: 1091429272}
   ActiveInferenceEngine: {fileID: 1562161791}
@@ -2606,7 +2609,7 @@ MonoBehaviour:
   runType: 2
   trainSingleState: 1
   saveRunData: 0
-  trainingDataFileNumber: 7
+  trainingDataFileNumber: 0
   verbose: 1
   verboseInitialData: 1
   dataTrainerType: 1

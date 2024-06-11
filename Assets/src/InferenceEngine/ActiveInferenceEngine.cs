@@ -53,6 +53,7 @@ public class ActiveInferenceEngine : InferenceEngine
 
     public void UpdateModel()
     {
+        // TODO: ensure that the new data is saved (is printing empty data because file does not exist)
         CalculatePriors();
         CalculateLikelihoods();
     }

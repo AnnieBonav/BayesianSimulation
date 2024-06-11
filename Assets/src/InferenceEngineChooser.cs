@@ -4,8 +4,8 @@ public class InferenceEngineChooser : MonoBehaviour
 {
     [SerializeField] private bool overrideSelectedIESettings;
     [SerializeField] private RUN_TYPE runType;
-    [SerializeField] private bool saveRunData;
     [SerializeReference] private bool trainSingleState;
+    [SerializeField] private bool saveRunData;
     [SerializeField] private string trainingDataFileNumber;
     [SerializeField] private bool verbose = false;
     [SerializeField] private bool verboseInitialData = false;
